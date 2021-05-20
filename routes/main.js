@@ -106,6 +106,50 @@ router.get("/view/:id", (req, res) => { ///:productid
 });
 
 
+router.get('/createcourse', (req, res) => {
+	res.render('tailor/createcourse', { title: "Create Course" });
+}); 
+
+router.get('/viewcourse', (req, res) => {
+	res.render('tailor/viewcourse', { title: "View Course" });
+});  
+
+router.get('/updatecourse', (req, res) => {
+	res.render('tailor/updatecourse', { title: "Update Course" });
+});  
+
+router.get('/addcontent', (req, res) => {
+	res.render('tailor/addcontent', { title: "Course Content" });
+});  
+
+router.get('/course', (req, res) => {
+	res.render('customer/course', { title: "Course Details" });
+}); 
+
+router.get('/coursecatalogue', (req, res) => {
+	res.render('customer/coursecatalogue', { title: "View Shops - Course" });
+});
+
+router.get('/coursepayment', (req, res) => {
+	res.render('customer/coursepayment', { title: "Course Payment" });
+}); 
+
+router.get('/coursepaymentsuccessful', (req, res) => {
+	res.render('customer/coursepaymentsuccessful', { title: "Course Payment Successful" });
+}); 
+
+router.get('/educationplatform', (req, res) => {
+	res.render('customer/educationplatform', { title: "Education Platform" });
+}); 
+
+router.get('/educationplatformcontent', (req, res) => {
+	res.render('customer/educationplatformcontent', { title: "Education Platform Content" });
+}); 
+
+router.get('/tailorschedule', (req, res) => {
+	res.render('tailor/tailorschedule', { title: "Education Platform Content" });
+}); 
+
 
 
 module.exports = router;
