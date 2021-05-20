@@ -105,37 +105,59 @@ router.get("/view/:id", (req, res) => { ///:productid
 		});
 });
 
-
+// tailor: create course
 router.get('/createcourse', (req, res) => {
 	res.render('tailor/createcourse', { title: "Create Course" });
 }); 
 
+// tailor: view courses
 router.get('/viewcourse', (req, res) => {
 	res.render('tailor/viewcourse', { title: "View Course" });
 });  
 
+// tailor: update course
 router.get('/updatecourse', (req, res) => {
 	res.render('tailor/updatecourse', { title: "Update Course" });
 });  
 
+// tailor: add/delete/update course content
 router.get('/addcontent', (req, res) => {
 	res.render('tailor/addcontent', { title: "Course Content" });
 });  
 
-router.get('/course', (req, res) => {
-	res.render('customer/course', { title: "Course Details" });
+// tailor: calendar schedule
+router.get('/tailorschedule', (req, res) => {
+	res.render('tailor/tailorschedule', { title: "Education Platform Content" });
 }); 
 
+// customer: course catalogue
 router.get('/coursecatalogue', (req, res) => {
 	res.render('customer/coursecatalogue', { title: "View Shops - Course" });
 });
 
+// customer: course catalogue details
+router.get('/course', (req, res) => {
+	res.render('customer/course', { title: "Course Details" });
+}); 
+
+// customer: course cart payment
 router.get('/coursepayment', (req, res) => {
 	res.render('customer/coursepayment', { title: "Course Payment" });
 }); 
 
+// customer: course payment successful
 router.get('/coursepaymentsuccessful', (req, res) => {
 	res.render('customer/coursepaymentsuccessful', { title: "Course Payment Successful" });
+}); 
+
+// customer: education platform
+router.get('/educationplatform', (req, res) => {
+	res.render('customer/educationplatform', { title: "Education Platform" });
+}); 
+
+// customer: education platform content
+router.get('/educationplatformcontent', (req, res) => {
+	res.render('customer/educationplatformcontent', { title: "Education Platform Content" });
 }); 
 
 router.get('/educationplatform', (req, res) => {
@@ -146,9 +168,7 @@ router.get('/educationplatformcontent', (req, res) => {
 	res.render('customer/educationplatformcontent', { title: "Education Platform Content" });
 }); 
 
-router.get('/tailorschedule', (req, res) => {
-	res.render('tailor/tailorschedule', { title: "Education Platform Content" });
-}); 
+
 
 
 
