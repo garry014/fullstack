@@ -1,0 +1,56 @@
+<!doctype html>
+<html class="no-js" lang="zxx">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>{{title}}</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="/img/icon.png">
+
+    <!-- CSS
+	============================================ -->
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <!-- Icon Font CSS -->
+    <link rel="stylesheet" href="/css/icons.min.css">
+    <!-- Plugins CSS -->
+    <link rel="stylesheet" href="/css/plugins.css">
+    <!-- Main Style CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- Modernizer JS -->
+    <script src="/js/vendor/modernizr-2.8.3.min.js"></script>
+    <!-- Font Awesome Icons -->  
+    <script src="https://kit.fontawesome.com/8f1e06b39f.js" crossorigin="anonymous"></script>
+</head>
+{{#ifCond path '!=' "landing"}}
+{{>_navbar}}
+{{/ifCond}}
+<body>
+    <div style="width: 98%; margin:0 auto; font-size: 16px;">
+        {{>_flashmsg}}
+        {{>_msg}} {{!-- views/partials/_msg.handlebars --}}
+        {{>_errors}} {{!-- views/partials/_errors.handlebars --}}
+    </div>
+{{{body}}}
+
+<!-- All JS is here -->
+<!-- jQuery JS -->
+<script src="/js/vendor/jquery-v3.4.1.min.js"></script>
+<!-- Popper JS -->
+<script src="/js/popper.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="/js/bootstrap.min.js"></script>
+<!-- Plugins JS -->
+<script src="/js/plugins.js"></script>
+<!-- Ajax Mail -->
+<script src="/js/ajax-mail.js"></script>
+<!-- Main JS -->
+<script src="/js/main.js"></script>
+
+</body>
+{{>_footer}}
+</html>

@@ -1,0 +1,20 @@
+{{#if flashMessenger }}
+{{#each flashMessenger.alertsBeforeFlush}}
+<div class="alert alert-{{this.type}} {{#if this.canBeDismissed}}alertdismissible{{/if}} z-index:9999">
+    {{#if this.canBeDismissed}}
+    <a href="#" class="close" data-dismiss="alert" arialabel="close">&times;</a>
+    {{/if}}
+        {{#if this.titleIcon}}
+        <i class="{{this.titleIcon}}"></i>
+        {{/if}}
+        {{this.title}}
+    {{#if this.messages}}
+    <ol>
+        {{#each this.messages}}
+        <li>{{this}}</li>
+        {{/each}}
+    </ol>
+    {{/if}}
+</div>
+{{/each}}
+{{/if}}

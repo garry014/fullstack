@@ -1,0 +1,28 @@
+{
+  "name": "tailornow",
+  "version": "1.0.0",
+  "description": "On-demand tailoring services.",
+  "main": "app.js",
+  "scripts": {
+    "start": "start http://localhost:5000 & node app.js"
+  },
+  "keywords": [],
+  "author": "Amelia, Patrick, Gary, Kaijie, Stacey",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "^1.4.4",
+    "express": "^4.16.4",
+    "express-handlebars": "^3.0.0",
+    "express-mysql-session": "^2.1.5",
+    "express-session": "^1.15.6",
+    "flash-messenger": "^1.1.1",
+    "method-override": "^3.0.0",
+    "mysql2": "^2.2.5",
+    "nodemon": "^2.0.7",
+    "sequelize": "^6.6.2",
+    "validator": "^13.6.0"
+  },
+  "devDependencies": {}
+}

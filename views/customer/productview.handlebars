@@ -1,0 +1,206 @@
+{{#if pdetails}} 
+<div class="breadcrumb-area pt-35 pb-35 bg-gray-3">
+    <div class="container">
+
+        <div class="breadcrumb-content text-center">
+            <ul>
+                <li>
+                    <a href="index.html">Home</a>
+                </li>
+                <li>
+                    <a href="">View Shop</a>
+                </li>
+                <li>
+                    <a href="">{{pdetails.storename}}</a>
+                </li>
+                <li class="active">{{ pdetails.name }}</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="shop-area pt-100 pb-100">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-md-6">
+                <a href=""><i class="pe-7s-chat"></i> Seek help from {{ pdetails.storename }}</a>
+                <div class="product-details dec-img-wrap">
+                    <img src="/uploads/products/1.jpg" alt="">
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6">
+                <div class="product-details-content ml-70">
+                    <h2>{{ pdetails.name }}</h2>
+                    <div class="product-details-price">
+                        {{#ifCond pdetails.price '==' discprice}}
+                            <span>$ {{ money2dp pdetails.price }} </span>
+                        {{else}}
+                            <span>$ {{ money2dp discprice }}</span>
+                            <span class="old">$ {{ money2dp pdetails.price }}</span>
+                        {{/ifCond}}
+                            
+                        
+                    </div>
+                    <div class="pro-details-rating-wrap">
+                        3.0 stars <span class="fa fa-star" style="color: orange;"></span><span class="fa fa-star" style="color: orange;"></span><span class="fa fa-star" style="color: orange;"></span><span class="fa fa-star"></span><span class="fa fa-star"></span>
+                        
+                    </div>
+                    <div class="pro-details-list">
+                        {{ pdetails.description }}
+                    </div>
+
+                    <form class="contact-form-style" id="my_form" action="" method="post">
+                        <div class="pro-details-size-color  ">
+                            <div class="pro-details-color-wrap">
+                            <span>Suit Colour</span>
+                                <div class="pro-details-color-content">
+                                    <select id="custom" name="custom" required="">
+                                        <option value=""></option>
+                                        
+                                        <option value="Blue">Blue</option>
+                                        
+                                        <option value="Black">Black</option>
+                                        
+                                        <option value="Grey">Grey</option>
+                                        
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pro-details-quality">
+                            <div class="cart-plus-minus">
+                                <input class="cart-plus-minus-box" type="text" name="qty" value="1" required>
+                            </div>
+                            <div class="pro-details-cart btn-hover">
+                                <a href="javascript:{}" onclick="document.getElementById('my_form').submit(); return false;">Add To Cart</a>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="pro-details-meta">
+                        <span></span>
+
+                    </div>
+                    <div class="pro-details-social">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="description-review-area pb-90">
+    <div class="container">
+        <div class="description-review-wrapper">
+            <div class="description-review-topbar nav">
+                <a class="active" data-toggle="tab" href="#des-details3">Reviews</a>
+            </div>
+            <div class="tab-content description-review-bottom">
+                <div id="des-details2" class="tab-pane active">
+                    <div class="product-description-wrapper">
+                        <p></p>
+                    </div>
+                </div>
+                <div id="des-details1" class="tab-pane ">
+                    <div class="product-anotherinfo-wrapper">
+                        <ul>
+                            <li><span>Languages Available</span></li>
+                            <li><span>Day of Live Course</span></li>
+                            <li><span>Materials</span> </li>
+                        </ul>
+                    </div>
+                </div>
+                <div id="des-details3" class="tab-pane active">
+                    <div class="row">
+                        <div class="col-lg-8" style="margin: 0 auto;">
+                            <div class="review-wrapper">
+                                <a href="/review">Click here to leave a review</a>
+                                <br><br>
+                                <div class="single-review">
+                                    <div class="review-content">
+                                        <div class="review-top-wrap">
+                                            <div class="review-left">
+                                                <div class="review-name">
+                                                    <h4>ImASnack</h4>
+                                                </div>
+                                                <div class="review-rating">
+                                                    
+                                                        <span class="fa fa-star" style="color: orange;"></span>
+                                                        <span class="fa fa-star" style="color: orange;"></span>
+                                                        <span class="fa fa-star" style="color: orange;"></span>
+                                                        <span class="fa fa-star"></span>
+                                                        <span class="fa fa-star"></span>
+                                                    
+                                                </div>
+                                                <a href=""><i class="fa fa-pencil" title="Update this Review"></i></a>
+                                            </div>
+                                            <div class="review-left">
+                                                <a href="/deleteReview/Ah%20Tong%20Tailor/0/1"><i class="fa fa-times" title="Delete this Review"></i></a>
+                                            </div>
+                                        </div>
+                                        <div class="review-bottom">
+                                            test 123 45678 this product swee chai butterfly. Best in the world lah. you know no one can compare.
+                                            <a href=""><img src="/uploads/products/1.jpg" width="auto" height="120"></a>
+                                            
+                                        </div>
+                                        <div class="review-bottom" style="font-size:10px">
+                                            17 May 07:22PM
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="myModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title">Delete Confirmation</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+          <a href=""><img src="" alt="" width="200" height="121"></a><br>
+        Are you sure you want to delete  advertisement from
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+       <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" value="Delete" class="btn btn-danger">Delete</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+ $('#myModal').modal('show');
+</script>
+
+
+
+<script>
+    function scroll_to(div){
+       if (div.scrollTop < div.scrollHeight - div.clientHeight)
+            div.scrollTop += 10; // move down
+    }
+</script>
+
+{{else}} 
+    <br>
+    <h3>We could not find a related product, please click through the proper links, thanks!</h3>
+    <br>
+{{/if}}

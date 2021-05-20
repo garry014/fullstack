@@ -1,0 +1,203 @@
+<div class="breadcrumb-area pt-35 pb-35 bg-gray-3">
+    <div class="container">
+        <div class="breadcrumb-content text-center">
+            <ul>
+                <li>
+                    <a href="/homecust">Home</a>
+                </li>
+                <li>
+                    <a href="/viewshops">View Shops</a>
+                </li>
+                <li class="active">Ah Tong Tailor</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="shop-area pt-95 pb-100">
+    <div class="container">
+        <div class="row flex-row-reverse">
+            <div class="col-lg-12">
+                <div class="shop-top-bar mb-35">
+                    <div class="select-shoing-wrap">
+                        <p>Showing 1–3 of 3 result(s)</p>
+                    </div>
+                    <div class="filter">
+                        {{#ifCond user_status '!=' "tailor"}}
+                        <a href=""><i class="pe-7s-chat"></i> Seek help from Ah Tong Tailor</a>
+                        {{/ifCond}}
+                    </div>
+                </div>
+                
+                <div class="shop-bottom-area">
+                    <div class="row">
+                        <!--Start of Product List -->
+                        <div class="col-xl-4 col-md-6 col-lg-4 col-sm-6">
+                            <div class="product-wrap mb-25 scroll-zoom">
+                                <div class="product-img">
+                                    <a href="">
+                                        <img class="default-img" src="/uploads/products/1.jpg" alt="">
+                                        <img class="hover-img" src="/uploads/products/1.jpg" alt="">
+                                    </a>
+                                    <span class="pink">-30%</span>
+                                    <div class="product-action">
+                                        {{#ifCond user_status '==' "tailor"}}
+                                        <div class="pro-same-action pro-quickview" style="width:50%;">
+                                            <a href=""><i class="fa fa-pencil"></i> Edit Item</a>
+                                        </div>
+                                        <div class="pro-same-action pro-wishlist" style="width:50%;">
+                                            <a href="#myModal_1" data-toggle="modal" data-target="#myModal_1"><i class="fa fa-trash-o"></i> Delete</a>
+                                        </div>
+                                        {{/ifCond}}
+                                        <div class="pro-same-action pro-cart" style="width:100%;">
+                                            <a href="/view/1"><i class="fa fa-info"></i> View Item</a>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="product-content text-center">
+                                    <h3><a href="">Customised Suit</a></h3>
+                                    <div class="product-rating">
+                                        <span class="fa fa-star" style="color: orange;"></span><span class="fa fa-star" style="color: orange;"></span><span class="fa fa-star" style="color: orange;"></span><span class="fa fa-star"></span><span class="fa fa-star"></span>
+                                        3 stars
+                                    </div>
+                                    <div class="product-price">
+                                        <span>$ 147</span>
+                                        <span class="old">$ 210</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ###################################Start of rubbish display############################# -->
+                        <div class="col-xl-4 col-md-6 col-lg-4 col-sm-6">
+                            <div class="product-wrap mb-25 scroll-zoom">
+                                <div class="product-img">
+                                    <a href="">
+                                        <img class="default-img" src="/uploads/products/2.png" alt="">
+                                        <img class="hover-img" src="/uploads/products/2.png" alt="">
+                                    </a>
+                                    <span class="pink">-30%</span>
+                                    <div class="product-action">
+                                        {{#ifCond user_status '==' "tailor"}}
+                                        <div class="pro-same-action pro-quickview" style="width:50%;">
+                                            <a href=""><i class="fa fa-pencil"></i> Edit Item</a>
+                                        </div>
+                                        <div class="pro-same-action pro-wishlist" style="width:50%;">
+                                            <a href="#myModal_1" data-toggle="modal" data-target="#myModal_1"><i class="fa fa-trash-o"></i> Delete</a>
+                                        </div>
+                                        {{/ifCond}}
+                                        <div class="pro-same-action pro-cart" style="width:100%;">
+                                            <a href="/view/1"><i class="fa fa-info"></i> View Item</a>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="product-content text-center">
+                                    <h3><a href="">Tapering of Width</a></h3>
+                                    <div class="product-rating">
+                                        No reviews yet.
+                                    </div>
+                                    <div class="product-price">
+                                        <span>$ 8.40</span>
+                                        <span class="old">$ 12.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-md-6 col-lg-4 col-sm-6">
+                            <div class="product-wrap mb-25 scroll-zoom">
+                                <div class="product-img">
+                                    <a href="">
+                                        <img class="default-img" src="/uploads/products/3.jpg" alt="">
+                                        <img class="hover-img" src="/uploads/products/3.jpg" alt="">
+                                    </a>
+                                    <div class="product-action">
+                                        {{#ifCond user_status '==' "tailor"}}
+                                        <div class="pro-same-action pro-quickview" style="width:50%;">
+                                            <a href=""><i class="fa fa-pencil"></i> Edit Item</a>
+                                        </div>
+                                        <div class="pro-same-action pro-wishlist" style="width:50%;">
+                                            <a href="#myModal_1" data-toggle="modal" data-target="#myModal_1"><i class="fa fa-trash-o"></i> Delete</a>
+                                        </div>
+                                        {{/ifCond}}
+                                        <div class="pro-same-action pro-cart" style="width:100%;">
+                                            <a href="/view/1"><i class="fa fa-info"></i> View Item</a>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="product-content text-center">
+                                    <h3><a href="">Premium Sewing Kit</a></h3>
+                                    <div class="product-rating">
+                                        No reviews yet.
+                                    </div>
+                                    <div class="product-price">
+                                        <span>$ 10.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- End of rubbish -->
+                    </div>
+
+
+                    <div class="pro-pagination-style text-center mt-30">
+                        <ul>
+                            <li><a class="prev" href="1"><i class="fa fa-angle-double-left"></i></a></li>
+                            <li><a class="active" href="2">1</a></li>
+                            <li><a href="">2</a></li>
+                            <li><a class="next" href="2"><i class="fa fa-angle-double-right"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<form method="POST" action="" style="display: inline-block;">
+    <!-- The Modal -->
+    <div class="modal" id="myModal_1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+
+          <!-- Modal Header -->
+          <div class="modal-header">
+                <h4 class="modal-title">Delete Confirmation</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+
+          <!-- Modal body -->
+          <div class="modal-body">
+            Are you sure you want to delete Customised Suit?
+          </div>
+
+          <!-- Modal footer -->
+          <div class="modal-footer">
+           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+              <button type="submit" value="Delete" class="btn btn-danger">Delete</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+</form>
+
+
+<script>
+    window.onload = function(e){
+      $('[for="qtybutton"]').css('display','none');
+    }
+
+    $.ajax({
+        url: window.location.href,
+        headers: {
+            "Pragma": "no-cache",
+            "Expires": -1,
+            "Cache-Control": "no-cache"
+        }
+    }).done(function () {
+        window.location.reload(true);
+    });
+</script>

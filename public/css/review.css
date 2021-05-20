@@ -1,0 +1,16 @@
+.wrapper {
+  display: inline-block;
+}
+.wrapper * {
+  float: right;
+}
+input {
+  display: none;
+}
+.wrapper > label {
+  font-size: 30px;
+}
+
+input:checked ~ label {
+  color: red;
+}
