@@ -21,7 +21,7 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 router.get('/', (req, res) => {
 	const title = 'TailorNow Home';
-	res.render('mainselection', { title: title, path:"landing"})
+	res.render('mainselection', { title: title, path: "landing" })
 });
 
 router.get('/homecust', (req, res) => {
@@ -50,7 +50,7 @@ router.get('/view/storename', (req, res) => {
 
 // Customer Notifications
 router.get('/notification', (req, res) => {
-	res.render('user/allnotifications', { title: "View all notifications"});
+	res.render('user/allnotifications', { title: "View all notifications" });
 });
 
 // Customer: Review
@@ -75,10 +75,10 @@ router.get("/view/:id", (req, res) => { ///:productid
 		raw: true
 	})
 		.then(pdetails => {
-			if(pdetails){
+			if (pdetails) {
 				console.log(pdetails);
 				var getDetails = pdetails;
-				var discprice = getDetails['price'] * (1-(getDetails['discount']/100)); // after discount price
+				var discprice = getDetails['price'] * (1 - (getDetails['discount'] / 100)); // after discount price
 				// Patrick if you need any values from my side
 				// ALL THESE IS WHAT I HAVE: storename, name, price, image, description, discount, custom, customchoices
 				// console.log('Example of product name ' + getDetails['name']); 
@@ -95,7 +95,7 @@ router.get("/view/:id", (req, res) => { ///:productid
 					discprice: discprice
 				});
 			}
-			else{
+			else {
 				return res.redirect('/404');
 			}
 
@@ -108,27 +108,27 @@ router.get("/view/:id", (req, res) => { ///:productid
 // tailor: create course
 router.get('/createcourse', (req, res) => {
 	res.render('tailor/createcourse', { title: "Create Course" });
-}); 
+});
 
 // tailor: view courses
 router.get('/viewcourse', (req, res) => {
 	res.render('tailor/viewcourse', { title: "View Course" });
-});  
+});
 
 // tailor: update course
 router.get('/updatecourse', (req, res) => {
 	res.render('tailor/updatecourse', { title: "Update Course" });
-});  
+});
 
 // tailor: add/delete/update course content
 router.get('/addcontent', (req, res) => {
 	res.render('tailor/addcontent', { title: "Course Content" });
-});  
+});
 
 // tailor: calendar schedule
 router.get('/tailorschedule', (req, res) => {
 	res.render('tailor/tailorschedule', { title: "Education Platform Content" });
-}); 
+});
 
 // customer: course catalogue
 router.get('/coursecatalogue', (req, res) => {
@@ -138,35 +138,35 @@ router.get('/coursecatalogue', (req, res) => {
 // customer: course catalogue details
 router.get('/course', (req, res) => {
 	res.render('customer/course', { title: "Course Details" });
-}); 
+});
 
 // customer: course cart payment
 router.get('/coursepayment', (req, res) => {
 	res.render('customer/coursepayment', { title: "Course Payment" });
-}); 
+});
 
 // customer: course payment successful
 router.get('/coursepaymentsuccessful', (req, res) => {
 	res.render('customer/coursepaymentsuccessful', { title: "Course Payment Successful" });
-}); 
+});
 
 // customer: education platform
 router.get('/educationplatform', (req, res) => {
 	res.render('customer/educationplatform', { title: "Education Platform" });
-}); 
+});
 
 // customer: education platform content
 router.get('/educationplatformcontent', (req, res) => {
 	res.render('customer/educationplatformcontent', { title: "Education Platform Content" });
-}); 
+});
 
 router.get('/educationplatform', (req, res) => {
 	res.render('customer/educationplatform', { title: "Education Platform" });
-}); 
+});
 
 router.get('/educationplatformcontent', (req, res) => {
 	res.render('customer/educationplatformcontent', { title: "Education Platform Content" });
-}); 
+});
 
 router.get('/custregister', (req, res) => {
 	res.render('customer/custregister');
@@ -177,10 +177,20 @@ router.get('/custregcomplete', (req, res) => {
 });
 
 router.get('/custlogin', (req, res) => {
+	alertMessage(res, 'success',
+		'You have logged in successfully!', 'fas fa-sign-in-alt', true);
+	alertMessage(res, 'danger',
+		'Login was unsuccessful. Please try again! ', 'fas fa-exclamation-circle', false);
 	res.render('customer/custlogin');
 });
 
 router.get('/custaccount', (req, res) => {
+	alertMessage(res, 'success',
+		'You have updated your account details successfully!', 'fas fa-sign-in-alt', true);
+		alertMessage(res, 'danger',
+		'Something went wrong. Please try again! ', 'fas fa-exclamation-circle', false);
+		alertMessage(res, 'success',
+		'You have updated your password successfully!', 'fas fa-sign-in-alt', true);
 	res.render('customer/custacct');
 });
 
@@ -193,11 +203,23 @@ router.get('/rideregcomplete', (req, res) => {
 });
 
 router.get('/riderlogin', (req, res) => {
+	alertMessage(res, 'success',
+		'You have logged in successfully!', 'fas fa-sign-in-alt', true);
+	alertMessage(res, 'danger',
+		'Login was unsuccessful. Please try again! ', 'fas fa-exclamation-circle', false);
 	res.render('rider/riderlogin');
 });
 
 router.get('/rideraccount', (req, res) => {
-	res.render('rider/rideracct');
+	alertMessage(res, 'success',
+		'You have updated your account details successfully!', 'fas fa-sign-in-alt', true);
+		alertMessage(res, 'danger',
+		'Something went wrong. Please try again! ', 'fas fa-exclamation-circle', false);
+		alertMessage(res, 'success',
+		'You have updated your password successfully!', 'fas fa-sign-in-alt', true);
+		let error_msg = 'Your passwords do not match please try again later!';
+
+	res.render('rider/rideracct', {error_msg: error_msg});
 });
 
 router.get('/homerider', (req, res) => {
@@ -229,10 +251,18 @@ router.get('/riderhist', (req, res) => {
 });
 
 router.get('/rwalletransfer', (req, res) => {
-	res.render('rider/rwalletransfer');
+	let success_msg = 'You have successfully transferred SGD$10.00 to your card.';
+	alertMessage(res, 'danger',
+		'You have insufficient funds to transfer. Please try again later.', 'fas fa-exclamation-circle', false);
+	res.render('rider/rwalletransfer', 
+	{success_msg: success_msg});
 });
 
 router.get('/tailorlogin', (req, res) => {
+	alertMessage(res, 'success',
+		'You have logged in successfully!', 'fas fa-sign-in-alt', true);
+	alertMessage(res, 'danger',
+		'Login was unsuccessful. Please try again! ', 'fas fa-exclamation-circle', false);
 	res.render('tailor/tailorlogin');
 });
 
@@ -249,6 +279,12 @@ router.get('/hometailor', (req, res) => {
 });
 
 router.get('/tailoraccount', (req, res) => {
+	alertMessage(res, 'success',
+		'You have updated your account details successfully!', 'fas fa-sign-in-alt', true);
+		alertMessage(res, 'danger',
+		'Something went wrong. Please try again! ', 'fas fa-exclamation-circle', false);
+		alertMessage(res, 'success',
+		'You have updated your password successfully!', 'fas fa-sign-in-alt', true);
 	res.render('tailor/tailoracct');
 });
 
