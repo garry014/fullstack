@@ -244,6 +244,10 @@ router.get('/tailoregcomplete', (req, res) => {
 	res.render('tailor/tailoregcomplete');
 });
 
+router.get('/hometailor', (req, res) => {
+	res.render('tailor/hometailor');
+});
+
 router.get('/tailoraccount', (req, res) => {
 	res.render('tailor/tailoracct');
 });
