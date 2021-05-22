@@ -172,6 +172,10 @@ router.get('/custregister', (req, res) => {
 	res.render('customer/custregister');
 });
 
+router.get('/custregcomplete', (req, res) => {
+	res.render('customer/custregcomplete');
+});
+
 router.get('/custlogin', (req, res) => {
 	res.render('customer/custlogin');
 });
@@ -184,6 +188,10 @@ router.get('/rideregister', (req, res) => {
 	res.render('rider/rideregister');
 });
 
+router.get('/rideregcomplete', (req, res) => {
+	res.render('rider/rideregcomplete');
+});
+
 router.get('/riderlogin', (req, res) => {
 	res.render('rider/riderlogin');
 });
@@ -192,12 +200,48 @@ router.get('/rideraccount', (req, res) => {
 	res.render('rider/rideracct');
 });
 
+router.get('/homerider', (req, res) => {
+	res.render('rider/homerider');
+});
+
+router.get('/rordersmain', (req, res) => {
+	res.render('rider/rordersmain');
+});
+
+router.get('/rordersdetails', (req, res) => {
+	res.render('rider/rorderdetails');
+});
+
+router.get('/racceptorder', (req, res) => {
+	res.render('rider/racceptorder');
+});
+
+router.get('/rideroutecheck', (req, res) => {
+	res.render('rider/rideroutecheck');
+});
+
+router.get('/rordercompleted', (req, res) => {
+	res.render('rider/rordercompleted');
+});
+
+router.get('/riderhist', (req, res) => {
+	res.render('rider/rorderhist');
+});
+
+router.get('/rwalletransfer', (req, res) => {
+	res.render('rider/rwalletransfer');
+});
+
 router.get('/tailorlogin', (req, res) => {
 	res.render('tailor/tailorlogin');
 });
 
 router.get('/tailoregister', (req, res) => {
 	res.render('tailor/tailoregister');
+});
+
+router.get('/tailoregcomplete', (req, res) => {
+	res.render('tailor/tailoregcomplete');
 });
 
 router.get('/tailoraccount', (req, res) => {
