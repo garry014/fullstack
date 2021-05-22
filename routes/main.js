@@ -21,9 +21,8 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 router.get('/', (req, res) => {
 	const title = 'TailorNow Home';
-	res.render('Main_Selection', { title: title, path:"landing"})
+	res.render('mainselection', { title: title, path:"landing"})
 });
-
 
 router.get('/homecust', (req, res) => {
 	const title = 'TailorNow Home';
