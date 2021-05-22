@@ -191,7 +191,8 @@ router.get('/custaccount', (req, res) => {
 		'Something went wrong. Please try again! ', 'fas fa-exclamation-circle', false);
 		alertMessage(res, 'success',
 		'You have updated your password successfully!', 'fas fa-sign-in-alt', true);
-	res.render('customer/custacct');
+		let error_msg = 'Your passwords do not match please try again later!';
+	res.render('customer/custacct', {error_msg: error_msg});
 });
 
 router.get('/rideregister', (req, res) => {
@@ -285,7 +286,8 @@ router.get('/tailoraccount', (req, res) => {
 		'Something went wrong. Please try again! ', 'fas fa-exclamation-circle', false);
 		alertMessage(res, 'success',
 		'You have updated your password successfully!', 'fas fa-sign-in-alt', true);
-	res.render('tailor/tailoracct');
+		let error_msg = 'Your passwords do not match please try again later!';
+	res.render('tailor/tailoracct', {error_msg: error_msg});
 });
 
 
