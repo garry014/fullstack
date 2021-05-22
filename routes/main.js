@@ -168,6 +168,43 @@ router.get('/educationplatformcontent', (req, res) => {
 	res.render('customer/educationplatformcontent', { title: "Education Platform Content" });
 }); 
 
+router.get('/custregister', (req, res) => {
+	res.render('customer/custregister');
+});
+
+router.get('/custlogin', (req, res) => {
+	res.render('customer/custlogin');
+});
+
+router.get('/custaccount', (req, res) => {
+	res.render('customer/custacct');
+});
+
+router.get('/rideregister', (req, res) => {
+	res.render('rider/rideregister');
+});
+
+router.get('/riderlogin', (req, res) => {
+	res.render('rider/riderlogin');
+});
+
+router.get('/rideraccount', (req, res) => {
+	res.render('rider/rideracct');
+});
+
+router.get('/tailorlogin', (req, res) => {
+	res.render('tailor/tailorlogin');
+});
+
+router.get('/tailoregister', (req, res) => {
+	res.render('tailor/tailoregister');
+});
+
+router.get('/tailoraccount', (req, res) => {
+	res.render('tailor/tailoracct');
+});
+
+
 
 
 

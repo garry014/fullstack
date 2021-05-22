@@ -1,0 +1,88 @@
+<div class="breadcrumb-area pt-35 pb-35 bg-gray-3">
+	<div class="container">
+		<div class="breadcrumb-content text-center">
+			<ul>
+				<li>
+					<a href="index.html">Home</a>
+				</li>
+				<li class="active"> Register Tailor </li>
+			</ul>
+		</div>
+	</div>
+</div>
+<div class="login-register-area pt-100 pb-100">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-7 col-md-12 ml-auto mr-auto">
+				<div class="login-register-wrapper">
+					<div class="login-register-tab-list nav">
+						<a data-toggle="tab" href="#lg2">
+							<h4> Register Tailor </h4>
+						</a>
+					</div>
+					<div id="lg2" class="tab-pane">
+						<div class="login-form-container">
+							<div class="login-register-form">
+								<form method="POST" action="">
+                                       <div class="row">
+                                            <div class="col-lg-6 col-md-6">
+                                                <div class="form-group">
+                                                <input type="text" name="first-name" placeholder="First Name" value="{{request.form.firstname }}">
+                                            </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6">
+                                                <div class="form-group">
+                                                <input type="text" name="last-name" placeholder="Last Name" value="{{request.form.lastname }}">
+                                            </div>
+                                       </div>
+                                       </div>
+                                      <div class="form-group">
+                                        <input type="text" name="user-name" placeholder="User Name" value="{{request.form.username }}">
+                                      </div>
+                                      <div class="form-group">
+                                        <input type="text" name="password" placeholder="Password" value="{{request.form.password }}">
+                                      </div>
+                                      <div class="form-group">
+                                        <input type="text" name="store-name" placeholder="Store Name" value="{{request.form.storename }}">
+                                      </div>
+                                       <div class="form-group">
+                                        <input type="text" name="address1" placeholder="Address Line 1" value="{{request.form.address }}">
+                                      </div>
+                                        <div class="form-group">
+                                        <input type="text" name="address2" placeholder="Address Line 2" value="{{request.form.address2 }}">
+                                      </div>
+									  <div class="row">
+											<div class="col-lg-6 col-md-6">
+                                                <div class="form-group">
+                                                <input type="text" name="city" placeholder="City" value="{{request.form.city }}">
+                                            </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6">
+                                                <div class="form-group">
+                                                <input type="text" name="postal-code" placeholder="Postal Code" value="{{request.form.postalcode }}">
+                                            </div>
+                                       </div>
+                                       </div>
+                                        <div class="form-group">
+                                        <input type="text" name="email" placeholder="Email" value="{{request.form.email }}">
+                                      </div>
+                                       <div class="form-group">
+                                        <input type="text" name="phone-number" placeholder="Phone Number" value="{{request.form.phonenumber}}">
+                                       </div>
+                                       <div class="button-box">
+                                           <button type="submit"><span>Register</span></button>
+                                       </div>
+                                   </form>
+							</div>
+						</div>
+					</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+</div>
+</div>
+</div>
