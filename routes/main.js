@@ -21,8 +21,9 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 router.get('/', (req, res) => {
 	const title = 'TailorNow Home';
-	res.render('homecust', { title: title })
+	res.render('Main_Selection', { title: title, path:"landing"})
 });
+
 
 router.get('/homecust', (req, res) => {
 	const title = 'TailorNow Home';
@@ -167,6 +168,8 @@ router.get('/educationplatform', (req, res) => {
 router.get('/educationplatformcontent', (req, res) => {
 	res.render('customer/educationplatformcontent', { title: "Education Platform Content" });
 }); 
+
+
 
 
 
