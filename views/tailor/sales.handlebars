@@ -1,0 +1,190 @@
+
+<div class="login-register-area pt-40 pb-0">
+    <div class="col-lg-7 col-md-12 ml-auto mr-auto">
+        <div class="login-register-wrapper">
+            <div class="login-register-tab-list nav">
+                <h3 style="font-weight: bold"> Sales </h3>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="cart-main-area pt-0 pb-100">
+    <div class="container" style="width: 50%;">
+        <div class="login-register-wrapper">
+            <div id="lg2" class="tab-pane">
+                <div class="login-form-container">
+                    <div class="login-register-form" style="text-align: center">
+                        <form action="#" method="post">                
+                            <h5 style="font-weight: bold; position: relative;">Target: $2300</h5>                
+                            <canvas id="myDoughnutChart"></canvas>
+                            <h5 id="month" style="font-weight: bold; position: relative; top: 10px"></h5>
+                            <div class="button-box" style="position: relative; top: 10px">
+                                <br>
+                                <a href="/target" type="button" class="btn btn-outline-info"
+                                    style="font-size: 14px; font-weight: 420; padding-top: 8px; padding-bottom: 8px;padding-left: 28px; padding-right: 28px">CHANGE
+                                    TARGET</a>
+
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="container" style="position: relative; height:80vh; width:70vw">
+        <canvas id="myChart"></canvas>
+    </div>
+</div>
+
+<script>
+    $.ajax({
+        url: window.location.href,
+        headers: {
+            "Pragma": "no-cache",
+            "Expires": -1,
+            "Cache-Control": "no-cache"
+        }
+    }).done(function () {
+        window.location.reload(true);
+    });
+</script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" integrity="sha512-d9xgZrVZpmmQlfonhQUvTR7lMPtO7NkZMkA0ABN3PHCbKA5nqylQ/yWlFAyY6hYgdF1Qh6nYiuADWwKB4C2WSw==" crossorigin="anonymous"></script>
+<script>
+var ctx = document.getElementById('myChart');
+var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        datasets: [{
+            label: 'Amount of money earned',
+            data: [1165, 2481, 2596, 2089, 1935, 1904, 2037, 2217, 2345, 2386, 2282, 2122],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)',
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)',
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)',
+            ],
+            borderWidth: 1
+    }]
+    },
+    options: {
+        responsive: true,
+            maintainAspectRatio: false,
+                scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        }
+    }
+});
+
+</script>
+<script>
+var ctx = document.getElementById("myDoughnutChart");
+var myDoughnutChart = new Chart(ctx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Sales', 'Left'],
+    datasets: [{
+      label: 'No. of Sales',
+      data: ['1165', '1135'],
+      backgroundColor: [
+        'rgba(54, 162, 235, 0.2)',
+        'rgba(255, 99, 132, 0.5)',
+        'rgba(255, 206, 86, 0.2)',
+        'rgba(75, 192, 192, 0.2)'
+      ],
+      borderColor: [
+        'rgba(54, 162, 235, 1)',
+        'rgba(255,99,132,1)',
+        'rgba(255, 206, 86, 1)',
+        'rgba(75, 192, 192, 1)'
+      ],
+      borderWidth: 1
+    }]
+  },
+  options: {
+   	cutoutPercentage: 50,
+    responsive: false,
+        layout: {
+            padding: {
+                left: 100,
+                right: -40,
+                top: 0,
+                bottom: 0
+            }
+        }
+  }
+});
+</script>
+<script>
+    function printdate() {
+        var month = new Date().getMonth()
+        if (month == 0) {
+            month = "January"
+        }
+        else if (month == 1) {
+            month = "February"
+        }
+        else if (month == 2) {
+            month = "March"
+        }
+        else if (month == 3) {
+            month = "April"
+        }
+        else if (month == 4) {
+            month = "May"
+        }
+        else if (month == 5) {
+            month = "June"
+        }
+        else if (month == 6) {
+            month = "July"
+        }
+        else if (month == 7) {
+            month = "August"
+        }
+        else if (month == 8) {
+            month = "September"
+        }
+        else if (month == 9) {
+            month = "October"
+        }
+        else if (month == 10) {
+            month = "November"
+        }
+        else if (month == 11) {
+            month = "December"
+        }
+        document.getElementById("month").innerHTML = month;
+    }
+    printdate();
+
+</script>
