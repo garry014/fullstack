@@ -57,6 +57,18 @@ router.get('/notification', (req, res) => {
 router.get('/review', (req, res) => {
 	res.render('customer/review');
 });
+// Customer : reward page
+router.get('/rewardpage',(req,res)=>{
+	res.render('customer/rewardpage',{title:"Rewards"})
+})
+// Customer : checkout page
+router.get('/customers_checkout',(req,res)=>{
+	res.render('customer/customers_checkout', {title : "customers_checkout"})
+})
+// Customer : after transaction page
+router.get('/transaction_complete',(req,res)=>{
+	res.render('customer/transaction_complete',{title : "transaction_complete"})
+})
 
 // FOR DESIGNING PURPOSES ONLY
 router.get('/design', (req, res) => {
@@ -129,6 +141,15 @@ router.get('/addcontent', (req, res) => {
 router.get('/tailorschedule', (req, res) => {
 	res.render('tailor/tailorschedule', { title: "Education Platform Content" });
 });
+// tailor : manage advertisement
+router.get('/manageads',(req,res)=>{
+	res.render('tailor/manageads',{title: "manageads"})
+})
+// tailor : advertising 
+router.get('/advertise',(req,res)=>{
+	res.render('tailor/advertise',{title:"advertise"})
+})
+
 
 // customer: course catalogue
 router.get('/coursecatalogue', (req, res) => {
