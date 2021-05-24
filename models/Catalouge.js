@@ -22,17 +22,11 @@ const Catalouge = db.define('catalouge', {
     discount: {
         type: Sequelize.DOUBLE
     },
-    custom: {
-        type: Sequelize.STRING(1000),
-        get() {
-            return this.getDataValue('custom').split(';');
-        },
-        set(val) {
-            this.setDataValue('custom', val.join(';'));
-        },
+    customqn: {
+        type: Sequelize.STRING(250),
     },
-    customchoices: {
-        type: Sequelize.STRING(1000)
+    customcat: {
+        type: Sequelize.STRING(8)
     },
 });
 module.exports = Catalouge;

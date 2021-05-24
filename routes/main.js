@@ -55,7 +55,7 @@ router.get('/notification', (req, res) => {
 
 // Customer: Review
 router.get('/review', (req, res) => {
-	res.render('customer/review');
+	res.render('customer/review', { title: "Leave a review" });
 });
 // Customer : reward page
 router.get('/rewardpage',(req,res)=>{
@@ -96,11 +96,7 @@ router.get("/view/:id", (req, res) => { ///:productid
 				// console.log('Example of product name ' + getDetails['name']); 
 
 				// Bug here: cannot run on id that does nt exists.
-				const custom = getDetails['custom'].split(';');
-				const customchoices = [];
-				if (custom[1] == "radiobtn") {
-					customchoices = getDetails['customchoices'].split(';');
-				}
+				
 
 				res.render('customer/productview', {
 					pdetails: getDetails,

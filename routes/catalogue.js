@@ -3,6 +3,7 @@ const router = express.Router();
 var validator = require('validator');
 var bodyParser = require('body-parser');
 const Catalouge = require('../models/Catalouge');
+const Productchoices = require('../models/Productchoices');
 
 ///////// Cant get it to work, copy n paste if theres a fix from main.js / /////////////
 
@@ -21,7 +22,7 @@ router.post('/addproduct', urlencodedParser, (req, res) => {
 
 	// Not working shit - Array cant be directly placed into get/set funcs
 	// Change to relational db instead
-	var q1choices_array = [];
+	var q1choices_array = ['black', 'blue'];
 	let q1choices = "";
 	if (q1category == "radiobtn") {
 		// Check if there's at least 2 choices
@@ -46,14 +47,24 @@ router.post('/addproduct', urlencodedParser, (req, res) => {
 				image: '1.png',
 				description: description,
 				discount: discount,
-				custom: [question, q1category],
-				customchoices: 'Black'
+				customqn: question,
+				customcat: q1category
 			})
-			.then(result => res.redirect('/view/'+ result.id))
-			// .then(() => {
-			// 	// DATA SAVED
-			// 	return res.redirect('/view/1');
-			// })
+			.then(result => {
+				let cataid = result.id;
+				if (q1category == "radiobtn"){
+					q1choices_array.forEach(c => {
+						// console.log(element);
+						console.log("here:"+ cataid);
+						Productchoices.create({
+							choice: c,
+							catalougeId: cataid
+						})
+						
+					})
+				}
+				res.redirect('/view/'+ result.id);
+			})
 			.catch(err => {
 				console.error('Unable to connect to the database:', err);
 			});
