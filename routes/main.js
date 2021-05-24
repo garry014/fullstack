@@ -188,15 +188,15 @@ router.get('/educationplatform', (req, res) => {
 router.get('/educationplatformcontent', (req, res) => {
 	res.render('customer/educationplatformcontent', { title: "Education Platform Content" });
 });
-
+// customer: register 
 router.get('/custregister', (req, res) => {
 	res.render('customer/custregister');
 });
-
+// customer: registration complete 
 router.get('/custregcomplete', (req, res) => {
 	res.render('customer/custregcomplete');
 });
-
+// customer: login page 
 router.get('/custlogin', (req, res) => {
 	alertMessage(res, 'success',
 		'You have logged in successfully!', 'fas fa-sign-in-alt', true);
@@ -204,7 +204,7 @@ router.get('/custlogin', (req, res) => {
 		'Login was unsuccessful. Please try again! ', 'fas fa-exclamation-circle', false);
 	res.render('customer/custlogin');
 });
-
+// customer: account page 
 router.get('/custaccount', (req, res) => {
 	alertMessage(res, 'success',
 		'You have updated your account details successfully!', 'fas fa-sign-in-alt', true);
@@ -215,15 +215,15 @@ router.get('/custaccount', (req, res) => {
 		let error_msg = 'Your passwords do not match please try again later!';
 	res.render('customer/custacct', {error_msg: error_msg});
 });
-
+// riders: register page 
 router.get('/rideregister', (req, res) => {
 	res.render('rider/rideregister');
 });
-
+// riders: registration complete page
 router.get('/rideregcomplete', (req, res) => {
 	res.render('rider/rideregcomplete');
 });
-
+// riders: login page 
 router.get('/riderlogin', (req, res) => {
 	alertMessage(res, 'success',
 		'You have logged in successfully!', 'fas fa-sign-in-alt', true);
@@ -231,7 +231,7 @@ router.get('/riderlogin', (req, res) => {
 		'Login was unsuccessful. Please try again! ', 'fas fa-exclamation-circle', false);
 	res.render('rider/riderlogin');
 });
-
+// riders: account page 
 router.get('/rideraccount', (req, res) => {
 	alertMessage(res, 'success',
 		'You have updated your account details successfully!', 'fas fa-sign-in-alt', true);
@@ -243,35 +243,35 @@ router.get('/rideraccount', (req, res) => {
 
 	res.render('rider/rideracct', {error_msg: error_msg});
 });
-
+// riders: home page 
 router.get('/homerider', (req, res) => {
 	res.render('rider/homerider');
 });
-
+// riders: main orders page 
 router.get('/rordersmain', (req, res) => {
 	res.render('rider/rordersmain');
 });
-
+// riders: order details page 
 router.get('/rordersdetails', (req, res) => {
 	res.render('rider/rorderdetails');
 });
-
+// riders: order accepted sucessfully page 
 router.get('/racceptorder', (req, res) => {
 	res.render('rider/racceptorder');
 });
-
+// riders: checking routes page 
 router.get('/rideroutecheck', (req, res) => {
 	res.render('rider/rideroutecheck');
 });
-
+// riders: orders completed successfully 
 router.get('/rordercompleted', (req, res) => {
 	res.render('rider/rordercompleted');
 });
-
+// riders: orders history
 router.get('/riderhist', (req, res) => {
 	res.render('rider/rorderhist');
 });
-
+// riders: wallet transfer to bank account 
 router.get('/rwalletransfer', (req, res) => {
 	let success_msg = 'You have successfully transferred SGD$10.00 to your card.';
 	alertMessage(res, 'danger',
@@ -279,7 +279,7 @@ router.get('/rwalletransfer', (req, res) => {
 	res.render('rider/rwalletransfer', 
 	{success_msg: success_msg});
 });
-
+// tailor: login page 
 router.get('/tailorlogin', (req, res) => {
 	alertMessage(res, 'success',
 		'You have logged in successfully!', 'fas fa-sign-in-alt', true);
@@ -287,19 +287,19 @@ router.get('/tailorlogin', (req, res) => {
 		'Login was unsuccessful. Please try again! ', 'fas fa-exclamation-circle', false);
 	res.render('tailor/tailorlogin');
 });
-
+// tailor: register page 
 router.get('/tailoregister', (req, res) => {
 	res.render('tailor/tailoregister');
 });
-
+// tailor: registration complete page 
 router.get('/tailoregcomplete', (req, res) => {
 	res.render('tailor/tailoregcomplete');
 });
-
+// tailor: home page 
 router.get('/hometailor', (req, res) => {
 	res.render('tailor/hometailor');
 });
-
+// tailor: account page 
 router.get('/tailoraccount', (req, res) => {
 	alertMessage(res, 'success',
 		'You have updated your account details successfully!', 'fas fa-sign-in-alt', true);
