@@ -9,6 +9,9 @@ const Productchoices = require('../models/Productchoices');
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
+function isNumeric(value) {
+	return /^\d+$/.test(value);
+}
 // Add product using HTTP post => /tailor/addproduct
 router.post('/addproduct', urlencodedParser, (req, res) => {
 	let errors = [];
@@ -16,8 +19,25 @@ router.post('/addproduct', urlencodedParser, (req, res) => {
 	// Validation???
 	let {name, price, discount, description, question, q1category} = req.body;
 
-	if (name.length < 3) {
+	if (name.length < 3) { 
 		errors.push({ msg: 'Name should be at least 3 character.' });
+	}
+	if (isNumeric(price) == false){
+		errors.push({ msg: 'Please enter a valid number between 0 to 2000.'});
+	}
+	else if (price > 2000){
+		errors.push({ msg: 'Please enter a valid number between 0 to 2000.'});
+	}
+	if (isNumeric(discount) == false){
+		errors.push({ msg: 'Please enter a valid number between 0 to 100.'});
+	}
+	else if (discount > 100){
+		errors.push({ msg: 'Please enter a valid number between 0 to 100.'});
+	}
+	if (question != ""){
+		if (q1category == ""){
+			errors.push({ msg: 'Please select the category, either a textbox or dropdown menu.'});
+		}
 	}
 
 	var q1choices_array = [];
@@ -28,10 +48,19 @@ router.post('/addproduct', urlencodedParser, (req, res) => {
 		// this part gotta change to join ';'
 		if (fieldNum >= 1) {
 			for (i = 0; i < fieldNum; i++) {
-				q1choices_array.push(req.body["flist" + i]);
+				if(req.body["flist" + i] == ""){
+					var a = i+1;
+					errors.push({ msg: 'Dropdown menu choice ' + a + ' cannot be empty, please remove, or fill in the box.'});
+				}
+				else{
+					q1choices_array.push(req.body["flist" + i]);
+				}
 			}
 			q1choices = q1choices_array.join(";");
 			console.log(q1choices);
+		}
+		else {
+			errors.push({ msg: 'Please ensure your dropdown menu has 1 or more choices.'})
 		}
 	}
 	// End of bullshit
@@ -77,7 +106,7 @@ router.post('/addproduct', urlencodedParser, (req, res) => {
 			price: req.body.price,
 			discount: req.body.discount,
 			description: req.body.description,
-			q1: req.body.q1,
+			q1: req.body.question,
 			q1category: req.body.q1category
 		});
 	}
