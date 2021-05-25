@@ -69,14 +69,14 @@
                                 </div>
                                 <div class="col-lg-12">
                                     <label for="q1">Question<span style="color:red;">*</span></label>
-                                    <input id="q1" name="q1" type="text" value="{{q1}}">
+                                    <input id="question" name="question" type="text" value="{{q1}}">
                                 </div>
                                 <div class="col-lg-12">
                                     <label for="q1category">Category<span style="color:red;">*</span></label>
                                     <ul class="category-select-list" id="q1category" onclick="checkValue()">
                                         <li><input checked="" id="q1category-0" name="q1category" type="radio" value=""> <label for="q1category-0"></label></li>
-                                        <li><input id="q1category-0" name="q1category" type="radio" value="textbox"> <label for="q1category-0">Textbox - Open-ended question</label></li>
-                                        <li><input id="q1category-1" name="q1category" type="radio" value="radiobtn"> <label for="q1category-1">Dropdown Menu - Show a list of selections the user can choose from</label></li>
+                                        <li><input id="q1category-1" name="q1category" type="radio" value="textbox"> <label for="q1category-1">Textbox - Open-ended question</label></li>
+                                        <li><input id="q1category-2" name="q1category" type="radio" value="radiobtn"> <label for="q1category-2">Dropdown Menu - Show a list of selections the user can choose from</label></li>
                                     </ul>
 
                                 </div>
@@ -145,7 +145,7 @@
             }
         }
 
-        if(q1_value == "textbox"){
+        if(q1_value == "textbox" || q1_value == ""){
             document.getElementById("addNewField").hidden=true;
             document.getElementById("removeLastField").hidden=true;
             document.getElementById("labelChoices").hidden=true;

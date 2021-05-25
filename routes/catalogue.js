@@ -20,9 +20,7 @@ router.post('/addproduct', urlencodedParser, (req, res) => {
 		errors.push({ msg: 'Name should be at least 3 character.' });
 	}
 
-	// Not working shit - Array cant be directly placed into get/set funcs
-	// Change to relational db instead
-	var q1choices_array = ['black', 'blue'];
+	var q1choices_array = [];
 	let q1choices = "";
 	if (q1category == "radiobtn") {
 		// Check if there's at least 2 choices
@@ -54,13 +52,14 @@ router.post('/addproduct', urlencodedParser, (req, res) => {
 				let cataid = result.id;
 				if (q1category == "radiobtn"){
 					q1choices_array.forEach(c => {
-						// console.log(element);
 						console.log("here:"+ cataid);
 						Productchoices.create({
 							choice: c,
 							catalougeId: cataid
 						})
-						
+						.catch(err => {
+							console.error('Unable to connect to the database:', err);
+						});
 					})
 				}
 				res.redirect('/view/'+ result.id);

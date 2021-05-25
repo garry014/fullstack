@@ -5,6 +5,7 @@ const db = require('../config/DBConfig.js');
 const { username, password } = require('../config/db');
 const alertMessage = require('../helpers/messenger');
 const Catalouge = require('../models/Catalouge');
+const Productchoices = require('../models/Productchoices');
 
 ////// Flash Error Message for easy referrence ///////
 // alertMessage(res, 'success',
@@ -88,7 +89,7 @@ router.get("/view/:id", (req, res) => { ///:productid
 	})
 		.then(pdetails => {
 			if (pdetails) {
-				console.log(pdetails);
+				var choicesArray = [];
 				var getDetails = pdetails;
 				var discprice = getDetails['price'] * (1 - (getDetails['discount'] / 100)); // after discount price
 				// Patrick if you need any values from my side
@@ -96,10 +97,24 @@ router.get("/view/:id", (req, res) => { ///:productid
 				// console.log('Example of product name ' + getDetails['name']); 
 
 				// Bug here: cannot run on id that does nt exists.
-				
+				if (getDetails['customcat'] == "radiobtn"){
+					Productchoices.findAll({
+						where: { catalougeId: req.params.id },
+						raw: true
+					})
+					.then(pchoices => {
+						pchoices.forEach(element => {
+							choicesArray.push(element['choice']);
+						});
+					})
+					.catch(err => {
+						console.error('Unable to connect to the database:', err);
+					});
+				}
 
 				res.render('customer/productview', {
 					pdetails: getDetails,
+					choicesArray: choicesArray,
 					discprice: discprice
 				});
 			}
