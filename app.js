@@ -79,6 +79,11 @@ Handlebars.registerHelper('money2dp', function (distance) {
 	return distance.toFixed(2);
 });
 
+Handlebars.registerHelper("calculatedisc", function(price, discount) {
+	var a = price * (1 - (discount / 100));
+	return a.toFixed(2);
+});
+
 
 // Body parser middleware to parse HTTP body in order to read HTTP data
 app.use(bodyParser.urlencoded({

@@ -44,11 +44,6 @@ router.get('/viewshops', (req, res) => {
 	res.render('customer/viewshops', { title: "View Shops" });
 });
 
-// Customer View Shop Items
-router.get('/view/storename', (req, res) => {
-	res.render('customer/viewstore', { title: "View Items - Ah Tong Tailor", user_status: "tailor" });
-});
-
 // Customer Notifications
 router.get('/notification', (req, res) => {
 	res.render('user/allnotifications', { title: "View all notifications" });
@@ -80,7 +75,33 @@ router.get('/inbox', (req, res) => {
 	res.render('user/chat', { title: "Chat" });
 });
 
-router.get("/view/:id", (req, res) => { ///:productid
+// Customer View Shop Items
+router.get('/viewshops/:storename', (req, res) => {
+	Catalouge.findAll({
+		where: { storename: req.params.storename },
+		raw: true
+	})
+	.then(shopprod => {
+		if (shopprod.length > 0){
+			title = 'View Items - ' + req.params.storename
+			console.log(shopprod);
+			res.render('customer/viewstore', { 
+				title: title, 
+				shopprod: shopprod,
+				user_status: "tailor" 
+			});
+		}
+		else {
+			return res.redirect('/404');
+		}
+	})
+	.catch(err => {
+		console.error('Unable to connect to the database:', err);
+	});
+	
+});
+
+router.get("/view/:id", (req, res) => { 
 	// http://localhost:5000/view/1
 	const title = 'Add Product';
 	Catalouge.findOne({
@@ -88,7 +109,7 @@ router.get("/view/:id", (req, res) => { ///:productid
 		raw: true
 	})
 		.then(pdetails => {
-			if (pdetails) {
+			if (pdetails.length > 0) {
 				var choicesArray = [];
 				var getDetails = pdetails;
 				var discprice = getDetails['price'] * (1 - (getDetails['discount'] / 100)); // after discount price

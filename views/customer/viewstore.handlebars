@@ -31,6 +31,7 @@
                 <div class="shop-bottom-area">
                     <div class="row">
                         <!--Start of Product List -->
+                        {{#each shopprod}}
                         <div class="col-xl-4 col-md-6 col-lg-4 col-sm-6">
                             <div class="product-wrap mb-25 scroll-zoom">
                                 <div class="product-img">
@@ -38,15 +39,17 @@
                                         <img class="default-img" src="/uploads/products/1.jpg" alt="">
                                         <img class="hover-img" src="/uploads/products/1.jpg" alt="">
                                     </a>
-                                    <span class="pink">-30%</span>
+                                    {{#ifCond discount '!=' 0}}
+                                        <span class="pink">-{{discount}}%</span>
+                                    {{/ifCond}}
                                     <div class="product-action">
                                         {{#ifCond user_status '==' "tailor"}}
-                                        <div class="pro-same-action pro-quickview" style="width:50%;">
-                                            <a href=""><i class="fa fa-pencil"></i> Edit Item</a>
-                                        </div>
-                                        <div class="pro-same-action pro-wishlist" style="width:50%;">
-                                            <a href="#myModal_1" data-toggle="modal" data-target="#myModal_1"><i class="fa fa-trash-o"></i> Delete</a>
-                                        </div>
+                                            <div class="pro-same-action pro-quickview" style="width:50%;">
+                                                <a href=""><i class="fa fa-pencil"></i> Edit Item</a>
+                                            </div>
+                                            <div class="pro-same-action pro-wishlist" style="width:50%;">
+                                                <a href="#myModal_1" data-toggle="modal" data-target="#myModal_1"><i class="fa fa-trash-o"></i> Delete</a>
+                                            </div>
                                         {{/ifCond}}
                                         <div class="pro-same-action pro-cart" style="width:100%;">
                                             <a href="/view/1"><i class="fa fa-info"></i> View Item</a>
@@ -55,89 +58,23 @@
                                     </div>
                                 </div>
                                 <div class="product-content text-center">
-                                    <h3><a href="">Customised Suit</a></h3>
+                                    <h3><a href="">{{name}}</a></h3>
                                     <div class="product-rating">
                                         <span class="fa fa-star" style="color: orange;"></span><span class="fa fa-star" style="color: orange;"></span><span class="fa fa-star" style="color: orange;"></span><span class="fa fa-star"></span><span class="fa fa-star"></span>
                                         3 stars
                                     </div>
                                     <div class="product-price">
-                                        <span>$ 147</span>
-                                        <span class="old">$ 210</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- ###################################Start of rubbish display############################# -->
-                        <div class="col-xl-4 col-md-6 col-lg-4 col-sm-6">
-                            <div class="product-wrap mb-25 scroll-zoom">
-                                <div class="product-img">
-                                    <a href="">
-                                        <img class="default-img" src="/uploads/products/2.png" alt="">
-                                        <img class="hover-img" src="/uploads/products/2.png" alt="">
-                                    </a>
-                                    <span class="pink">-30%</span>
-                                    <div class="product-action">
-                                        {{#ifCond user_status '==' "tailor"}}
-                                        <div class="pro-same-action pro-quickview" style="width:50%;">
-                                            <a href=""><i class="fa fa-pencil"></i> Edit Item</a>
-                                        </div>
-                                        <div class="pro-same-action pro-wishlist" style="width:50%;">
-                                            <a href="#myModal_1" data-toggle="modal" data-target="#myModal_1"><i class="fa fa-trash-o"></i> Delete</a>
-                                        </div>
+                                        {{#ifCond discount '!=' 0}}
+                                        <span>$ {{calculatedisc price discount}}</span>
+                                        <span class="old">$ {{money2dp price}}</span>
+                                        {{else}}
+                                        <span>$ {{price}}</span>
                                         {{/ifCond}}
-                                        <div class="pro-same-action pro-cart" style="width:100%;">
-                                            <a href="/view/1"><i class="fa fa-info"></i> View Item</a>
-                                        </div>
-
-                                    </div>
-                                </div>
-                                <div class="product-content text-center">
-                                    <h3><a href="">Tapering of Width</a></h3>
-                                    <div class="product-rating">
-                                        No reviews yet.
-                                    </div>
-                                    <div class="product-price">
-                                        <span>$ 8.40</span>
-                                        <span class="old">$ 12.00</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xl-4 col-md-6 col-lg-4 col-sm-6">
-                            <div class="product-wrap mb-25 scroll-zoom">
-                                <div class="product-img">
-                                    <a href="">
-                                        <img class="default-img" src="/uploads/products/3.jpg" alt="">
-                                        <img class="hover-img" src="/uploads/products/3.jpg" alt="">
-                                    </a>
-                                    <div class="product-action">
-                                        {{#ifCond user_status '==' "tailor"}}
-                                        <div class="pro-same-action pro-quickview" style="width:50%;">
-                                            <a href=""><i class="fa fa-pencil"></i> Edit Item</a>
-                                        </div>
-                                        <div class="pro-same-action pro-wishlist" style="width:50%;">
-                                            <a href="#myModal_1" data-toggle="modal" data-target="#myModal_1"><i class="fa fa-trash-o"></i> Delete</a>
-                                        </div>
-                                        {{/ifCond}}
-                                        <div class="pro-same-action pro-cart" style="width:100%;">
-                                            <a href="/view/1"><i class="fa fa-info"></i> View Item</a>
-                                        </div>
-
-                                    </div>
-                                </div>
-                                <div class="product-content text-center">
-                                    <h3><a href="">Premium Sewing Kit</a></h3>
-                                    <div class="product-rating">
-                                        No reviews yet.
-                                    </div>
-                                    <div class="product-price">
-                                        <span>$ 10.00</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- End of rubbish -->
+                        {{/each}}
                     </div>
 
 
