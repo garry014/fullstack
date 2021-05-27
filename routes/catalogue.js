@@ -12,11 +12,12 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 function isNumeric(value) {
 	return /^\d+$/.test(value);
 }
-// Add product using HTTP post => /tailor/addproduct
+
+// Add Product
 router.post('/addproduct', urlencodedParser, (req, res) => {
 	let errors = [];
 
-	// Validation???
+	// Validation
 	let {name, price, discount, description, question, q1category} = req.body;
 
 	if (name.length < 3) { 
@@ -43,9 +44,7 @@ router.post('/addproduct', urlencodedParser, (req, res) => {
 	var q1choices_array = [];
 	let q1choices = "";
 	if (q1category == "radiobtn") {
-		// Check if there's at least 2 choices
 		var fieldNum = parseInt(req.body.fieldNum);
-		// this part gotta change to join ';'
 		if (fieldNum >= 1) {
 			for (i = 0; i < fieldNum; i++) {
 				if(req.body["flist" + i] == ""){
@@ -63,7 +62,6 @@ router.post('/addproduct', urlencodedParser, (req, res) => {
 			errors.push({ msg: 'Please ensure your dropdown menu has 1 or more choices.'})
 		}
 	}
-	// End of bullshit
 
 	if (errors.length == 0) {
 		Catalouge
@@ -110,6 +108,11 @@ router.post('/addproduct', urlencodedParser, (req, res) => {
 			q1category: req.body.q1category
 		});
 	}
+});
+
+// Update Product
+router.post('/editproduct/:id', urlencodedParser, (req, res) => {
+	
 });
 
 module.exports = router;

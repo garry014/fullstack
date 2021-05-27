@@ -34,14 +34,60 @@ router.get('/addproduct', (req, res) => {
 	res.render('tailor/addproduct', { title: "Add product" });
 });
 
+router.get('/editproduct/:id', (req, res) => {
+	Catalouge.findOne({
+		where: { id: req.params.id },
+		raw: true
+	})
+	.then(pdetails => {
+		console.log(pdetails);
+		if (pdetails) {
+			if(pdetails.customcat == "radiobtn"){
+				Productchoices.findAll({
+					where: { catalougeId: req.params.id },
+					raw: true
+				})
+				.then(pchoices => {
+					res.render('tailor/editproduct', { 
+						title: "Update product",
+						name: pdetails.name,
+						price: pdetails.price,
+						discount: pdetails.discount,
+						description: pdetails.description,
+						question: pdetails.customqn,
+						q1category: pdetails.customcat,
+						pchoices: pchoices
+					});
+				})
+				.catch(err => {
+					console.error('Unable to connect to the database:', err);
+				});
+				
+			}
+			else {
+				res.render('tailor/editproduct', { 
+					title: "Update product",
+					name: pdetails.name,
+					price: pdetails.price,
+					discount: pdetails.discount,
+					description: pdetails.description,
+					q1: pdetails.customqn,
+					q1category: pdetails.customcat
+				});
+			}
+		}
+		else {
+			return res.redirect('/404');
+		}
+	})
+	.catch(err => {
+		console.error('Unable to connect to the database:', err);
+	});
+});
+
 // ACTUAL ADD PRODUCT PAGE
 router.get('/addproduct1', (req, res) => {
 	res.render('tailor/addproduct1', { title: "Add product" });
-});
-
-// Customer View Shops
-router.get('/viewshops', (req, res) => {
-	res.render('customer/viewshops', { title: "View Shops" });
 });
 
 // Customer Notifications
@@ -75,6 +121,11 @@ router.get('/inbox', (req, res) => {
 	res.render('user/chat', { title: "Chat" });
 });
 
+// Customer View Shops
+router.get('/viewshops', (req, res) => {
+	res.render('customer/viewshops', { title: "View Shops" });
+});
+
 // Customer View Shop Items
 router.get('/viewshops/:storename', (req, res) => {
 	Catalouge.findAll({
@@ -98,7 +149,6 @@ router.get('/viewshops/:storename', (req, res) => {
 	.catch(err => {
 		console.error('Unable to connect to the database:', err);
 	});
-	
 });
 
 router.get("/view/:id", (req, res) => { 
@@ -109,7 +159,7 @@ router.get("/view/:id", (req, res) => {
 		raw: true
 	})
 		.then(pdetails => {
-			if (pdetails.length > 0) {
+			if (pdetails) {
 				var choicesArray = [];
 				var getDetails = pdetails;
 				var discprice = getDetails['price'] * (1 - (getDetails['discount'] / 100)); // after discount price
@@ -134,6 +184,7 @@ router.get("/view/:id", (req, res) => {
 				}
 
 				res.render('customer/productview', {
+					title: pdetails.name + ' - ' + pdetails.storename,
 					pdetails: getDetails,
 					choicesArray: choicesArray,
 					discprice: discprice
