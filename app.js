@@ -22,6 +22,8 @@ const db = require('./config/db'); // db.js config file
 */
 const mainRoute = require('./routes/main');
 const tailorRoute = require('./routes/tailor');
+const custRoute = require('./routes/customer');
+const riderRoute = require('./routes/rider');
 // const pviewRoute = require('./routes/productview');
 
 /*
@@ -128,11 +130,6 @@ app.use(function (req, res, next) {
 	next();
 });
 
-// ERROR 404 Page
-// app.get("*", (req, res) => {
-// 	res.sendFile(__dirname + "/404.html");
-// });
-
 // Bring in database connection
 const tailornowDB = require('./config/DBConnection');
 // Connects to MySQL database
@@ -146,7 +143,8 @@ tailornowDB.setUpDB(false); // To set up database with new tables set (true)
 * */
 app.use('/', mainRoute); // mainRoute is declared to point to routes/main.js
 app.use('/tailor', tailorRoute);
-// app.use('/customer', pviewRoute);
+app.use('/customer', custRoute);
+app.use('/rider', riderRoute);
 // This route maps the root URL to any path defined in main.js
 
 

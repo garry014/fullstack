@@ -1,11 +1,10 @@
+// Form submit/redirect links /tailor/___________
 const express = require('express');
 const router = express.Router();
 var validator = require('validator');
 var bodyParser = require('body-parser');
 const Catalouge = require('../models/Catalouge');
 const Productchoices = require('../models/Productchoices');
-
-///////// Cant get it to work, copy n paste if theres a fix from main.js / /////////////
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
