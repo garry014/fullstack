@@ -21,7 +21,7 @@ const db = require('./config/db'); // db.js config file
 * will be called based on the HTTP request and URL.
 */
 const mainRoute = require('./routes/main');
-const catalogueRoute = require('./routes/catalogue');
+const tailorRoute = require('./routes/tailor');
 // const pviewRoute = require('./routes/productview');
 
 /*
@@ -145,7 +145,7 @@ tailornowDB.setUpDB(false); // To set up database with new tables set (true)
 * mainRoute which was defined earlier to point to routes/main.js
 * */
 app.use('/', mainRoute); // mainRoute is declared to point to routes/main.js
-app.use('/tailor', catalogueRoute);
+app.use('/tailor', tailorRoute);
 // app.use('/customer', pviewRoute);
 // This route maps the root URL to any path defined in main.js
 
