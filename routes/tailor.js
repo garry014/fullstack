@@ -12,6 +12,8 @@ function isNumeric(value) {
 	return /^\d+$/.test(value);
 }
 
+
+
 // Add Product
 router.post('/addproduct', urlencodedParser, (req, res) => {
 	let errors = [];
@@ -107,6 +109,58 @@ router.post('/addproduct', urlencodedParser, (req, res) => {
 			q1category: req.body.q1category
 		});
 	}
+});
+
+// Update Product - GET
+router.get('/editproduct/:id', (req, res) => {
+	Catalouge.findOne({
+		where: { id: req.params.id },
+		raw: true
+	})
+	.then(pdetails => {
+		console.log(pdetails);
+		if (pdetails) {
+			if(pdetails.customcat == "radiobtn"){
+				Productchoices.findAll({
+					where: { catalougeId: req.params.id },
+					raw: true
+				})
+				.then(pchoices => {
+					res.render('tailor/editproduct', { 
+						title: "Update product",
+						name: pdetails.name,
+						price: pdetails.price,
+						discount: pdetails.discount,
+						description: pdetails.description,
+						question: pdetails.customqn,
+						q1category: pdetails.customcat,
+						pchoices: pchoices
+					});
+				})
+				.catch(err => {
+					console.error('Unable to connect to the database:', err);
+				});
+				
+			}
+			else {
+				res.render('tailor/editproduct', { 
+					title: "Update product",
+					name: pdetails.name,
+					price: pdetails.price,
+					discount: pdetails.discount,
+					description: pdetails.description,
+					q1: pdetails.customqn,
+					q1category: pdetails.customcat
+				});
+			}
+		}
+		else {
+			return res.redirect('/404');
+		}
+	})
+	.catch(err => {
+		console.error('Unable to connect to the database:', err);
+	});
 });
 
 // Update Product

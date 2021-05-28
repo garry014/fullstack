@@ -30,59 +30,9 @@ router.get('/homecust', (req, res) => {
 	res.render('homecust', { title: title });
 });
 
+
 router.get('/addproduct', (req, res) => {
 	res.render('tailor/addproduct', { title: "Add product" });
-});
-
-router.get('/editproduct/:id', (req, res) => {
-	Catalouge.findOne({
-		where: { id: req.params.id },
-		raw: true
-	})
-	.then(pdetails => {
-		console.log(pdetails);
-		if (pdetails) {
-			if(pdetails.customcat == "radiobtn"){
-				Productchoices.findAll({
-					where: { catalougeId: req.params.id },
-					raw: true
-				})
-				.then(pchoices => {
-					res.render('tailor/editproduct', { 
-						title: "Update product",
-						name: pdetails.name,
-						price: pdetails.price,
-						discount: pdetails.discount,
-						description: pdetails.description,
-						question: pdetails.customqn,
-						q1category: pdetails.customcat,
-						pchoices: pchoices
-					});
-				})
-				.catch(err => {
-					console.error('Unable to connect to the database:', err);
-				});
-				
-			}
-			else {
-				res.render('tailor/editproduct', { 
-					title: "Update product",
-					name: pdetails.name,
-					price: pdetails.price,
-					discount: pdetails.discount,
-					description: pdetails.description,
-					q1: pdetails.customqn,
-					q1category: pdetails.customcat
-				});
-			}
-		}
-		else {
-			return res.redirect('/404');
-		}
-	})
-	.catch(err => {
-		console.error('Unable to connect to the database:', err);
-	});
 });
 
 // ACTUAL ADD PRODUCT PAGE
