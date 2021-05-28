@@ -22,7 +22,7 @@ router.get('/addproduct1', (req, res) => {
 	res.render('tailor/addproduct1', { title: "Add product" });
 });
 
-// Add Product
+// Add Product - POST
 router.post('/addproduct', urlencodedParser, (req, res) => {
 	let errors = [];
 
@@ -136,6 +136,7 @@ router.get('/editproduct/:id', (req, res) => {
 				.then(pchoices => {
 					res.render('tailor/editproduct', { 
 						title: "Update product",
+						id: req.params.id,
 						name: pdetails.name,
 						price: pdetails.price,
 						discount: pdetails.discount,
@@ -153,6 +154,7 @@ router.get('/editproduct/:id', (req, res) => {
 			else {
 				res.render('tailor/editproduct', { 
 					title: "Update product",
+					id: req.params.id,
 					name: pdetails.name,
 					price: pdetails.price,
 					discount: pdetails.discount,
@@ -171,9 +173,40 @@ router.get('/editproduct/:id', (req, res) => {
 	});
 });
 
-// Update Product
-router.post('/editproduct/:id', urlencodedParser, (req, res) => {
+// Update Product - PUT
+router.put('/editproduct/:id', urlencodedParser, (req, res) => {
+	let {name, price, discount, description, question, q1category} = req.body;
+
+	Catalouge.findOne({
+		where: { id: req.params.id },
+		raw: true
+	})
+	.then(pdetails => {
+		if(pdetails.customcat == "radiobtn" && q1category == "textbox"){
+			// if tailor decides to change from radiobtn to textbox
+			Productchoices.findAll({
+				where: {
+					catalougeId: pdetails.id
+				}
+			})
+			.then((choices) =>{
+				if(choices != null){
+					Productchoices.destroy({
+						where: {
+							catalougeId: pdetails.id
+						}
+					});
+				}
+			})
+		}
+	})
+	.catch(err => {
+		console.error('Unable to connect to the database:', err);
+	});
 	
+	Catalouge.update({
+		
+	})
 });
 
 module.exports = router;
