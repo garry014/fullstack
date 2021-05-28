@@ -3,6 +3,7 @@
 const express = require('express');
 const router = express.Router();
 var validator = require('validator');
+const alertMessage = require('../helpers/messenger');
 var bodyParser = require('body-parser');
 const Catalouge = require('../models/Catalouge');
 const Productchoices = require('../models/Productchoices');
@@ -205,8 +206,22 @@ router.put('/editproduct/:id', urlencodedParser, (req, res) => {
 	});
 	
 	Catalouge.update({
-		
-	})
+		storename: 'Ah Tong Tailor',
+		name: name,
+		price: price,
+		image: '1.png',
+		description: description,
+		discount: discount,
+		customqn: question,
+		customcat: q1category
+	}, {
+		where: {
+			id: req.params.id
+		}
+	}).then(()=> {
+		alertMessage(res, 'success', 'Updated product successfully!', 'fas fa-check-circle', true);
+		res.redirect('/view/'+ req.params.id);
+	}).catch(err => console.log(err));
 });
 
 module.exports = router;
