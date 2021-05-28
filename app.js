@@ -162,5 +162,5 @@ const port = 5000;
 
 // Starts the server and listen to port 5000
 app.listen(port, () => {
-	console.log(`JIAYOUS, IT WILL ALL WORK OUT SOME DAY! Server started on port ${port}.`);
+	console.log('\x1b[36m%s\x1b[0m', `JIAYOUS, IT WILL ALL WORK OUT SOME DAY! Server started on port ${port}.`);
 });

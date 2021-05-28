@@ -24,6 +24,8 @@
                     <div class="filter">
                         {{#ifCond user_status '!=' "tailor"}}
                         <a href=""><i class="pe-7s-chat"></i> Seek help from Ah Tong Tailor</a>
+                        {{else}}
+                        <a href="/tailor/addproduct" class="btn btn-light"><i class="fas fa-plus-square"></i> Add Product</a>
                         {{/ifCond}}
                     </div>
                 </div>
@@ -49,7 +51,7 @@
                                                 <a href="/tailor/editproduct/{{id}}"><i class="fa fa-pencil"></i> Edit Item</a>
                                             </div>
                                             <div class="pro-same-action pro-wishlist" style="width:50%;">
-                                                <a href="#myModal_1" data-toggle="modal" data-target="#myModal_1"><i class="fa fa-trash-o"></i> Delete</a>
+                                                <a href="#myModal_{{id}}" data-toggle="modal" data-target="#myModal_{{id}}"><i class="fa fa-trash-o"></i> Delete</a>
                                             </div>
                                         
                                         <div class="pro-same-action pro-cart" style="width:100%;">
@@ -93,10 +95,11 @@
     </div>
 </div>
 
+{{#each shopprod}}
 <!-- Delete Modal -->
-<form method="POST" action="" style="display: inline-block;">
+<form action="/tailor/deleteProduct/{{id}}" style="display: inline-block;">
     <!-- The Modal -->
-    <div class="modal" id="myModal_1">
+    <div class="modal" id="myModal_{{id}}">
       <div class="modal-dialog">
         <div class="modal-content">
 
@@ -108,7 +111,7 @@
 
           <!-- Modal body -->
           <div class="modal-body">
-            Are you sure you want to delete Customised Suit?
+            Are you sure you want to delete {{name}}
           </div>
 
           <!-- Modal footer -->
@@ -121,7 +124,7 @@
       </div>
     </div>
 </form>
-
+{{/each}}
 
 <script>
     window.onload = function(e){

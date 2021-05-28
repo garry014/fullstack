@@ -311,4 +311,24 @@ router.put('/editproduct/:id', urlencodedParser, (req, res) => {
 	}
 });
 
+router.get('/deleteProduct/:id', (req,res)=> {
+	Catalouge.findOne({
+		where: {
+			id: req.params.id
+		}
+	}).then((pdetails)=>{
+		if(pdetails != null){
+			Catalouge.destroy({
+				where :{
+					id: req.params.id
+				}
+			})
+			.then((pDetails) => {
+				alertMessage(res, 'info', 'Successfully deleted item.', 'far fa-trash-alt', true);
+				res.redirect('/viewshops/' + pdetails.storename);
+			})
+		};
+	})
+})
+
 module.exports = router;

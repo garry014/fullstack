@@ -15,12 +15,10 @@ const setUpDB = (drop) => {
         in video.
         */
             catalouge.hasMany(productchoices);
-            // catalouge.hasMany(video); // Creates connection
             mySQLDB.sync({ // Creates table if none exists
                 force: drop
             }).then(() => {
-                console.log('Create tables if none exists')
-                console.log('----------------------------------------------------------\n')
+                console.log('----------------------------------------------------------\n');
             }).catch(err => console.log(err))
         })
         .catch(err => console.log('Error: ' + err));
