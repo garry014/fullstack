@@ -1,4 +1,5 @@
 // Form submit/redirect links /tailor/___________
+// But the links here, put /________ directly
 const express = require('express');
 const router = express.Router();
 var validator = require('validator');
@@ -12,7 +13,9 @@ function isNumeric(value) {
 	return /^\d+$/.test(value);
 }
 
-
+router.get('/addproduct', (req, res) => {
+	res.render('tailor/addproduct', { title: "Add product" });
+});
 
 // Add Product
 router.post('/addproduct', urlencodedParser, (req, res) => {

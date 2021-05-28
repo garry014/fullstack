@@ -147,6 +147,12 @@ app.use('/customer', custRoute);
 app.use('/rider', riderRoute);
 // This route maps the root URL to any path defined in main.js
 
+// Handle 404 - Keep this as a last route
+app.use(function(req, res, next) {
+    res.status(404);
+    res.render('404');
+});
+// No routes below this, otherwise it will get overwritten.
 
 /*
 * Creates a unknown port 5000 for express server since we don't want our app to clash with well known

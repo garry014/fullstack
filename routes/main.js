@@ -31,9 +31,7 @@ router.get('/homecust', (req, res) => {
 });
 
 
-router.get('/addproduct', (req, res) => {
-	res.render('tailor/addproduct', { title: "Add product" });
-});
+
 
 // ACTUAL ADD PRODUCT PAGE
 router.get('/addproduct1', (req, res) => {
@@ -401,15 +399,3 @@ router.get('/flashdeals', (req, res) => {
 
 
 module.exports = router;
-
-
-
-
-
-
-// WARNING: DO NOT PUT ANYTHING BELOW //
-// 404 Error Page
-router.get('*', (req, res) => {
-	res.render('404');
-});
-// LAST LINE OF SCRIPT, NOTHING BELOW PLS //
