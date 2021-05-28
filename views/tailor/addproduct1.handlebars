@@ -145,15 +145,11 @@
             }
         }
 
-        if(q1_value == "textbox" || q1_value == ""){
-            document.getElementById("addNewField").hidden=true;
-            document.getElementById("removeLastField").hidden=true;
-            document.getElementById("labelChoices").hidden=true;
+        if(q1_value == "radiobtn"){
+            document.getElementById("newFields").hidden=false;
         }
         else {
-            document.getElementById("addNewField").hidden=false;
-            document.getElementById("removeLastField").hidden=false;
-            document.getElementById("labelChoices").hidden=false;
+            document.getElementById("newFields").hidden=true;
         }
     }
 

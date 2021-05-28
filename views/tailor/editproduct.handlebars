@@ -8,8 +8,9 @@
                         <h2>Update Product/Service</h2>
                     </div>
                     *Required fields.
-                    <form class="contact-form-style" id="file-upload-form" action="/tailor/editproduct" method="post">
+                    <form class="contact-form-style" id="file-upload-form" action="/tailor/editproduct/{{id}}?_method=PUT" method="post">
                      {{!-- enctype=multipart/form-data --}}
+                    <input type="hidden" name="_method" value="PUT">
                         <div class="row">
                             <div class="col-lg-6">
                                 <label for="name">Name<span style="color:red;">*</span></label>
@@ -124,7 +125,10 @@
 <br>
 
 <script>
-    var fieldNum = {{pchoices.length}};
+    var fieldNum = 0;
+    {{#if pchoices.length}}
+        fieldNum = {{pchoices.length}} - 1;
+    {{/if}}
     window.onload = function() {
         checkValue();
         {{!-- var newInput = $("<input></input>")
@@ -166,15 +170,11 @@
             }
         }
 
-        if(q1_value == "textbox" || q1_value == ""){
-            document.getElementById("addNewField").hidden=true;
-            document.getElementById("removeLastField").hidden=true;
-            document.getElementById("labelChoices").hidden=true;
+        if(q1_value == "radiobtn"){
+            document.getElementById("newFields").hidden=false;
         }
         else {
-            document.getElementById("addNewField").hidden=false;
-            document.getElementById("removeLastField").hidden=false;
-            document.getElementById("labelChoices").hidden=false;
+            document.getElementById("newFields").hidden=true;
         }
     }
 
