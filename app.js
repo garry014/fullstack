@@ -147,7 +147,7 @@ app.use('/customer', custRoute);
 app.use('/rider', riderRoute);
 // This route maps the root URL to any path defined in main.js
 
-// Handle 404 - Keep this as a last route
+// Handle 404 error page - Keep this as a last route
 app.use(function(req, res, next) {
     res.status(404);
     res.render('404');

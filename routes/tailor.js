@@ -17,6 +17,11 @@ router.get('/addproduct', (req, res) => {
 	res.render('tailor/addproduct', { title: "Add product" });
 });
 
+// ACTUAL ADD PRODUCT PAGE
+router.get('/addproduct1', (req, res) => {
+	res.render('tailor/addproduct1', { title: "Add product" });
+});
+
 // Add Product
 router.post('/addproduct', urlencodedParser, (req, res) => {
 	let errors = [];
@@ -152,7 +157,7 @@ router.get('/editproduct/:id', (req, res) => {
 					price: pdetails.price,
 					discount: pdetails.discount,
 					description: pdetails.description,
-					q1: pdetails.customqn,
+					question: pdetails.customqn,
 					q1category: pdetails.customcat
 				});
 			}

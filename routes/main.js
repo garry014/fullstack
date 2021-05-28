@@ -31,13 +31,6 @@ router.get('/homecust', (req, res) => {
 });
 
 
-
-
-// ACTUAL ADD PRODUCT PAGE
-router.get('/addproduct1', (req, res) => {
-	res.render('tailor/addproduct1', { title: "Add product" });
-});
-
 // Customer Notifications
 router.get('/notification', (req, res) => {
 	res.render('user/allnotifications', { title: "View all notifications" });
