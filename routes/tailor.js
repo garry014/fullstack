@@ -294,8 +294,6 @@ router.put('/editproduct/:id', urlencodedParser, (req, res) => {
 				id: req.params.id
 			}
 		}).then(()=> {
-			
-			
 			alertMessage(res, 'success', 'Updated product successfully!', 'fas fa-check-circle', true);
 			res.redirect('/view/'+ req.params.id);
 		}).catch(err => console.log(err));
@@ -318,6 +316,13 @@ router.get('/deleteProduct/:id', (req,res)=> {
 		}
 	}).then((pdetails)=>{
 		if(pdetails != null){
+			if(pdetails.customcat == "radiobtn"){
+				Productchoices.destroy({
+					where: {
+						catalougeId: req.params.id
+					}
+				});
+			}
 			Catalouge.destroy({
 				where :{
 					id: req.params.id
