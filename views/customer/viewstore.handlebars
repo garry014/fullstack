@@ -8,7 +8,7 @@
                 <li>
                     <a href="/viewshops">View Shops</a>
                 </li>
-                <li class="active">Ah Tong Tailor</li>
+                <li class="active">Ah Tong Tailor {{user_status}}</li>
             </ul>
         </div>
     </div>
@@ -43,14 +43,15 @@
                                         <span class="pink">-{{discount}}%</span>
                                     {{/ifCond}}
                                     <div class="product-action">
-                                        {{#ifCond user_status '==' "tailor"}}
+                                        <!-- this part not showing when user = tailor -->
+                                        
                                             <div class="pro-same-action pro-quickview" style="width:50%;">
-                                                <a href=""><i class="fa fa-pencil"></i> Edit Item</a>
+                                                <a href="/tailor/editproduct/{{id}}"><i class="fa fa-pencil"></i> Edit Item</a>
                                             </div>
                                             <div class="pro-same-action pro-wishlist" style="width:50%;">
                                                 <a href="#myModal_1" data-toggle="modal" data-target="#myModal_1"><i class="fa fa-trash-o"></i> Delete</a>
                                             </div>
-                                        {{/ifCond}}
+                                        
                                         <div class="pro-same-action pro-cart" style="width:100%;">
                                             <a href="/view/1"><i class="fa fa-info"></i> View Item</a>
                                         </div>

@@ -1,4 +1,4 @@
-// Form submit/redirect links /tailor/___________
+// Hyperlinks here/Form submit/redirect links /tailor/___________
 // But the links here, put /________ directly
 const express = require('express');
 const router = express.Router();
@@ -26,10 +26,9 @@ router.get('/addproduct1', (req, res) => {
 // Add Product - POST
 router.post('/addproduct', urlencodedParser, (req, res) => {
 	let errors = [];
-
-	// Validation
 	let {name, price, discount, description, question, q1category} = req.body;
 
+	// Validation
 	if (name.length < 3) { 
 		errors.push({ msg: 'Name should be at least 3 character.' });
 	}
@@ -52,7 +51,6 @@ router.post('/addproduct', urlencodedParser, (req, res) => {
 	}
 
 	var q1choices_array = [];
-	let q1choices = "";
 	if (q1category == "radiobtn") {
 		var fieldNum = parseInt(req.body.fieldNum);
 		if (fieldNum >= 1) {
@@ -65,11 +63,9 @@ router.post('/addproduct', urlencodedParser, (req, res) => {
 					q1choices_array.push(req.body["flist" + i]);
 				}
 			}
-			q1choices = q1choices_array.join(";");
-			console.log(q1choices);
 		}
 		else {
-			errors.push({ msg: 'Please ensure your dropdown menu has 1 or more choices.'})
+			errors.push({ msg: 'Please ensure your dropdown menu has 1 or more choices.'});
 		}
 	}
 
@@ -176,52 +172,143 @@ router.get('/editproduct/:id', (req, res) => {
 
 // Update Product - PUT
 router.put('/editproduct/:id', urlencodedParser, (req, res) => {
+	let errors = [];
 	let {name, price, discount, description, question, q1category} = req.body;
 
-	Catalouge.findOne({
-		where: { id: req.params.id },
-		raw: true
-	})
-	.then(pdetails => {
-		if(pdetails.customcat == "radiobtn" && q1category == "textbox"){
-			// if tailor decides to change from radiobtn to textbox
-			Productchoices.findAll({
-				where: {
-					catalougeId: pdetails.id
+	// Validation
+	if (name.length < 3) { 
+		errors.push({ msg: 'Name should be at least 3 character.' });
+	}
+	if (isNumeric(price) == false){
+		errors.push({ msg: 'Please enter a valid number between 0 to 2000.'});
+	}
+	else if (price > 2000){
+		errors.push({ msg: 'Please enter a valid number between 0 to 2000.'});
+	}
+	if (isNumeric(discount) == false){
+		errors.push({ msg: 'Please enter a valid number between 0 to 100.'});
+	}
+	else if (discount > 100){
+		errors.push({ msg: 'Please enter a valid number between 0 to 100.'});
+	}
+	if (question != ""){
+		if (q1category == ""){
+			errors.push({ msg: 'Please select the category, either a textbox or dropdown menu.'});
+		}
+	}
+
+	var q1choices_array = [];
+	console.log(q1choices_array);
+	if (q1category == "radiobtn") {
+		var fieldNum = parseInt(req.body.fieldNum);
+		if (fieldNum >= 1) {
+			for (i = 0; i < fieldNum; i++) {
+				if(req.body["flist" + i] != ""){
+					var flist = req.body["flist" + i];
+					console.log(flist);
+					q1choices_array.push(flist);
 				}
-			})
-			.then((choices) =>{
-				if(choices != null){
-					Productchoices.destroy({
-						where: {
-							catalougeId: pdetails.id
-						}
+				else{
+					var a = i+1;
+					errors.push({ msg: 'Dropdown menu choice ' + a + ' cannot be empty, please remove, or fill in the box.'});
+				}
+				console.log(q1choices_array);
+			}
+		}
+		else {
+			errors.push({ msg: 'Please ensure your dropdown menu has 1 or more choices.'});
+		}
+	}
+
+	if (q1category == "radiobtn") {
+		// delete every productchoices so it won't conflict later
+		Productchoices.findAll({
+			where: {
+				catalougeId: req.params.id
+			}
+		})
+		.then((choices) =>{
+			if(choices != null){
+				Productchoices.destroy({
+					where: {
+						catalougeId: req.params.id
+					}
+				})
+				.then(()=>{
+					q1choices_array.forEach(c => {
+						Productchoices.create({
+							choice: c,
+							catalougeId: req.params.id
+						})
+						.then(()=>{
+							console.log("Product choice saved");
+						})
+						.catch(err => {
+							console.error('Unable to connect to the database:', err);
+						});
 					});
-				}
-			})
-		}
-	})
-	.catch(err => {
-		console.error('Unable to connect to the database:', err);
-	});
-	
-	Catalouge.update({
-		storename: 'Ah Tong Tailor',
-		name: name,
-		price: price,
-		image: '1.png',
-		description: description,
-		discount: discount,
-		customqn: question,
-		customcat: q1category
-	}, {
-		where: {
-			id: req.params.id
-		}
-	}).then(()=> {
-		alertMessage(res, 'success', 'Updated product successfully!', 'fas fa-check-circle', true);
-		res.redirect('/view/'+ req.params.id);
-	}).catch(err => console.log(err));
+				});
+			}
+			else {
+				q1choices_array.forEach(c => {
+					Productchoices.create({
+						choice: c,
+						catalougeId: req.params.id
+					})
+					.then(()=>{
+						console.log("Product choice saved");
+					})
+					.catch(err => {
+						console.error('Unable to connect to the database:', err);
+					});
+				});
+			}
+		});
+	}
+
+	if (errors.length == 0){
+		// Catalouge.findOne({
+		// 	where: { id: req.params.id },
+		// 	raw: true
+		// })
+		// .then(pdetails => {
+		// 	if(pdetails.customcat == "radiobtn"){
+				
+		// 	}
+		// })
+		// .catch(err => {
+		// 	console.error('Unable to connect to the database:', err);
+		// });
+
+		Catalouge.update({
+			storename: 'Ah Tong Tailor',
+			name: name,
+			price: price,
+			image: '1.png',
+			description: description,
+			discount: discount,
+			customqn: question,
+			customcat: q1category
+		}, {
+			where: {
+				id: req.params.id
+			}
+		}).then(()=> {
+			
+			
+			alertMessage(res, 'success', 'Updated product successfully!', 'fas fa-check-circle', true);
+			res.redirect('/view/'+ req.params.id);
+		}).catch(err => console.log(err));
+
+		
+	}
+	else {
+		//return error msg
+		errors.forEach(error => {
+			alertMessage(res, 'danger', error.msg, 'fas fa-exclamation-triangle', true);
+		});
+		res.redirect('/tailor/editproduct/'+ req.params.id);
+	}
 });
 
 module.exports = router;

@@ -77,10 +77,11 @@ router.get('/viewshops/:storename', (req, res) => {
 		if (shopprod.length > 0){
 			title = 'View Items - ' + req.params.storename
 			console.log(shopprod);
+			user_status = "tailor"
 			res.render('customer/viewstore', { 
 				title: title, 
 				shopprod: shopprod,
-				user_status: "tailor" 
+				user_status: user_status
 			});
 		}
 		else {
