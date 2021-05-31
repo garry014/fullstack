@@ -1,4 +1,4 @@
-// Hyperlinks here/Form submit/redirect links /tailor/___________
+// Redirections/Form submit/hyperlink links /tailor/___________
 // But the links here, put /________ directly
 const express = require('express');
 const router = express.Router();

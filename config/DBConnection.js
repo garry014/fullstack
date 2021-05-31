@@ -1,7 +1,9 @@
 const mySQLDB = require('./DBConfig');
 const catalouge = require('../models/Catalouge');
-const productchoices = require('../models/Productchoices')
-// const video = require('../models/Video');
+const productchoices = require('../models/Productchoices');
+const chat = require('../models/Chat');
+const messages = require('../models/Message');
+
 // If drop is true, all existing tables are dropped and recreated
 const setUpDB = (drop) => {
     mySQLDB.authenticate()
@@ -15,6 +17,7 @@ const setUpDB = (drop) => {
         in video.
         */
             catalouge.hasMany(productchoices);
+            chat.hasMany(messages);
             mySQLDB.sync({ // Creates table if none exists
                 force: drop
             }).then(() => {
