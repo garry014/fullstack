@@ -91,7 +91,7 @@
 
             </div>
 
-            <div class="msg_history">
+            <div class="msg_history" id="msg_history">
                 <br>
 
                 <div class="incoming_msg">
@@ -141,10 +141,10 @@
             </div>
             <div class="type_msg">
                 <div class="input_msg_write">
-                    <form class="contact-form-style" action="" method="post" name="send_msgform">
+                    <!-- Send Text -->
+                    <form onsubmit="return sendMessage();" class="contact-form-style">
                         <input autocomplete="off" class="write_msg" id="message" name="message"
-                            placeholder="Type a message" type="text" value="" style="padding-right: 120px;" required>
-
+                            placeholder="Type a message" type="text" value="send help" style="padding-right: 120px;" required>
                         <button class="msg_send_btn" type="submit"><i class="fa fa-paper-plane-o"
                                 aria-hidden="true"></i></button>
 
@@ -249,7 +249,14 @@
 </div>
 
 <!-- UI to show when screen size is small -->
+<form onsubmit="return enterName();">
+    <input id="name" placeholder="Enter Name" value="Gary">
+    <input type="submit">
+</form>
 
+<ul id="users"></ul>
+
+<ul id="messages1"></ul>
 
 <!-- Image Modal -->
 <div id="modal_img" class="modalImg">
@@ -259,9 +266,12 @@
 </div>
 
 <script>
-    window.onload = function () {
-        $('label[for=message]').remove();
+    function autoScrollDown(){
         $(".msg_history").stop().animate({ scrollTop: $(".msg_history")[0].scrollHeight }, 500);
+    }
+
+    window.onload = function () {
+        autoScrollDown();
     }
 
     if (window.history.replaceState) {
@@ -289,6 +299,73 @@
         modal.style.display = "none";
     }
 
-    // Socket IO
+    //////////////////////// Socket IO ////////////////////////////////
     var io = io();
+
+    var receiver = "";
+    var sender = "";
+
+    function enterName() {
+        var name = document.getElementById("name").value;
+
+        // Send it to server
+        io.emit("user_connected", name);
+
+        // save my name in global variable
+        sender = name;
+
+        return false;
+    }
+
+    io.on("user_connected", function (username) {
+        var html = "";
+        html += "<li><button onclick='onUserSelected(this.innerHTML);'>" + username + "</button></li>";
+
+        document.getElementById("users").innerHTML += html;
+    });
+
+    function onUserSelected(username) {
+        // save selected user in global var
+        receiver = username;
+    }
+
+    function sendMessage() {
+        var messsage = document.getElementById("message").value;
+
+        // Send message to server
+        io.emit("send_message", {
+            sender: sender,
+            receiver: receiver,
+            messsage: messsage
+        });
+
+        //append sender msg
+        const div = document.createElement('div');
+        const idiv = document.createElement('div'); // Internal div
+        div.className = 'outgoing_msg';
+        idiv.className = 'sent_msg';
+        idiv.innerHTML = `<p>${messsage}</p><span class="time_date"> 18 May 2021 11:41 | me</span>`;
+        div.appendChild(idiv);
+
+        document.getElementById('msg_history').appendChild(div);
+        autoScrollDown();
+
+        return false;
+    }
+
+    // listen from server
+    io.on("new_message", function (data) {
+        const div = document.createElement('div');
+        div.className = 'incoming_msg';
+        div.innerHTML = `<div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
+                        <div class="received_msg">
+                            <div class="received_withd_msg">
+                                <p>${data.messsage}</p>
+                                <span class="time_date"> 18 May 2021 11:41 | Merlion Tailor</span>
+                            </div>
+                        </div>`;
+
+        document.getElementById('msg_history').appendChild(div);
+        autoScrollDown();
+    });
 </script>

@@ -1,5 +1,5 @@
 <script src="/socket.io/socket.io.js"></script>
-video 8:58
+video 17:20
 <form onsubmit="return enterName();">
     <input id="name" placeholder="Enter Name">
     <input type="submit">
@@ -13,6 +13,10 @@ video 8:58
 </form>
 
 <ul id="messages"></ul>
+<div class="mesgs">
+    <div id="msg_history">
+    </div>
+</div>
 
 <script>
     var io = io();
@@ -56,10 +60,21 @@ video 8:58
         });
 
         //append sender msg
-        var html = "";
+        /*var html = "";
         html += "<li>You said: " + messsage + "</li>";
 
-        document.getElementById("messages").innerHTML += html;
+        document.getElementById("messages").innerHTML += html;*/
+        const div = document.createElement('div');
+        const idiv = document.createElement('div');
+        div.id = 'outgoing_msg';
+        idiv.id = 'sent_msg';
+        div.innerHTML = `
+        ${messsage} 
+            <span class="time_date"> 18 May 2021 11:41 | me</span>
+        `;
+        div.appendChild(idiv);
+
+        document.getElementById('msg_history').appendChild(div);
 
         // Prevent from submitting
         return false;
