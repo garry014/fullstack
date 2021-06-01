@@ -1,0 +1,75 @@
+<script src="/socket.io/socket.io.js"></script>
+video 8:58
+<form onsubmit="return enterName();">
+    <input id="name" placeholder="Enter Name">
+    <input type="submit">
+</form>
+
+<ul id="users"></ul>
+
+<form onsubmit="return sendMessage();">
+    <input id="message" placeholder="Enter Message">
+    <input type="submit">
+</form>
+
+<ul id="messages"></ul>
+
+<script>
+    var io = io();
+
+    var receiver = "";
+    var sender = "";
+
+    function enterName() {
+        var name = document.getElementById("name").value;
+
+        // Send it to server
+        io.emit("user_connected", name);
+
+        // save my name in global variable
+        sender = name;
+
+        return false;
+    }
+
+    io.on("user_connected", function (username) {
+        var html = "";
+        html += "<li><button onclick='onUserSelected(this.innerHTML);'>" + username + "</button></li>";
+
+        document.getElementById("users").innerHTML += html;
+    });
+
+    function onUserSelected(username) {
+        // save selected user in global var
+        receiver = username;
+    }
+
+    function sendMessage() {
+        // get message 
+        var messsage = document.getElementById("message").value;
+
+        // Send message to server
+        io.emit("send_message", {
+            sender: sender,
+            receiver: receiver,
+            messsage: messsage
+        });
+
+        //append sender msg
+        var html = "";
+        html += "<li>You said: " + messsage + "</li>";
+
+        document.getElementById("messages").innerHTML += html;
+
+        // Prevent from submitting
+        return false;
+    }
+
+    // listen from server
+    io.on("new_message", function (data) {
+        var html = "";
+        html += data.sender + " says: " + data.messsage + "</li>";
+
+        document.getElementById("messages").innerHTML += html;
+    });
+</script>

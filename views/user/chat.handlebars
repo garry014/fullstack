@@ -1,6 +1,7 @@
 <style type="text/css">
     @import url("/css/chat.css");
 </style>
+<script src="/socket.io/socket.io.js"></script>
 
 <div class="messaging">
     <div class="inbox_msg">
@@ -247,6 +248,8 @@
 
 </div>
 
+<!-- UI to show when screen size is small -->
+
 
 <!-- Image Modal -->
 <div id="modal_img" class="modalImg">
@@ -286,5 +289,6 @@
         modal.style.display = "none";
     }
 
-
+    // Socket IO
+    var io = io();
 </script>

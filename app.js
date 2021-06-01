@@ -31,6 +31,39 @@ const riderRoute = require('./routes/rider');
 * in Node JS.
 */
 const app = express();
+const http = require("http").createServer(app);
+
+// Create socket instance
+const io = require('socket.io')(http);
+var users = [];
+
+// add listener for new connection
+io.on("connection", function(socket){
+	// this is socket for each user
+	console.log("'\x1b[36m%s\x1b[0m'", "user connected: ", socket.id);
+
+	socket.on('disconnect', () => {
+		console.log('user disconnected: ', socket.id);
+	});
+
+	socket.on("user_connected", function(username){
+		users[username] = socket.id;
+
+		// socket id will be used to send msg to individual person
+
+		//notify all connect clients
+		io.emit("user_connected", username);
+	});
+
+	socket.on("send_message", function(data){
+		// send event to receiver
+		var socketId = users[data.receiver];
+
+		io.to(socketId).emit("new_message", data);
+	});
+});
+
+
 
 // Handlebars Middleware
 /*
@@ -145,6 +178,10 @@ app.use('/', mainRoute); // mainRoute is declared to point to routes/main.js
 app.use('/tailor', tailorRoute);
 app.use('/customer', custRoute);
 app.use('/rider', riderRoute);
+
+app.get('/test', (req, res) => {
+	res.render('testchat', { title: "Test Chat" });
+});
 // This route maps the root URL to any path defined in main.js
 
 // Handle 404 error page - Keep this as a last route
@@ -161,6 +198,10 @@ app.use(function(req, res, next) {
 const port = 5000;
 
 // Starts the server and listen to port 5000
-app.listen(port, () => {
-	console.log('\x1b[36m%s\x1b[0m', `JIAYOUS, IT WILL ALL WORK OUT SOME DAY! Server started on port ${port}.`);
-});
+// app.listen(port, () => {
+// 	console.log('\x1b[36m%s\x1b[0m', `JIAYOUS, IT WILL ALL WORK OUT SOME DAY! Server started on port ${port}.`);
+// });
+
+http.listen(port, () => {
+	console.log("listening to port " + port);
+})
