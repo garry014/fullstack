@@ -6,6 +6,9 @@ const { username, password } = require('../config/db');
 const alertMessage = require('../helpers/messenger');
 const Catalouge = require('../models/Catalouge');
 const Productchoices = require('../models/Productchoices');
+const Chat = require('../models/Chat');
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 
 ////// Flash Error Message for easy referrence ///////
 // alertMessage(res, 'success',
@@ -41,16 +44,16 @@ router.get('/review', (req, res) => {
 	res.render('customer/review', { title: "Leave a review" });
 });
 // Customer : reward page
-router.get('/rewardpage',(req,res)=>{
-	res.render('customer/rewardpage',{title:"Rewards"})
+router.get('/rewardpage', (req, res) => {
+	res.render('customer/rewardpage', { title: "Rewards" })
 })
 // Customer : checkout page
-router.get('/customers_checkout',(req,res)=>{
-	res.render('customer/customers_checkout', {title : "customers_checkout"})
+router.get('/customers_checkout', (req, res) => {
+	res.render('customer/customers_checkout', { title: "customers_checkout" })
 })
 // Customer : after transaction page
-router.get('/transaction_complete',(req,res)=>{
-	res.render('customer/transaction_complete',{title : "transaction_complete"})
+router.get('/transaction_complete', (req, res) => {
+	res.render('customer/transaction_complete', { title: "transaction_complete" })
 })
 
 // FOR DESIGNING PURPOSES ONLY
@@ -59,12 +62,68 @@ router.get('/design', (req, res) => {
 });
 
 router.get('/inbox', (req, res) => {
-	res.render('user/chat', { title: "Chat" });
+	const currentuser = "Chainsmoker"; //temp var
+	Chat.findAll({
+		where: {
+			[Op.or]: [{sender: currentuser}, {recipient: currentuser}]
+		}
+	})
+		.then((chats) => {
+			chat = [];
+			if(chats){
+				//Need to extract ONLY one section of each object
+				for (var c in chats) {
+					chat.push(chats[c].dataValues);
+				};
+
+				res.render('user/chat', { 
+					title: "Chat", 
+					chat: chat,
+					currentuser: currentuser
+				});
+			}
+			else {
+				res.render('user/chat', { title: "Chat" });
+			}
+			
+		})
+		.catch(err => {
+			console.error('Unable to connect to the database:', err);
+		});
 });
 
 // Customer View Shops
 router.get('/viewshops', (req, res) => {
-	res.render('customer/viewshops', { title: "View Shops" });
+	Catalouge.findAll({
+		// Get all DB values
+		// run a for loop to extract only the distinct storename, max discount
+		// attributes: [
+		// 	[Sequelize.fn('DISTINCT', Sequelize.col('storename')) ,'storename'],
+		// ]
+	})
+	.then((shops)=>{
+		if(shops){
+			const shop = [];
+			for (var s in shops) {
+				shop.push(shops[s].dataValues);
+			};
+
+			shop.forEach(shopItem => {
+				console.log(shopItem);
+				
+			});
+			res.render('customer/viewshops', { 
+				title: "View Shops",
+				shop: shop
+			});
+		}
+		else{
+			res.render('customer/viewshops', { title: "View Shops" });
+		}
+	})
+	.catch(err => {
+		console.error('Unable to connect to the database:', err);
+	});
 });
 
 // Customer View Shop Items
@@ -73,27 +132,26 @@ router.get('/viewshops/:storename', (req, res) => {
 		where: { storename: req.params.storename },
 		raw: true
 	})
-	.then(shopprod => {
-		if (shopprod.length > 0){
-			title = 'View Items - ' + req.params.storename
-			console.log(shopprod);
-			user_status = "tailor"
-			res.render('customer/viewstore', { 
-				title: title, 
-				shopprod: shopprod,
-				user_status: user_status
-			});
-		}
-		else {
-			return res.redirect('/404');
-		}
-	})
-	.catch(err => {
-		console.error('Unable to connect to the database:', err);
-	});
+		.then(shopprod => {
+			if (shopprod.length > 0) {
+				title = 'View Items - ' + req.params.storename
+				user_status = "tailor"
+				res.render('customer/viewstore', {
+					title: title,
+					shopprod: shopprod,
+					user_status: user_status
+				});
+			}
+			else {
+				return res.redirect('/404');
+			}
+		})
+		.catch(err => {
+			console.error('Unable to connect to the database:', err);
+		});
 });
 
-router.get("/view/:id", (req, res) => { 
+router.get("/view/:id", (req, res) => {
 	// http://localhost:5000/view/1
 	const title = 'Add Product';
 	Catalouge.findOne({
@@ -110,19 +168,19 @@ router.get("/view/:id", (req, res) => {
 				// console.log('Example of product name ' + getDetails['name']); 
 
 				// Bug here: cannot run on id that does nt exists.
-				if (getDetails['customcat'] == "radiobtn"){
+				if (getDetails['customcat'] == "radiobtn") {
 					Productchoices.findAll({
 						where: { catalougeId: req.params.id },
 						raw: true
 					})
-					.then(pchoices => {
-						pchoices.forEach(element => {
-							choicesArray.push(element['choice']);
+						.then(pchoices => {
+							pchoices.forEach(element => {
+								choicesArray.push(element['choice']);
+							});
+						})
+						.catch(err => {
+							console.error('Unable to connect to the database:', err);
 						});
-					})
-					.catch(err => {
-						console.error('Unable to connect to the database:', err);
-					});
 				}
 
 				res.render('customer/productview', {
@@ -167,12 +225,12 @@ router.get('/tailorschedule', (req, res) => {
 	res.render('tailor/tailorschedule', { title: "Education Platform Content" });
 });
 // tailor : manage advertisement
-router.get('/manageads',(req,res)=>{
-	res.render('tailor/manageads',{title: "manageads"})
+router.get('/manageads', (req, res) => {
+	res.render('tailor/manageads', { title: "manageads" })
 })
 // tailor : advertising 
-router.get('/advertise',(req,res)=>{
-	res.render('tailor/advertise',{title:"advertise"})
+router.get('/advertise', (req, res) => {
+	res.render('tailor/advertise', { title: "advertise" })
 })
 
 
@@ -213,20 +271,17 @@ router.get('/educationplatform', (req, res) => {
 router.get('/educationplatformcontent', (req, res) => {
 	res.render('customer/educationplatformcontent', { title: "Education Platform Content" });
 });
-// customer: registration complete 
-router.get('/custregcomplete', (req, res) => {
-	res.render('customer/custregcomplete');
-});
+
 // customer: account page 
 router.get('/custaccount', (req, res) => {
 	alertMessage(res, 'success',
 		'You have updated your account details successfully!', 'fas fa-sign-in-alt', true);
-		alertMessage(res, 'danger',
+	alertMessage(res, 'danger',
 		'Something went wrong. Please try again! ', 'fas fa-exclamation-circle', false);
-		alertMessage(res, 'success',
+	alertMessage(res, 'success',
 		'You have updated your password successfully!', 'fas fa-sign-in-alt', true);
-		let error_msg = 'Your passwords do not match please try again later!';
-	res.render('customer/custacct', {error_msg: error_msg});
+	let error_msg = 'Your passwords do not match please try again later!';
+	res.render('customer/custacct', { error_msg: error_msg });
 });
 // riders: register page 
 router.get('/rideregister', (req, res) => {
@@ -248,13 +303,13 @@ router.get('/riderlogin', (req, res) => {
 router.get('/rideraccount', (req, res) => {
 	alertMessage(res, 'success',
 		'You have updated your account details successfully!', 'fas fa-sign-in-alt', true);
-		alertMessage(res, 'danger',
+	alertMessage(res, 'danger',
 		'Something went wrong. Please try again! ', 'fas fa-exclamation-circle', false);
-		alertMessage(res, 'success',
+	alertMessage(res, 'success',
 		'You have updated your password successfully!', 'fas fa-sign-in-alt', true);
-		let error_msg = 'Your passwords do not match please try again later!';
+	let error_msg = 'Your passwords do not match please try again later!';
 
-	res.render('rider/rideracct', {error_msg: error_msg});
+	res.render('rider/rideracct', { error_msg: error_msg });
 });
 // riders: home page 
 router.get('/homerider', (req, res) => {
@@ -289,8 +344,8 @@ router.get('/rwalletransfer', (req, res) => {
 	let success_msg = 'You have successfully transferred SGD$10.00 to your card.';
 	alertMessage(res, 'danger',
 		'You have insufficient funds to transfer. Please try again later.', 'fas fa-exclamation-circle', false);
-	res.render('rider/rwalletransfer', 
-	{success_msg: success_msg});
+	res.render('rider/rwalletransfer',
+		{ success_msg: success_msg });
 });
 // tailor: login page 
 router.get('/tailorlogin', (req, res) => {
@@ -316,15 +371,15 @@ router.get('/hometailor', (req, res) => {
 router.get('/tailoraccount', (req, res) => {
 	alertMessage(res, 'success',
 		'You have updated your account details successfully!', 'fas fa-sign-in-alt', true);
-		alertMessage(res, 'danger',
+	alertMessage(res, 'danger',
 		'Something went wrong. Please try again! ', 'fas fa-exclamation-circle', false);
-		alertMessage(res, 'success',
+	alertMessage(res, 'success',
 		'You have updated your password successfully!', 'fas fa-sign-in-alt', true);
-		let error_msg = 'Your passwords do not match please try again later!';
-	res.render('tailor/tailoracct', {error_msg: error_msg});
+	let error_msg = 'Your passwords do not match please try again later!';
+	res.render('tailor/tailoracct', { error_msg: error_msg });
 });
 
- 
+
 // tailor: view vouchers
 router.get('/vouchers', (req, res) => {
 	res.render('tailor/vouchers', { title: "Vouchers" });
