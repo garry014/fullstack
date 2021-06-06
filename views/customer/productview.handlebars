@@ -1,4 +1,3 @@
-<!-- Scrub Page -->
 {{#if pdetails}} 
 <div class="breadcrumb-area pt-35 pb-35 bg-gray-3">
     <div class="container">
@@ -6,13 +5,13 @@
         <div class="breadcrumb-content text-center">
             <ul>
                 <li>
-                    <a href="index.html">Home</a>
+                    <a href="/homecust">Home</a>
                 </li>
                 <li>
-                    <a href="">View Shop</a>
+                    <a href="/viewshops">View Shops</a>
                 </li>
                 <li>
-                    <a href="">{{pdetails.storename}}</a>
+                    <a href="/viewshops/{{pdetails.storename}}">{{pdetails.storename}}</a>
                 </li>
                 <li class="active">{{ pdetails.name }}</li>
             </ul>
