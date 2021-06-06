@@ -18,21 +18,26 @@ router.get('/custlogin', (req, res) => {
 	res.render('customer/custlogin');
 });
 
-// customer: register 
 router.get('/custregister', (req, res) => {
+	res.render('customer/custregister', { title: "Registration"});
+});
+
+// customer: register 
+router.post('/custregister', (req, res) => {
     let errors = [];
     // Checks if both passwords entered are the same
 	if (req.body.password !== req.body.password2) {
 		errors.push({
-			text: 'Passwords do not match'
+			msg: 'Passwords do not match'
 		});
 	}
 	// Checks that password length is more than 4 (upgrade this to include checking for special characters etc)
 	if (req.body.password.length < 8) {
 		errors.push({
-			text: 'Password must be at least 8 characters'
+			msg: 'Password must be at least 8 characters'
 		});
 	}
+	console.log(req.body.firstname);
     /*
 	 If there is any error with password mismatch or size, then there must be
 	 more than one error message in the errors array, hence its length must be more than one.
