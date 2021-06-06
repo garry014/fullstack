@@ -213,21 +213,9 @@ router.get('/educationplatform', (req, res) => {
 router.get('/educationplatformcontent', (req, res) => {
 	res.render('customer/educationplatformcontent', { title: "Education Platform Content" });
 });
-// customer: register 
-router.get('/custregister', (req, res) => {
-	res.render('customer/custregister');
-});
 // customer: registration complete 
 router.get('/custregcomplete', (req, res) => {
 	res.render('customer/custregcomplete');
-});
-// customer: login page 
-router.get('/custlogin', (req, res) => {
-	alertMessage(res, 'success',
-		'You have logged in successfully!', 'fas fa-sign-in-alt', true);
-	alertMessage(res, 'danger',
-		'Login was unsuccessful. Please try again! ', 'fas fa-exclamation-circle', false);
-	res.render('customer/custlogin');
 });
 // customer: account page 
 router.get('/custaccount', (req, res) => {
