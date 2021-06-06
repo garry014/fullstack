@@ -25,8 +25,10 @@ router.get('/custregister', (req, res) => {
 // customer: register 
 router.post('/custregister', (req, res) => {
     let errors = [];
-    // Checks if both passwords entered are the same
-	console.log(req.body.firstname, req.body.lastname,
+    
+	// All this are your variables
+	console.log(req.body.firstname, 
+		req.body.lastname,
 		req.body.username,
 		req.body.password,
 		req.body.password2,
@@ -37,6 +39,8 @@ router.post('/custregister', (req, res) => {
 		req.body.gender,
 		req.body.email,
 		req.body.phoneno);
+
+	// Checks if both passwords entered are the same
 	if (req.body.password !== req.body.password2) {
 		errors.push({
 			msg: 'Passwords do not match'
