@@ -26,6 +26,17 @@ router.get('/custregister', (req, res) => {
 router.post('/custregister', (req, res) => {
     let errors = [];
     // Checks if both passwords entered are the same
+	console.log(req.body.firstname, req.body.lastname,
+		req.body.username,
+		req.body.password,
+		req.body.password2,
+		req.body.address1,
+		req.body.address2,
+		req.body.city,
+		req.body.postalcode,
+		req.body.gender,
+		req.body.email,
+		req.body.phoneno);
 	if (req.body.password !== req.body.password2) {
 		errors.push({
 			msg: 'Passwords do not match'
@@ -37,7 +48,6 @@ router.post('/custregister', (req, res) => {
 			msg: 'Password must be at least 8 characters'
 		});
 	}
-	console.log(req.body.firstname);
     /*
 	 If there is any error with password mismatch or size, then there must be
 	 more than one error message in the errors array, hence its length must be more than one.
@@ -51,7 +61,7 @@ router.post('/custregister', (req, res) => {
 			username: req.body.username,
 			password: req.body.password,
 			password2: req.body.password2,
-            address: req.body.address,
+            address: req.body.address1,
             address2: req.body.address2,
             city: req.body.city,
             postalcode: req.body.postalcode,
@@ -59,11 +69,9 @@ router.post('/custregister', (req, res) => {
             email: req.body.email,
             phoneno: req.body.phoneno
 		});
-	} else {
-		let success_msg = `${req.body.email} registered successfully`;
-		res.render('/custregcomplete', {
-			success_msg // or sucess_msg: success_msg
-		});
+	} else {	
+		alertMessage(res, 'success', `${req.body.email} registered successfully`, 'fas fa-check-circle', true);
+		res.redirect('/customer/custregcomplete');
 	}
 });
 // customer: registration complete 
