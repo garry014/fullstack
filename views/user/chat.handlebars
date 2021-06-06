@@ -2,6 +2,7 @@
     @import url("/css/chat.css");
 </style>
 <script src="/socket.io/socket.io.js"></script>
+Video 21:11
 
 <div class="messaging">
     <div class="inbox_msg">
@@ -93,7 +94,6 @@
 
             <div class="msg_history" id="msg_history">
                 <br>
-
                 <div class="incoming_msg">
                     <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png"
                             alt="sunil"> </div>
@@ -104,24 +104,30 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="outgoing_msg">
-                    <div class="sent_msg">
-                        <p>嗨，我需要帮助。 您缝制得永远不会正确缝制，缝线会露出来，然后裤子会掉一个洞。</p>
-                        <span class="time_date"> 18 May 2021 11:41 | me</span>
-                    </div>
-                </div>
-
+                {{#each chat}}
+                {{#ifCond recipient '==' ../currentuser}} 
+                <!-- Left/Recieved msg if recipient == current user -->
                 <div class="incoming_msg">
                     <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png"
                             alt="sunil"> </div>
                     <div class="received_msg">
                         <div class="received_withd_msg">
-                            <p>您好，我为缝制不佳表示歉意。 你能给这个问题拍张照片吗？</p>
+                            <p>{{message}}</p>
                             <span class="time_date"> 18 May 2021 11:41 | Merlion Tailor</span>
                         </div>
                     </div>
                 </div>
+                {{else}}
+                <!-- Right/Sent msg if sender == current user-->
+                <div class="outgoing_msg">
+                    <div class="sent_msg">
+                        <p>{{message}} {{recipient}} == {{../currentuser}}</p>
+                        <span class="time_date"> 18 May 2021 11:41 | me</span>
+                    </div>
+                </div>
+                {{/ifCond}}
+                {{/each}}
+                
 
                 <div class="outgoing_msg">
                     <div class="sent_msg">
@@ -330,13 +336,13 @@
     }
 
     function sendMessage() {
-        var messsage = document.getElementById("message").value;
+        var message = document.getElementById("message").value;
 
         // Send message to server
         io.emit("send_message", {
             sender: sender,
             receiver: receiver,
-            messsage: messsage
+            message: message
         });
 
         //append sender msg
@@ -344,7 +350,7 @@
         const idiv = document.createElement('div'); // Internal div
         div.className = 'outgoing_msg';
         idiv.className = 'sent_msg';
-        idiv.innerHTML = `<p>${messsage}</p><span class="time_date"> 18 May 2021 11:41 | me</span>`;
+        idiv.innerHTML = `<p>${message}</p><span class="time_date"> 18 May 2021 11:41 | me</span>`;
         div.appendChild(idiv);
 
         document.getElementById('msg_history').appendChild(div);
@@ -360,7 +366,7 @@
         div.innerHTML = `<div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
                         <div class="received_msg">
                             <div class="received_withd_msg">
-                                <p>${data.messsage}</p>
+                                <p>${data.message}</p>
                                 <span class="time_date"> 18 May 2021 11:41 | Merlion Tailor</span>
                             </div>
                         </div>`;
