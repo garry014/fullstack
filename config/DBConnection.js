@@ -17,7 +17,7 @@ const setUpDB = (drop) => {
         in video.
         */
             catalouge.hasMany(productchoices);
-            chat.hasMany(messages);
+            // chat.hasMany(messages);
             mySQLDB.sync({ // Creates table if none exists
                 force: drop
             }).then(() => {

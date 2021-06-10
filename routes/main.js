@@ -62,7 +62,7 @@ router.get('/design', (req, res) => {
 });
 
 router.get('/inbox', (req, res) => {
-	const currentuser = "Chainsmoker"; //temp var
+	const currentuser = "Gary"; //temp var
 	Chat.findAll({
 		where: {
 			[Op.or]: [{sender: currentuser}, {recipient: currentuser}]

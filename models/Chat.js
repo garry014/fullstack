@@ -13,6 +13,9 @@ const Chat = db.define('chat',{
     },
     recipientstatus: {
         type:Sequelize.STRING
+    },
+    message: {
+        type:Sequelize.STRING
     }
 });
 

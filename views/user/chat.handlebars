@@ -105,24 +105,24 @@ Video 21:11
                     </div>
                 </div>
                 {{#each chat}}
-                {{#ifCond recipient '==' ../currentuser}} 
+                {{#ifCond sender '==' ../currentuser}} 
                 <!-- Left/Recieved msg if recipient == current user -->
-                <div class="incoming_msg">
-                    <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png"
-                            alt="sunil"> </div>
-                    <div class="received_msg">
-                        <div class="received_withd_msg">
-                            <p>{{message}}</p>
-                            <span class="time_date"> 18 May 2021 11:41 | Merlion Tailor</span>
-                        </div>
+                <div class="outgoing_msg">
+                    <div class="sent_msg">
+                        <p>{{message}}</p>
+                        <span class="time_date"> 18 May 2021 11:41 | me</span>
                     </div>
                 </div>
                 {{else}}
                 <!-- Right/Sent msg if sender == current user-->
-                <div class="outgoing_msg">
-                    <div class="sent_msg">
-                        <p>{{message}} {{recipient}} == {{../currentuser}}</p>
-                        <span class="time_date"> 18 May 2021 11:41 | me</span>
+                <div class="incoming_msg">
+                    <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png"
+                            alt="sunil"> </div>
+                    <div class="received_msg">
+                        <div class="received_withd_msg">  
+                            <p>{{message}}</p>
+                            <span class="time_date">18 May 2021 11:41 | {{sender}}</span>
+                        </div>
                     </div>
                 </div>
                 {{/ifCond}}

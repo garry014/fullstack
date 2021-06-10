@@ -38,6 +38,9 @@ const http = require("http").createServer(app);
 const io = require('socket.io')(http);
 var users = [];
 
+const Chat = require('./models/Chat');
+const Message = require('./models/Message');
+
 // add listener for new connection
 io.on("connection", function(socket){
 	// this is socket for each user
@@ -61,6 +64,23 @@ io.on("connection", function(socket){
 		var socketId = users[data.receiver];
 
 		io.to(socketId).emit("new_message", data);
+
+		// Get Date
+		var currentdate = new Date(); 
+		const monthNames = ["January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December"];
+		var datetime = currentdate.getDate() + " "
+                + monthNames[currentdate.getMonth()]  + " " 
+                + currentdate.getFullYear() + " "  
+                + currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+
+		// Save in db
+		Message.create({
+			sentby: data.sender,
+			timestamp: datetime,
+			message: data.message
+		}).catch(err => {
+			console.error('Unable to connect to the database:', err);
+		});
 	});
 });
 
