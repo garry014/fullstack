@@ -8,6 +8,7 @@ var bodyParser = require('body-parser');
 const Catalouge = require('../models/Catalouge');
 const Productchoices = require('../models/Productchoices');
 const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
@@ -74,67 +75,58 @@ router.post('/addproduct', urlencodedParser, (req, res) => {
 
 
 	if (errors.length == 0) {
-		// Get last id
-		Catalouge.findAll({
-			limit: 1,
-			order: [['id', 'DESC']],
-			raw: true
-		})
-			.then((lastcolumn) => {
-				const newid = lastcolumn[0].id + 1;
+		// Image Upload
+		var file = req.files.file;
+		var filename = file.name;
+		var filetype = file.mimetype.substring(6);
+		const newid = uuidv4(); // Generate unique file id
+		
+		Catalouge
+			.create({
+				storename: 'Ah Tong Tailor',
+				name: name,
+				price: price,
+				image: newid + '.' + filetype,
+				description: description,
+				discount: discount,
+				customqn: question,
+				customcat: q1category
+			})
+			.then(result => {
+				let cataid = result.id;
+				if (q1category == "radiobtn") {
+					q1choices_array.forEach(c => {
+						console.log("here:" + cataid);
+						Productchoices.create({
+							choice: c,
+							catalougeId: cataid
+						})
+							.catch(err => {
+								console.error('Unable to connect to the database:', err);
+							});
+					})
+				}
 
 				// Image Upload
-				var file = req.files.file;
-				var filename = file.name;
-				var filetype = file.mimetype.substring(6);
+				var newFileName = './public/uploads/products/' + newid + '.' + filetype;
+				if (fs.existsSync(newFileName)) {
+					fs.unlinkSync(newFileName);
+				}
 
-				Catalouge
-					.create({
-						storename: 'Ah Tong Tailor',
-						name: name,
-						price: price,
-						image: newid + '.' + filetype,
-						description: description,
-						discount: discount,
-						customqn: question,
-						customcat: q1category
-					})
-					.then(result => {
-						let cataid = result.id;
-						if (q1category == "radiobtn") {
-							q1choices_array.forEach(c => {
-								console.log("here:" + cataid);
-								Productchoices.create({
-									choice: c,
-									catalougeId: cataid
-								})
-									.catch(err => {
-										console.error('Unable to connect to the database:', err);
-									});
-							})
-						}
-
-						// Image Upload
-						var newFileName = './public/uploads/products/' + result.id + '.' + filetype;
-						if (fs.existsSync(newFileName)) {
-							fs.unlinkSync(newFileName);
-						}
-
-						file.mv('./public/uploads/products/' + filename, function (err) {
-							if (err) {
-								res.send(err);
-							}
-							else {
-								fs.rename('./public/uploads/products/' + filename, newFileName, function (err) {
-									if (err) console.log('ERROR: ' + err);
-								});
-								res.redirect('/view/' + result.id);
-							}
+				file.mv('./public/uploads/products/' + filename, function (err) {
+					if (err) {
+						res.send(err);
+					}
+					else {
+						fs.rename('./public/uploads/products/' + filename, newFileName, function (err) {
+							if (err) console.log('ERROR: ' + err);
 						});
-					})
-					.catch(err => {
-						console.error('Unable to connect to the database:', err);
-					});
+						res.redirect('/view/' + result.id);
+					}
+				});
+			})
+			.catch(err => {
+				console.error('Unable to connect to the database:', err);
 			});
 	}
 	else {
