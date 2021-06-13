@@ -3,59 +3,91 @@
  <div class="container">
         <div class="row">
             <div class="col-lg-12 col-md-12">
-                <div class="contact-form">
+                <div class="contact-form" style="background-color: transparent; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
                     <div class="contact-title mb-30">
                         <h2>Add Product/Service</h2>
                     </div>
                     *Required fields.
-                    <form class="contact-form-style" action="/tailor/addproduct" method="post">
+                    <form class="contact-form-style" id="file-upload-form" action="/tailor/addproduct" method="post" enctype="multipart/form-data">
                      {{!-- enctype=multipart/form-data --}}
                         <div class="row">
                             <div class="col-lg-6">
-                                <label for="name">Name:<span style="color:red;">*</span></label>
+                                <label for="name">Name<span style="color:red;">*</span></label>
                                 <input id="name" name="name" class="form-control" type="text" value="{{name}}" required>
                             </div>
                             <div class="col-lg-3">
-                                <label for="price">Price:* (Exclude $ sign)</label>
-                                <input id="price" name="price" type="text" value="{{price}}">
+                                <label for="price">Price<span style="color:red;">*</span> </label>
+                                <div class="input-box">
+                                    <input id="price" name="price" type="text" value="{{price}}">
+                                    <span class="price">$</span>
+                                </div>
                             </div>
                             <div class="col-lg-3">
-                                <label for="discount">Discounts:* (0 for N.A)</label>
-                                <input id="discount" name="discount" type="text" value="{{discount}}">
+                                <label for="discount">Discounts<span style="color:red;">*</span></label>
+                                <div class="input-box">
+                                    <input id="discount" name="discount" type="text" value="{{discount}}" title="Enter 0 for no discounts.">
+                                    <span class="percentage">%</span>
+                                </div>
                             </div>
                             {{!-- <div class="col-lg-12">
                                 <label for="image">Image:*</label>
                                 <input id="image" name="image" type="file">
                             </div> --}}
+                            <div class="uploader">
+                                <input id="file-upload" type="file" name="file" accept="image/*" />
+
+                                <label for="file-upload" id="file-drag">
+                                    <img id="file-image" src="#" alt="Preview" class="hidden">
+                                    <div id="start">
+                                    <i class="fa fa-download" aria-hidden="true"></i>
+                                    <div>Select an image file or drag here<span style="color:red;">*</span></div>
+                                    <div id="notimage" class="hidden"><p style="color:red;">Invalid file type, please select an image</p></div>
+                                    <span id="file-upload-btn" class="btn btn-primary">Select a file</span>
+                                    </div>
+                                    <div id="response" class="hidden">
+                                    <div id="messages"></div>
+                                    <progress class="progress" id="file-progress" value="1">
+                                        <span>100</span>%
+                                    </progress>
+                                    </div>
+                                </label>
+                            </div>
                             <div class="col-lg-12">
-                                <label for="description">Description:</label>
+                                <label for="description">Description</label>
                                 <textarea id="description" name="description">{{description}}</textarea>
                                 <br>
                             </div>
-                            <div class="col-lg-12" style="border-top: 2px solid black;">
-                                <b>Customisable Questions (Optional):</b>
-                                If you have additional questions you would like to check with your customers before their purchase, for example: Length to be altered in CM, you may fill up the following questions field.
+                            
+                            <div class="form-subcategory" role="button" aria-pressed="false" tabindex="0" data-toggle="collapse" data-target="#extraqn">
+                                <h4 class="form-subcategory-desc"><a href=""></a>+ Add customisable questions for customers</a></h4>
                             </div>
-                            <div class="col-lg-12">
-                                <label for="q1">Question 1:</label>
-                                <input id="question" name="question" type="text" value="{{q1}}">
-                            </div>
-                            <div class="col-lg-12">
-                                <label for="q1category">Category</label>
-                                <ul class="category-select-list" id="q1category" onclick="checkValue()">
-                                     <li><input checked="" id="q1category-0" name="q1category" type="radio" value=""> <label for="q1category-0"></label></li>
-                                        <li><input id="q1category-1" name="q1category" type="radio" value="textbox"> <label for="q1category-0">Textbox - Open-ended question</label></li>
-                                    <li><input id="q1category-2" name="q1category" type="radio" value="radiobtn"> <label for="q1category-1">Dropdown Menu - Show a list of selections the user can choose from</label></li>
-                                </ul>
+                            
+                            <div id="extraqn" class="collapse">
+                                <div class="col-lg-12" style="border-top: 2px solid black;">
+                                    <b>[Optional Section]</b>
+                                    If you have additional question you would like to check with your customers before their purchase, for example: Length to be altered in CM, you may fill up the following question field.
+                                </div>
+                                <div class="col-lg-12">
+                                    <label for="q1">Question<span style="color:red;">*</span></label>
+                                    <input id="question" name="question" type="text" value="{{question}}">
+                                </div>
+                                <div class="col-lg-12">
+                                    <label for="q1category">Category<span style="color:red;">*</span></label>
+                                    <ul class="category-select-list" id="q1category" onclick="checkValue()">
+                                        <li><input checked="" id="q1category-0" name="q1category" type="radio" value=""> <label for="q1category-0"></label></li>
+                                        <li><input id="q1category-1" name="q1category" type="radio" value="textbox"> <label for="q1category-1">Textbox - Open-ended question</label></li>
+                                        <li><input id="q1category-2" name="q1category" type="radio" value="radiobtn"> <label for="q1category-2">Dropdown Menu - Show a list of selections the user can choose from</label></li>
+                                    </ul>
 
-                            </div>
-                            <div class="col-lg-12" id="newFields">
-                                <button type="button" id="addNewField">Add Choice</button>
-                                <button type="button" id="removeLastField">Remove Last Choice</button>
-                            </div>
-                            <div class="col-lg-12">
-                                if error >>> 
-                                <input type="hidden" id="fieldNum" name="fieldNum" value="0">
+                                </div>
+                                <div class="col-lg-12" id="newFields">
+                                    <label id="labelChoices">Dropdown Menu Choices<span style="color:red;">*</span></label><br>
+                                    <button type="button" id="addNewField">Add Choice</button>
+                                    <button type="button" id="removeLastField">Remove Last Choice</button>
+                                </div>
+                                <div class="col-lg-12">
+                                    <input type="hidden" id="fieldNum" name="fieldNum" value="0">
+                                </div>
                             </div>
                             <div class="col-lg-12">
                                 <button class="submit" type="submit" style="float: right;">Add Product</button>
@@ -63,6 +95,7 @@
                         </div>
                     </form>
                     <p class="form-messege"></p>
+                    
                 </div>
             </div>
         </div>
@@ -112,13 +145,13 @@
             }
         }
 
-        if(q1_value == "textbox" || q1_value == ""){
-            document.getElementById("addNewField").hidden=true;
-            document.getElementById("removeLastField").hidden=true;
+        if(q1_value == "radiobtn"){
+            document.getElementById("newFields").hidden=false;
         }
         else {
-            document.getElementById("addNewField").hidden=false;
-            document.getElementById("removeLastField").hidden=false;
+            document.getElementById("newFields").hidden=true;
         }
     }
+
+
 </script>

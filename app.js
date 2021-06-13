@@ -4,6 +4,7 @@
 * */
 const express = require('express');
 const session = require('express-session');
+const upload = require('express-fileupload');
 const path = require('path');
 const exphbs = require('express-handlebars');
 const methodOverride = require('method-override');
@@ -140,6 +141,8 @@ Handlebars.registerHelper("calculatedisc", function(price, discount) {
 	return a.toFixed(2);
 });
 
+
+app.use(upload());
 
 // Body parser middleware to parse HTTP body in order to read HTTP data
 app.use(bodyParser.urlencoded({

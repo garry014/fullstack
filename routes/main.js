@@ -23,6 +23,29 @@ var jsonParser = bodyParser.json();
 // create application/x-www-form-urlencoded parser
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
+router.get('/testupload', (req, res) => {
+	const title = 'Test upload';
+	res.render('testupload', { title: title })
+});
+
+router.post('/testupload', (req, res) => {
+	if(req.files){
+		console.log(req.files);
+		var file = req.files.file;
+		var filename = file.name;
+		console.log(filename);
+
+		file.mv('./public/uploads/products/'+ filename, function(err){
+			if (err){
+				res.send(err);
+			}
+			else{
+				res.send("File Uploaded");
+			}
+		});
+	}
+});
+
 router.get('/', (req, res) => {
 	const title = 'TailorNow Home';
 	res.render('mainselection', { title: title, path: "landing" })
