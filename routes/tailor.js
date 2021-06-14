@@ -80,7 +80,7 @@ router.post('/addproduct', urlencodedParser, (req, res) => {
 		var filename = file.name;
 		var filetype = file.mimetype.substring(6);
 		const newid = uuidv4(); // Generate unique file id
-		
+
 		Catalouge
 			.create({
 				storename: 'Ah Tong Tailor',
@@ -161,13 +161,7 @@ router.get('/editproduct/:id', (req, res) => {
 						.then(pchoices => {
 							res.render('tailor/editproduct', {
 								title: "Update product",
-								id: req.params.id,
-								name: pdetails.name,
-								price: pdetails.price,
-								discount: pdetails.discount,
-								description: pdetails.description,
-								question: pdetails.customqn,
-								q1category: pdetails.customcat,
+								pdetails: pdetails,
 								pchoices: pchoices
 							});
 						})
@@ -179,13 +173,7 @@ router.get('/editproduct/:id', (req, res) => {
 				else {
 					res.render('tailor/editproduct', {
 						title: "Update product",
-						id: req.params.id,
-						name: pdetails.name,
-						price: pdetails.price,
-						discount: pdetails.discount,
-						description: pdetails.description,
-						question: pdetails.customqn,
-						q1category: pdetails.customcat
+						pdetails: pdetails
 					});
 				}
 			}
@@ -201,12 +189,9 @@ router.get('/editproduct/:id', (req, res) => {
 // Update Product - PUT
 router.put('/editproduct/:id', urlencodedParser, (req, res) => {
 	let errors = [];
-	let { name, price, discount, description, question, q1category } = req.body;
+	let { name, price, discount, description, question, q1category, imageLink } = req.body;
 
 	// Validation
-	if (name.length < 3) {
-		errors.push({ msg: 'Name should be at least 3 character.' });
-	}
 	if (isNumeric(price) == false) {
 		errors.push({ msg: 'Please enter a valid number between 0 to 2000.' });
 	}
@@ -295,24 +280,41 @@ router.put('/editproduct/:id', urlencodedParser, (req, res) => {
 	}
 
 	if (errors.length == 0) {
-		// Catalouge.findOne({
-		// 	where: { id: req.params.id },
-		// 	raw: true
-		// })
-		// .then(pdetails => {
-		// 	if(pdetails.customcat == "radiobtn"){
+		// Image Upload
+		var newid = imageLink;
+		if (req.files) {
+			var file = req.files.file;
+			var filename = file.name;
+			var filetype = file.mimetype.substring(6);
+			newid = uuidv4().concat(".").concat(filetype); // Generate unique file id
 
-		// 	}
-		// })
-		// .catch(err => {
-		// 	console.error('Unable to connect to the database:', err);
-		// });
+			// Image Upload
+			var newFileName = newid;
+			console.log("./public/uploads/products/"+imageLink);
+			fs.unlink("./public/uploads/products/"+imageLink, (err) => {
+				if (err) {
+					console.log("failed to delete local image:"+err);
+				} else {
+					console.log('successfully deleted local image');                                
+				}
+			});
+			file.mv('./public/uploads/products/' + filename, function (err) {
+				if (err) {
+					res.send(err);
+				}
+				else{
+					fs.rename('./public/uploads/products/' + filename, './public/uploads/products/' + newFileName, function (err) {
+						if (err) console.log('ERROR: ' + err);
+					});
+				}
+			});
+		}
 
 		Catalouge.update({
 			storename: 'Ah Tong Tailor',
 			name: name,
 			price: price,
-			image: '1.png',
+			image: newid,
 			description: description,
 			discount: discount,
 			customqn: question,
@@ -322,9 +324,15 @@ router.put('/editproduct/:id', urlencodedParser, (req, res) => {
 				id: req.params.id
 			}
 		}).then(() => {
+
+			if (req.files) {
+				
+				// Page gets changed overly fast, such that page is loaded before img changes are made
+			}
 			alertMessage(res, 'success', 'Updated product successfully!', 'fas fa-check-circle', true);
 			res.redirect('/view/' + req.params.id);
-		}).catch(err => console.log(err));
+		})
+			.catch(err => console.log(err));
 
 
 	}
@@ -351,6 +359,13 @@ router.get('/deleteProduct/:id', (req, res) => {
 					}
 				});
 			}
+			fs.unlink("./public/uploads/products/"+pdetails.image, (err) => {
+				if (err) {
+					console.log("failed to delete local image:"+err);
+				} else {
+					console.log('successfully deleted local image');                                
+				}
+			});
 			Catalouge.destroy({
 				where: {
 					id: req.params.id
