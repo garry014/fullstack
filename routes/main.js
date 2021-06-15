@@ -7,8 +7,11 @@ const alertMessage = require('../helpers/messenger');
 const Catalouge = require('../models/Catalouge');
 const Productchoices = require('../models/Productchoices');
 const Chat = require('../models/Chat');
+const Message = require('../models/Message');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
+const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
 
 ////// Flash Error Message for easy referrence ///////
 // alertMessage(res, 'success',
@@ -16,6 +19,17 @@ const Op = Sequelize.Op;
 // alertMessage(res, 'danger',
 // 		'Unauthorised access', 'fas fa-exclamation-triangle', true);
 //////////////////////////////////////////////
+
+function getToday(){
+	// Get Date
+	var currentdate = new Date(); 
+	const monthNames = ["January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December"];
+	var datetime = currentdate.getDate() + " "
+			+ monthNames[currentdate.getMonth()]  + " " 
+			+ currentdate.getFullYear() + " "  
+			+ currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+	return datetime;
+}
 
 // create application/json parser
 var jsonParser = bodyParser.json();
@@ -33,7 +47,7 @@ router.post('/testupload', (req, res) => {
 		console.log(req.files);
 		var file = req.files.file;
 		var filename = file.name;
-		console.log(filename);
+		console.log("this one ", file);
 
 		file.mv('./public/uploads/products/'+ filename, function(err){
 			if (err){
@@ -86,33 +100,95 @@ router.get('/design', (req, res) => {
 
 router.get('/inbox', (req, res) => {
 	const currentuser = "Gary"; //temp var
-	Chat.findAll({
-		where: {
-			[Op.or]: [{sender: currentuser}, {recipient: currentuser}]
-		}
-	})
-		.then((chats) => {
-			chat = [];
-			if(chats){
-				//Need to extract ONLY one section of each object
-				for (var c in chats) {
-					chat.push(chats[c].dataValues);
-				};
+	
+	res.render('user/chat', { title: "Chat" });
+});
 
-				res.render('user/chat', { 
-					title: "Chat", 
-					chat: chat,
-					currentuser: currentuser
-				});
-			}
-			else {
-				res.render('user/chat', { title: "Chat" });
-			}
+router.get('/inbox/:id', (req, res) => {
+	const currentuser = "Gary"; //temp var
+	// Not working...
+	// Chat.findAll({
+	// 	where: {
+	// 		[Op.or]: [{sender: currentuser}, {recipient: currentuser}]
+	// 	}
+	// })
+	// 	.then((chats) => {
+	// 		chat = [];
+	// 		if(chats){
+	// 			//Need to extract ONLY one section of each object
+	// 			for (var c in chats) {
+	// 				chat.push(chats[c].dataValues);
+	// 			};
+
+	// 			res.render('user/chat', { 
+	// 				title: "Chat", 
+	// 				chat: chat,
+	// 				currentuser: currentuser
+	// 			});
+	// 		}
+	// 		else {
+	// 			res.render('user/chat', { title: "Chat" });
+	// 		}
 			
+	// 	})
+	// 	.catch(err => {
+	// 		console.error('Unable to connect to the database:', err);
+	// 	});
+
+	//where: { id: req.params.id },
+	Message.findAll({
+		
+		raw: true
+	})
+		.then((messages) => {
+			res.render('user/chat', {
+				title: "Chat",
+				currentuser: currentuser,
+				messages: messages,
+			});
 		})
 		.catch(err => {
 			console.error('Unable to connect to the database:', err);
 		});
+
+});
+
+// Chat - Upload Image
+router.post('/inbox/uploadimg', (req, res) => {
+	const currentuser = "Gary"; //temp var
+
+	var file = req.files.fileUpload;
+	var filename = file.name;
+	var filetype = file.mimetype.substring(6);
+	console.log(filename, filetype);
+	const newid = uuidv4(); // Generate unique file id
+	var newFileName = uuidv4().concat(".").concat(filetype);
+
+	file.mv('./public/uploads/chat/' + filename, function (err) {
+		if (err) {
+			res.send(err);
+		}
+		else {
+			fs.rename('./public/uploads/chat/'+filename, './public/uploads/chat/'+newFileName, function (err) {
+				if (err){ 
+					console.log('ERROR: ' + err)
+				}
+				else {
+					var datetime = getToday();
+					Message.create({
+						sentby: currentuser,
+						timestamp: datetime,
+						upload: newFileName,
+						chatId: 1
+					}).catch(err => {
+						console.error('Unable to connect to the database:', err);
+					});
+					return res.redirect('../inbox');
+				}
+			});
+		}
+	});
+	
 });
 
 // Customer View Shops

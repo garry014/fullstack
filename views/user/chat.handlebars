@@ -103,28 +103,50 @@
                         </div>
                     </div>
                 </div>
-                {{#each chat}}
-                {{#ifCond sender '==' ../currentuser}} 
-                <!-- Left/Recieved msg if recipient == current user -->
-                <div class="outgoing_msg">
-                    <div class="sent_msg">
-                        <p>{{message}}</p>
-                        <span class="time_date"> 18 May 2021 11:41 | me</span>
-                    </div>
-                </div>
-                {{else}}
-                <!-- Right/Sent msg if sender == current user-->
-                <div class="incoming_msg">
-                    <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png"
-                            alt="sunil"> </div>
-                    <div class="received_msg">
-                        <div class="received_withd_msg">  
-                            <p>{{message}}</p>
-                            <span class="time_date">18 May 2021 11:41 | {{sender}}</span>
+                {{#each messages}}
+                    {{#if message}}
+                        {{#ifCond sentby '==' ../currentuser}} 
+                        <!-- Left/Recieved msg if recipient == current user -->
+                        <div class="outgoing_msg">
+                            <div class="sent_msg">
+                                <p>{{message}}</p>
+                                <span class="time_date">{{timestamp}} | me</span>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                {{/ifCond}}
+                        {{else}}
+                        <!-- Right/Sent msg if sender == current user-->
+                        <div class="incoming_msg">
+                            <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png"
+                                    alt="sunil"> </div>
+                            <div class="received_msg">
+                                <div class="received_withd_msg">  
+                                    <p>{{message}}</p>
+                                    <span class="time_date">{{timestamp}} | {{sentby}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {{/ifCond}}
+                    {{else}}
+                        {{#ifCond sentby '==' ../currentuser}}
+                        <div class="outgoing_msg">
+                            <div class="sent_msg">
+                                <p><img id="myImg" src="/uploads/chat/{{upload}}" width="200px" height="auto" alt="{{upload}}" title="Click to enlarge"></p>
+                                <span class="time_date">{{timestamp}} | me</span>
+                            </div>
+                        </div>
+                        {{else}}
+                        <div class="incoming_msg">
+                            <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png"
+                                    alt="sunil"> </div>
+                            <div class="received_msg">
+                                <div class="received_withd_msg">  
+                                    <p><img id="myImg" src="/uploads/chat/{{upload}}" width="200px" height="auto" alt="{{upload}}" title="Click to enlarge"></p>
+                                    <span class="time_date">{{timestamp}} | {{sentby}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {{/ifCond}}
+                    {{/if}}
                 {{/each}}
                 
 
@@ -169,10 +191,9 @@
                                 </div>
                                 <div class="modal-body">
                                     <!-- Form -->
-                                    <form method='post' action='' enctype="multipart/form-data">
+                                    <form id='uploadimg' method='post' action='/inbox/uploadimg' enctype="multipart/form-data">
                                         <div class="uploader">
-                                            <input id="file-upload" type="file" id="fileUpload" name="fileUpload"
-                                                accept="image/*" />
+                                            <input id="file-upload" type="file" name="fileUpload" accept="image/*" />
 
                                             <label for="file-upload" id="file-drag">
                                                 <img id="file-image" src="#" alt="Preview" class="hidden">
@@ -194,7 +215,7 @@
                                                 </div>
                                             </label>
                                         </div>
-                                        <input type='button' class='btn btn-info' value='Send' id='btn_upload'>
+                                        <input onclick='return sendUpload();' type='button' class='btn btn-info' value='Submit' id='btn_upload'>
                                     </form>
 
                                     <!-- Preview-->
@@ -373,4 +394,19 @@
         document.getElementById('msg_history').appendChild(div);
         autoScrollDown();
     });
+
+    function sendUpload() {
+        io.emit("send_upload", {
+            sender: sender,
+            receiver: receiver,
+            upload: "Yolo"
+        });
+        
+        document.getElementById('uploadimg').submit();
+
+        // Send message to server
+        
+    }
+
+    
 </script>
