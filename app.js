@@ -80,7 +80,15 @@ io.on("connection", function(socket){
 
 		var datetime = getToday();
 
-		
+		// Save in db
+		Message.create({
+			sentby: data.sender,
+			timestamp: datetime,
+			message: data.message,
+			chatId: 1
+		}).catch(err => {
+			console.error('Unable to connect to the database:', err);
+		});
 	});
 
 	socket.on("send_upload", function(data){
@@ -89,8 +97,6 @@ io.on("connection", function(socket){
 
 		io.to(socketId).emit("new_upload", data);
 		console.log(data);
-
-		
 	});
 });
 

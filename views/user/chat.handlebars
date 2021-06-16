@@ -130,7 +130,7 @@
                         {{#ifCond sentby '==' ../currentuser}}
                         <div class="outgoing_msg">
                             <div class="sent_msg">
-                                <p><img id="myImg" src="/uploads/chat/{{upload}}" width="200px" height="auto" alt="{{upload}}" title="Click to enlarge"></p>
+                                <p><img id="myImg" src="/uploads/chat/{{upload}}" width="200px" height="auto" alt="{{upload}}" title="Click to enlarge" onclick="document.getElementById('enlargeImg{{id}}').style.display='block'"></p>
                                 <span class="time_date">{{timestamp}} | me</span>
                             </div>
                         </div>
@@ -150,14 +150,6 @@
                 {{/each}}
                 
 
-                <div class="outgoing_msg">
-                    <div class="sent_msg">
-                        {{!-- id needs to be unique / js part need repicate also --}}
-                        <p><img id="myImg" src="https://remake.world/wp-content/uploads/2020/04/Hem-7.jpg" width="200px"
-                                height="auto" alt="Screenshot" title="Click to enlarge"></p>
-                        <span class="time_date"> 18 May 2021 12:11 | me</span>
-                    </div>
-                </div>
 
                 <div class="outgoing_msg">
                     <div class="sent_msg">
@@ -256,6 +248,7 @@
                                         <div id='submitSect' style="display:none;">
                                             <h4><span id="recordmsg">Replay recording</span></h4>
                                             <ul class="list-unstyled" id='ul'></ul>
+                                            <input id='blobdata' name='blobdata' type="file">
                                             <button class="btn btn-warning" type="button" onclick="restartRec()"><i class="fa fa-repeat"></i> Retake</button>
                                             <button class="btn btn-success" type="submit"><i class="fa fa-paper-plane-o"></i> Send</button>
                                         </div>
@@ -275,6 +268,8 @@
 </div>
 
 <!-- UI to show when screen size is small -->
+
+<!-- not done lol -->
 <form onsubmit="return enterName();">
     <input id="name" placeholder="Enter Name" value="Gary">
     <input type="submit">
@@ -284,16 +279,20 @@
 
 <ul id="messages1"></ul>
 
-<!-- Image Modal -->
-<div id="modal_img" class="modalImg">
+<!-- Enlarge Image Modal -->
+{{#each messages}}
+{{#if upload}}
+<div id="enlargeImg{{id}}" class="modalImg" onclick="this.style.display='none'">
     <span id="closeImg" class="close">&times;</span>
-    <img class="modalImg-content" id="img01">
-    <div id="caption"></div>
+      <img src="/uploads/chat/{{upload}}" style="height: 80vh; width: 100%; object-fit: contain;">
+  </div>
 </div>
+{{/if}}
+{{/each}}
 
 <script>
     function autoScrollDown(){
-        $(".msg_history").stop().animate({ scrollTop: $(".msg_history")[0].scrollHeight }, 500);
+        $('.msg_history').scrollTop($('.msg_history')[0].scrollHeight);
     }
 
     window.onload = function () {
@@ -304,18 +303,7 @@
         window.history.replaceState(null, null, window.location.href);
     }
 
-    // Get the modal
-    var modal = document.getElementById("modal_img");
-
-    // Get the image and insert it inside the modal - use its "alt" text as a caption
-    var img = document.getElementById("myImg");
-    var modalImg = document.getElementById("img01");
-    var captionText = document.getElementById("caption");
-    img.onclick = function () {
-        modal.style.display = "block";
-        modalImg.src = this.src;
-        captionText.innerHTML = this.alt;
-    }
+    
 
     // Get the <span> element that closes the modal
     var closeBtn = document.getElementById("closeImg");
@@ -403,10 +391,12 @@
         });
         
         document.getElementById('uploadimg').submit();
-
-        // Send message to server
-        
     }
 
-    
+    io.on("new_upload", function (data) {
+        setTimeout(function (){
+            window.location.reload(true); 
+        }, 1000);
+        
+    });
 </script>

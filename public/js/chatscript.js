@@ -86,7 +86,9 @@ function makeLink(){
   mt.src = url;
   li.appendChild(mt);
   ul.appendChild(li);
-  //alert(url);
+  
+  document.getElementById("blobdata").value = url;
+  alert(url);
 }
 
 var currentmic;

@@ -183,7 +183,7 @@ router.post('/inbox/uploadimg', (req, res) => {
 					}).catch(err => {
 						console.error('Unable to connect to the database:', err);
 					});
-					return res.redirect('../inbox');
+					return res.redirect('../inbox/1');
 				}
 			});
 		}
