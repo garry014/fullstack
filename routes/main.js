@@ -104,6 +104,37 @@ router.get('/inbox', (req, res) => {
 	res.render('user/chat', { title: "Chat" });
 });
 
+// Post Route to start chat
+router.post('/chatwith/:name', (req, res) => {
+	const currentuser = "Gary"; //temp var
+	console.log(req.params.name);
+
+	Chat.findAll({
+		where: {
+			[Op.and]: [{ sender: currentuser }, { recipient: req.params.name }]
+		},
+		raw: true
+	})
+	.then((chats) => {
+		if(chats.length>0){
+			res.redirect('/inbox/'+chats[0].id);
+		}
+		else{
+			Chat.create({
+				sender: currentuser,
+				recipient: req.params.name,
+				senderstatus: "Read",
+				recipientstatus: "Unread"
+			}).catch(err => {
+				console.error('Unable to connect to the database:', err);
+			});
+		}
+	})
+	.catch(err => {
+		console.error('Unable to connect to the database:', err);
+	});
+});
+
 router.get('/inbox/:id', (req, res) => {
 	const currentuser = "Gary"; //temp var
 	var recipient = "";
@@ -294,12 +325,13 @@ router.get('/viewshops/:storename', (req, res) => {
 	})
 		.then(shopprod => {
 			if (shopprod.length > 0) {
-				title = 'View Items - ' + req.params.storename
-				user_status = "tailor"
+				title = 'View Items - ' + req.params.storename;
+				user_status = "cust";
 				res.render('customer/viewstore', {
 					title: title,
 					shopprod: shopprod,
-					user_status: user_status
+					user_status: user_status,
+					storename: req.params.storename
 				});
 			}
 			else {

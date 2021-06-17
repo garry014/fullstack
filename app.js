@@ -76,16 +76,17 @@ io.on("connection", function(socket){
 		// send event to receiver
 		var socketId = users[data.receiver];
 
-		io.to(socketId).emit("new_message", data);
-
 		var datetime = getToday();
+		data["timestamp"] = datetime;
+		io.to(socketId).emit("new_message", data);
+		console.log(data);
 
 		// Save in db
 		Message.create({
 			sentby: data.sender,
 			timestamp: datetime,
 			message: data.message,
-			chatId: 3
+			chatId: data.chatid
 		}).catch(err => {
 			console.error('Unable to connect to the database:', err);
 		});
@@ -154,6 +155,10 @@ Handlebars.registerHelper('money2dp', function (distance) {
 Handlebars.registerHelper("calculatedisc", function(price, discount) {
 	var a = price * (1 - (discount / 100));
 	return a.toFixed(2);
+});
+
+Handlebars.registerHelper('getToday', function () {
+	return getToday();
 });
 
 

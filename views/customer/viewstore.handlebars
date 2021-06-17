@@ -8,7 +8,7 @@
                 <li>
                     <a href="/viewshops">View Shops</a>
                 </li>
-                <li class="active">Ah Tong Tailor</li>
+                <li class="active">{{storename}}</li>
             </ul>
         </div>
     </div>
@@ -23,7 +23,9 @@
                     </div>
                     <div class="filter">
                         {{#ifCond user_status '!=' "tailor"}}
-                        <a href=""><i class="pe-7s-chat"></i> Seek help from Ah Tong Tailor</a>
+                        <form action="/chatwith/{{storename}}" method="post">
+                            <button style="border: 0; padding: 0; display: inline; background: none; text-decoration: underline;"><i class="pe-7s-chat"></i> Seek help from {{storename}}</button>
+                        </form>
                         {{else}}
                         <a href="/tailor/addproduct" class="btn btn-light"><i class="fas fa-plus-square"></i> Add Product</a>
                         {{/ifCond}}

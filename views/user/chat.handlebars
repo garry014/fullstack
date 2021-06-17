@@ -35,7 +35,7 @@
                             </div>
                             <div class="chat_ib">
                                 <h5>{{#ifCond currentuser "==" recipient}}{{sender}}{{else}}{{recipient}}{{/ifCond}}</h5>
-                                <p>
+                                <p id="messagePreview">
                                     {{#ifCond message "!=" null}}{{message}}{{else}}Sent an attachment{{/ifCond}}
                                 </p>
                             </div>
@@ -63,9 +63,17 @@
         </div>
         <div class="mesgs">
             <div class="heading_msg">
-                <b>Merlion Tailor</b>
-
-
+                <b>
+                    {{#each chats}}
+                        {{#ifCond id '==' ../id}}
+                            {{#ifCond sender '==' ../currentuser}}
+                                {{recipient}}
+                            {{else}}
+                                {{sender}}
+                            {{/ifCond}}
+                        {{/ifCond}}
+                    {{/each}}
+                </b>
 
                 <a href="/chat/archive/2" title="Mark as archive" style="float: right;"><i class="fa fa-archive"></i>
                     Archive</a>
@@ -377,7 +385,8 @@
         io.emit("send_message", {
             sender: sender,
             receiver: receiver,
-            message: message
+            message: message,
+            chatid: {{id}}
         });
 
         //append sender msg
@@ -385,10 +394,11 @@
         const idiv = document.createElement('div'); // Internal div
         div.className = 'outgoing_msg';
         idiv.className = 'sent_msg';
-        idiv.innerHTML = `<p>${message}</p><span class="time_date"> 18 May 2021 11:41 | me</span>`;
+        idiv.innerHTML = `<p>${message}</p><span class="time_date"> {{getToday}} | me</span>`;
         div.appendChild(idiv);
 
         document.getElementById('msg_history').appendChild(div);
+        document.getElementById("messagePreview").innerHTML = message;
         autoScrollDown();
 
         return false;
@@ -396,17 +406,19 @@
 
     // listen from server
     io.on("new_message", function (data) {
+        console.log("new_message is working");
         const div = document.createElement('div');
         div.className = 'incoming_msg';
         div.innerHTML = `<div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
                         <div class="received_msg">
                             <div class="received_withd_msg">
                                 <p>${data.message}</p>
-                                <span class="time_date"> 18 May 2021 11:41 | Merlion Tailor</span>
+                                <span class="time_date"> ${data.timestamp} | ${data.sender}</span>
                             </div>
                         </div>`;
 
         document.getElementById('msg_history').appendChild(div);
+        document.getElementById("messagePreview").innerHTML = data.message;
         autoScrollDown();
     });
 
