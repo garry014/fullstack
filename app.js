@@ -85,7 +85,7 @@ io.on("connection", function(socket){
 			sentby: data.sender,
 			timestamp: datetime,
 			message: data.message,
-			chatId: 1
+			chatId: 3
 		}).catch(err => {
 			console.error('Unable to connect to the database:', err);
 		});

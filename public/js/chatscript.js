@@ -1,4 +1,5 @@
 'use strict'
+var fd;
 
 let log = console.log.bind(console),
   id = val => document.getElementById(val),
@@ -86,9 +87,23 @@ function makeLink(){
   mt.src = url;
   li.appendChild(mt);
   ul.appendChild(li);
+
+  document.getElementById("audiourl").value = url;
   
-  document.getElementById("blobdata").value = url;
-  alert(url);
+  //console.log(blob);
+  var myBlob = new Blob(["This is my blob content"], {type : "text/plain"});
+  fd = new FormData();
+  fd.append('upl', myBlob, url);
+
+  //alert(url);
+}
+
+function sendAud(){
+  fetch('/inbox/uploadaud',
+  {
+      method: 'post',
+      body: fd
+  }); 
 }
 
 var currentmic;
