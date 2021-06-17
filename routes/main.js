@@ -106,145 +106,96 @@ router.get('/inbox', (req, res) => {
 
 router.get('/inbox/:id', (req, res) => {
 	const currentuser = "Gary"; //temp var
-	// // Not working...
-	// Chat.findAll({
-	// 	where: {
-	// 		[Op.or]: [{ sender: currentuser }, { recipient: currentuser }]
-	// 	}
-	// })
-	// 	.then((chats) => {
-	// 		console.log(chats);
-			// 		chat = [];
-			// 		if(chats){
-			// 			//Need to extract ONLY one section of each object
-			// 			for (var c in chats) {
-			// 				chat.push(chats[c].dataValues);
-			// 			};
-
-			// 			res.render('user/chat', { 
-			// 				title: "Chat", 
-			// 				chat: chat,
-			// 				currentuser: currentuser
-			// 			});
-			// 		}
-			// 		else {
-			// 			res.render('user/chat', { title: "Chat" });
-			// 		}
-
-		// })
-		// .catch(err => {
-		// 	console.error('Unable to connect to the database:', err);
-		// });
-
-	//where: { id: req.params.id },
-	Message.findAll({
+	var recipient = "";
+	const chatMsgs = [];
+	const chatids = [];
+	Chat.findAll({
+		where: {
+			[Op.or]: [{ sender: currentuser }, { recipient: currentuser }]
+		},
 		raw: true
 	})
-		.then((messages) => {
-			res.render('user/chat', {
-				title: "Chat",
-				currentuser: currentuser,
-				messages: messages,
-			});
+		.then((chats) => {
+			// Error: something wrong when chatid > 1
+			if (chats) {
+				// Need to extract ONLY one section of each chats object
+				// & check if current webpage ID exists
+				for (c = 0; c < chats.length; c++) {
+					if (chats[c].id == req.params.id) { // 1 is static data
+						chatIdExist = true;
+						recipient = chats[c].recipient;
+					}
+					chatids.push(chats[c].id);
+
+				};
+
+				Message.findAll({
+					where: {
+						chatId: chatids
+					},
+					raw: true
+				})
+					.then((messageInChat) => {
+						// Filter to get the biggest msg id FOR EACH chat id.
+						const idcheck = chatids.reduce((acc, curr) => (acc[curr] = 0, acc), {});
+						for (var msg in messageInChat) {
+							for (var i in idcheck){
+								if (messageInChat[msg].chatId == i && messageInChat[msg].id > idcheck[i]){
+									idcheck[i] = messageInChat[msg].id;
+								}
+							}
+						}
+
+						// for (var i in idcheck){
+							
+						// }
+
+						console.log(idcheck);
+						console.log(chats);
+					})
+					.catch(err => {
+						console.error('Unable to connect to the database:', err);
+					});
+
+				if (chatIdExist == true) {
+					Message.findAll({
+						where: { chatId: req.params.id, }, // static data 
+						raw: true
+					})
+						.then((messages) => {
+
+							// Get every first message of the chat
+							Message.findAll({
+								where: { chatId: req.params.id, }, // static data 
+								raw: true
+							})
+
+
+							res.render('user/chat', {
+								title: "Chat",
+								chats: chats,
+								messages: messages,
+								currentuser: currentuser,
+								recipient: recipient,
+								id: req.params.id
+							});
+						})
+						.catch(err => {
+							console.error('Unable to connect to the database:', err);
+						});
+				}
+				else {
+					res.render('user/chat', { title: "Chat" });
+				}
+			}
+			else {
+				res.render('user/chat', { title: "Chat" });
+			}
+
 		})
 		.catch(err => {
 			console.error('Unable to connect to the database:', err);
 		});
-
-	
-
-	// The days i spent...
-	// const currentuser = "Gary"; //temp var
-	// var recipient = "";
-	// const chatMsgs = [];
-	// const chatids = [];
-	// Chat.findAll({
-	// 	where: {
-	// 		[Op.or]: [{ sender: currentuser }, { recipient: currentuser }]
-	// 	},
-	// 	raw: true
-	// })
-	// 	.then((chats) => {
-	// 		// Error: something wrong when chatid > 1
-	// 		if (chats) {
-	// 			// Need to extract ONLY one section of each chats object
-	// 			// & check if current webpage ID exists
-	// 			for (c = 0; c < chats.length; c++) {
-	// 				if (chats[c].id == req.params.id) { // 1 is static data
-	// 					chatIdExist = true;
-	// 					recipient = chats[c].recipient;
-	// 				}
-	// 				chatids.push(chats[c].id);
-
-	// 			};
-
-	// 			Message.findAll({
-	// 				where: {
-	// 					chatId: chatids
-	// 				},
-	// 				raw: true
-	// 			})
-	// 				.then((messageInChat) => {
-	// 					// console.log(i,chats[i]);
-	// 					// chats[i] = Object.assign( { message: messageInChat[0].message },  { timestamp: messageInChat[0].timestamp }, chats[i] );
-	// 					// console.log(messageInChat[0].message);
-
-	// 					// Filter to get the biggest msg id FOR EACH chat id.
-	// 					const idcheck = chatids.reduce((acc, curr) => (acc[curr] = 0, acc), {});
-	// 					console.log(idcheck);
-	// 					for (i = 0; i < messageInChat; i++) {
-	// 						console.log(messageInChat["chatId"])
-	// 						// if (messageInChat.chatId == Object.keys(messageInChat)[i] && messageInChat.id < idcheck[i][chatids[i]]){
-	// 						// 	console.log("yoooooooo");
-	// 						// }
-	// 					};
-
-	// 					console.log(idcheck);
-	// 					// console.log(chats);
-	// 				})
-	// 				.catch(err => {
-	// 					console.error('Unable to connect to the database:', err);
-	// 				});
-
-	// 			if (chatIdExist == true) {
-	// 				Message.findAll({
-	// 					where: { chatId: req.params.id, }, // static data 
-	// 					raw: true
-	// 				})
-	// 					.then((messages) => {
-
-	// 						// Get every first message of the chat
-	// 						Message.findAll({
-	// 							where: { chatId: req.params.id, }, // static data 
-	// 							raw: true
-	// 						})
-
-
-	// 						res.render('user/chat', {
-	// 							title: "Chat",
-	// 							chats: chats,
-	// 							messages: messages,
-	// 							currentuser: currentuser,
-	// 							recipient: recipient,
-	// 							id: req.params.id
-	// 						});
-	// 					})
-	// 					.catch(err => {
-	// 						console.error('Unable to connect to the database:', err);
-	// 					});
-	// 			}
-	// 			else {
-	// 				res.render('user/chat', { title: "Chat" });
-	// 			}
-	// 		}
-	// 		else {
-	// 			res.render('user/chat', { title: "Chat" });
-	// 		}
-
-	// 	})
-	// 	.catch(err => {
-	// 		console.error('Unable to connect to the database:', err);
-	// 	});
 
 });
 

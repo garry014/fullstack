@@ -26,22 +26,22 @@
                 </div>
             </div>
             <div class="inbox_chat">
-
-
+                {{#if chats}}
+                {{#each chats}}
                 <div class="chat_list active_chat">
                     <div class="chat_people">
                         <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil">
                         </div>
                         <div class="chat_ib">
-                            <h5>Merlion Tailor <span class="chat_date">18 Feb 2021 11:41</span></h5>
+                            <h5>{{#ifCond currentuser "==" recipient}}{{sender}}{{else}}{{recipient}}{{/ifCond}} <span class="chat_date">{{timestamp}}</span></h5>
                             <p>
-
-                                Hi how may we assist you today?
-
+                                {{message}}
                             </p>
                         </div>
                     </div>
                 </div>
+                {{/each}}
+                {{/if}}
 
 
             </div>
