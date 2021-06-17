@@ -133,25 +133,35 @@ router.get('/inbox/:id', (req, res) => {
 					where: {
 						chatId: chatids
 					},
+					order: [
+						['id', 'DESC'],
+					],
 					raw: true
 				})
 					.then((messageInChat) => {
 						// Filter to get the biggest msg id FOR EACH chat id.
 						const idcheck = chatids.reduce((acc, curr) => (acc[curr] = 0, acc), {});
+						const checkedlist = [];
 						for (var msg in messageInChat) {
 							for (var i in idcheck){
-								if (messageInChat[msg].chatId == i && messageInChat[msg].id > idcheck[i]){
-									idcheck[i] = messageInChat[msg].id;
+								if (messageInChat[msg].chatId == i && !checkedlist.includes(messageInChat[msg].chatId)){
+									idcheck[i] = messageInChat[msg].message;
+									checkedlist.push(messageInChat[msg].chatId);
 								}
 							}
 						}
 
-						// for (var i in idcheck){
-							
-						// }
+						var keys = Object.keys(idcheck);
+						for (var c in chats){
+							keys.forEach(function(key){
+								if(chats[c].id == key){
+									chats[c]["message"] = idcheck[key];
+								}
+							});
+						}
 
 						console.log(idcheck);
-						console.log(chats);
+						// console.log(chats);
 					})
 					.catch(err => {
 						console.error('Unable to connect to the database:', err);
