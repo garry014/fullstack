@@ -208,7 +208,9 @@ app.use(function (req, res, next) {
 	res.locals.success_msg = req.flash('success_msg');
 	res.locals.error_msg = req.flash('error_msg');
 	res.locals.error = req.flash('error');
-	res.locals.user = req.user.dataValues || null;
+	if(typeof req.user != "undefined"){
+		res.locals.user = req.user.dataValues || null;
+	}
 	next();
 });
 
