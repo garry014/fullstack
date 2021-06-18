@@ -13,8 +13,6 @@ const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 const passport = require('passport');
 
-
-
 const flash = require('connect-flash');
 const FlashMessenger = require('flash-messenger');
 
