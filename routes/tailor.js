@@ -10,6 +10,8 @@ const Productchoices = require('../models/Productchoices');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const ensureAuthenticated = require('../helpers/auth');
+const passport = require('passport');
+
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
