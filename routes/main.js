@@ -13,6 +13,7 @@ const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
+var io = require('socket.io')();
 
 ////// Flash Error Message for easy referrence ///////
 // alertMessage(res, 'success',
@@ -33,6 +34,17 @@ function getToday() {
 }
 
 function cNotification(recipient, category, message, hyperlink) {
+	const data = {
+		"recipient": recipient,
+		"category": category,
+		"message": message,
+		"hyperlink": hyperlink,
+		"timestamp": getToday()
+	}
+	
+	io.sockets.emit('send_notification', data);
+
+	
 	Notification.create({
 		hyperlink: hyperlink,
 		category: category,

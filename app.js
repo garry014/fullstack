@@ -96,7 +96,6 @@ io.on("connection", function(socket){
 		var socketId = users[data.receiver];
 
 		io.to(socketId).emit("new_upload", data);
-		console.log(data);
 	});
 });
 
