@@ -22,60 +22,67 @@
                                         href="#my-account-1">Edit your account information </a></h3>
                             </div>
                             <div id="my-account-1" class="panel-collapse collapse show">
-                                <div class="panel-body">
-                                    <div class="myaccount-info-wrapper">
-                                        <div class="account-info-wrapper">
-                                            <h4>My Account Information</h4>
-                                            <h5>Your Personal Details</h5>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-lg-6 col-md-6">
-                                                <div class="billing-info">
-                                                    <label>First Name</label>
-                                                    <input type="text">
+                                <form action="/rider/rideraccount/{{User.id}}?_method=PUT" method="post">
+                                    <div class="panel-body">
+                                        <div class="myaccount-info-wrapper">
+                                            <div class="account-info-wrapper">
+                                                <h4>My Account Information</h4>
+                                                <h5>Your Personal Details</h5>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-6 col-md-6">
+                                                    <div class="billing-info">
+                                                        <label>First Name</label>
+                                                        <input type="text" class="form-control" name="firstname"
+                                                        value="{{User.firstname}}" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 col-md-6">
+                                                    <div class="billing-info">
+                                                        <label>Last Name</label>
+                                                        <input type="text" class="form-control" name="firstname"
+                                                        value="{{User.lastname}}" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 col-md-6">
+                                                    <div class="billing-info">
+                                                        <label>Transport</label>
+                                                        <input type="text" class="form-control" name="firstname"
+                                                        value="{{User.transport}}" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 col-md-6">
+                                                    <div class="billing-info">
+                                                        <label>license Number</label>
+                                                        <input type="text" class="form-control" name="firstname"
+                                                        value="{{User.licenseno}}" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 col-md-6">
+                                                    <div class="billing-info">
+                                                        <label>Phone Number</label>
+                                                       <input type="text" class="form-control" name="firstname"
+                                                        value="{{User.phoneno}}" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 col-md-6">
+                                                    <div class="billing-info">
+                                                        <label>Email</label>
+                                                        <input type="text" class="form-control" name="firstname"
+                                                        value="{{User.email}}" required>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="col-lg-6 col-md-6">
-                                                <div class="billing-info">
-                                                    <label>Last Name</label>
-                                                    <input type="text">
+                                            <div class="billing-back-btn">
+                                                <div class="billing-back">
+                                                    <a href="#"><i class="fa fa-arrow-up"></i> back</a>
                                                 </div>
-                                            </div>
-                                            <div class="col-lg-6 col-md-6">
-                                                <div class="billing-info">
-                                                    <label>Transport</label>
-                                                    <input type="text">
+                                                <div class="billing-btn">
+                                                    <button type="submit">Continue</button>
                                                 </div>
-                                            </div>
-                                            <div class="col-lg-6 col-md-6">
-                                                <div class="billing-info">
-                                                    <label>license Number</label>
-                                                    <input type="text">
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-6 col-md-6">
-                                                <div class="billing-info">
-                                                    <label>Phone Number</label>
-                                                    <input type="text">
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-6 col-md-6">
-                                                <div class="billing-info">
-                                                    <label>Email</label>
-                                                    <input type="text">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="billing-back-btn">
-                                            <div class="billing-back">
-                                                <a href="#"><i class="fa fa-arrow-up"></i> back</a>
-                                            </div>
-                                            <div class="billing-btn">
-                                                <button type="submit">Continue</button>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
                             </div>
                         </div>
                         <div class="panel panel-default single-my-account">
@@ -130,7 +137,7 @@
                                                     class="col-lg-6 col-md-6 d-flex align-items-center justify-content-center">
                                                     <div class="entries-info text-center">
                                                         <p>Customer 1 </p>
-                                                        <p> Location: Bedok  </p>
+                                                        <p> Location: Bedok </p>
                                                         <p> Delivery Deadline: 8pm Today (15/05/21) </p>
                                                     </div>
                                                 </div>
@@ -148,7 +155,7 @@
                                                     <div class="entries-info text-center">
                                                         <p>Customer 2 </p>
                                                         <p> Location: Jurong </p>
-                                                         <p> Delivery Deadline: 9pm Tomorrow (16/05/21) </p>
+                                                        <p> Delivery Deadline: 9pm Tomorrow (16/05/21) </p>
                                                     </div>
                                                 </div>
                                                 <div
@@ -174,12 +181,14 @@
                         </div>
                         <div class="panel panel-default single-my-account">
                             <div class="panel-heading my-account-title">
-                                <h3 class="panel-title"><span>4 .</span> <a href="/riderhist">Overview of Orders</a></h3>
+                                <h3 class="panel-title"><span>4 .</span> <a href="/riderhist">Overview of Orders</a>
+                                </h3>
                             </div>
                         </div>
                         <div class="panel panel-default single-my-account">
                             <div class="panel-heading my-account-title">
-                                <h3 class="panel-title"><span>5 .</span> <a data-toggle="collapse" data-parent="#faq" href="#my-account-5">My Wallet</a></h3>
+                                <h3 class="panel-title"><span>5 .</span> <a data-toggle="collapse" data-parent="#faq"
+                                        href="#my-account-5">My Wallet</a></h3>
                             </div>
                             <div id="my-account-5" class="panel-collapse collapse">
                                 <div class="panel-body">
@@ -189,16 +198,18 @@
                                         </div>
                                         <div class="entries-wrapper">
                                             <div class="row">
-                                                <div class="col-lg-6 col-md-6 d-flex align-items-center justify-content-center">
+                                                <div
+                                                    class="col-lg-6 col-md-6 d-flex align-items-center justify-content-center">
                                                     <div class="entries-info text-center">
                                                         <p>Rider 1 </p>
                                                         <p> CARD NO. : 1234 2324 3423 3432</p>
                                                         <p> Expiry : 07/26 </p>
                                                         <p>VISA </p>
-                                                       
+
                                                     </div>
                                                 </div>
-                                                <div class="col-lg-6 col-md-6 d-flex align-items-center justify-content-center">
+                                                <div
+                                                    class="col-lg-6 col-md-6 d-flex align-items-center justify-content-center">
                                                     <div class="entries-edit-delete text-center">
                                                         <a class="edit" href="/rwalletransfer"> Transfer To Card </a>
                                                         <a href="#">Delete Card</a>

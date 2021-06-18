@@ -9,7 +9,7 @@ const exphbs = require('express-handlebars');
 const methodOverride = require('method-override');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-
+const passport = require('passport');
 
 const flash = require('connect-flash');
 const FlashMessenger = require('flash-messenger');
@@ -156,20 +156,30 @@ app.use(session({
 		saveUninitialized: false,
 }));
 
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(flash());
 app.use(FlashMessenger.middleware);
 
 // Place to define global variables - not used in practical 1
 app.use(function (req, res, next) {
+	res.locals.success_msg = req.flash('success_msg');
+	res.locals.error_msg = req.flash('error_msg');
+	res.locals.error = req.flash('error');
+	res.locals.customer = req.customer || null;
 	next();
 });
+
+app.use(methodOverride('_method'));
 
 // Bring in database connection
 const tailornowDB = require('./config/DBConnection');
 // Connects to MySQL database
 tailornowDB.setUpDB(false); // To set up database with new tables set (true)
 
-
+const authenticate = require('./config/passport');
+authenticate.localStrategy(passport);
 // Use Routes
 /*
 * Defines that any root URL with '/' that Node JS receives request from, for eg. http://localhost:5000/, will be handled by

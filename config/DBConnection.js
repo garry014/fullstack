@@ -3,6 +3,7 @@ const catalouge = require('../models/Catalouge');
 const productchoices = require('../models/Productchoices');
 const chat = require('../models/Chat');
 const messages = require('../models/Message');
+const User = require('../models/User');
 
 // If drop is true, all existing tables are dropped and recreated
 const setUpDB = (drop) => {

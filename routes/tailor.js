@@ -7,6 +7,11 @@ const alertMessage = require('../helpers/messenger');
 var bodyParser = require('body-parser');
 const Catalouge = require('../models/Catalouge');
 const Productchoices = require('../models/Productchoices');
+const User = require('../models/User');
+const bcrypt = require('bcryptjs');
+const passport = require('passport');
+const ensureAuthenticated = require('../helpers/auth');
+
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
@@ -336,4 +341,169 @@ router.get('/deleteProduct/:id', (req,res)=> {
 	})
 })
 
+router.get('/tailorlogin', (req, res) => {
+	res.render('tailor/tailorlogin')
+});
+
+router.post('/login', (req, res, next) => {
+	passport.authenticate('local', {
+		successRedirect: onSuccess(res),
+		failureRedirect: '../tailor/tailorlogin', // Route to /login URL
+		failureFlash: 'Invalid username or password.',
+		userProperty: res.user
+	})
+	(req, res, next);
+});
+
+function onSuccess(response){
+	return '/hometailor'
+}
+
+// tailor: registration complete page 
+router.get('/tailoregcomplete', (req, res) => {
+	res.render('tailor/tailoregcomplete');
+});
+
+// tailor: register page 
+router.get('/tailoregister', (req, res) => {
+	res.render('tailor/tailoregister');
+});
+
+router.post('/tailoregister', (req, res) => {
+	let errors = [];
+	let { shopname, username, password, password2, address1, address2, city, postalcode, email, phoneno, usertype } = req.body;
+
+	// All this are your variables
+	console.log(req.body.shopname,
+		req.body.username,
+		req.body.password,
+		req.body.password2,
+		req.body.address1,
+		req.body.address2,
+		req.body.city,
+		req.body.postalcode,
+		req.body.email,
+		req.body.phoneno,
+		req.body.usertype
+		);
+
+	// Checks if both passwords entered are the same
+	if (req.body.password !== req.body.password2) {
+		errors.push({
+			msg: 'Passwords do not match'
+		});
+	}
+	// Checks that password length is more than 8 (upgrade this to include checking for special characters etc)
+	if (req.body.password.length < 8) {
+		errors.push({
+			msg: 'Password must be at least 8 characters'
+		});
+	}
+	/*
+	 If there is any error with password mismatch or size, then there must be
+	 more than one error message in the errors array, hence its length must be more than one.
+	 In that case, render register.handlebars with error messages.
+	 */
+	if (errors.length > 0) {
+		res.render('tailor/tailoregister', {
+			errors: errors,
+			shopname,
+			username,
+			password,
+			password2,
+			address1,
+			address2,
+			city,
+			postalcode,
+			email,
+			phoneno,
+			usertype
+		});
+	} else {
+		User.findOne({ where: { username: req.body.username } })
+			.then(Tailor => {
+				if (Tailor) {
+					res.render('tailor/tailoregister', {
+						error: User.username + 'already registered',
+						username,
+						password,
+						password2,
+						shopname,
+						address1,
+						address2,
+						city,
+						postalcode,
+						email,
+						phoneno,
+						usertype
+					});
+				} else {
+					bcrypt.genSalt(10, (err, salt) => {
+						bcrypt.hash(password, salt, (err, hash) => {
+							if (err) throw err;
+							password = hash;
+							User.create({ shopname, username, password, address1, address2, city, postalcode, email, phoneno,usertype:'tailor' })
+								.then(user => {
+									alertMessage(res, 'success', user.username + ' Please proceed to login', 'fas fa-sign-in-alt', true);
+									res.redirect('tailoregcomplete');
+								})
+								.catch(err => console.log(err));
+						})
+					});
+				}
+			});
+		// alertMessage(res, 'success', `${req.body.email} registered successfully`, 'fas fa-check-circle', true);
+		// rnodes.redirect('/customer/custregcomplete');
+	}
+});
+
+// tailor: account page 
+router.get('/tailoraccount/:id', ensureAuthenticated,(req, res) => {
+	User.findOne({
+		where: {
+			id: req.params.id
+		},
+		raw: true
+	}).then((Tailor) => {
+		console.log(Tailor);
+		if (req.params.id === Tailor.id) {
+			res.render('tailor/tailoracct', { 
+				User: Tailor
+			});
+		} else {
+			alertMessage(res, 'danger', 'Access Denied', 'fas fa-exclamation-circle', true);
+			res.redirect('/logout');
+			// sth wrong here with the res.redirect 
+		}
+	}).catch(err => console.log(err));
+});
+
+router.put('/tailoraccount/:id', ensureAuthenticated, (req, res) => {
+	let address1 = req.body.address1;
+	let address2 = req.body.address2;
+	let city = req.body.city;
+	let postalcode = req.body.postalcode;
+	let shopname = req.body.shopname;
+	let password = req.body.password;
+	let email = req.body.email;
+	let phoneno = req.body.phoneno;
+
+	User.update({
+		address1,
+		address2,
+		city,
+		postalcode,
+		shopname,
+		password,
+		email,
+		phoneno
+	}, {
+		where: {
+			id: req.params.id
+		}
+	}).then(() => {
+		alertMessage(res, 'success','Account has been updated successfully!', 'fas fa-sign-in-alt', true);
+		res.redirect('/tailor/tailoraccount/'+req.params.id);
+	}).catch(err => console.log(err));
+});
 module.exports = router;

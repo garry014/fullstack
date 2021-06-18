@@ -24,9 +24,11 @@
                         <div id="lg1" class="tab-pane active">
                             <div class="login-form-container">
                                 <div class="login-register-form">
-                                    <form action="/Login_Customer" method="POST">
-                                        <input type="text" name="user-name" placeholder="Username" value="{{request.form.username }}">
-                                        <input type="password" name="user-password" placeholder="Password" value="{{request.form.password }}">
+                                    <form method="post" action="/rider/login">
+                                        <input type="text" name="username" placeholder="Username" class="form-control" required>
+                                        <input type="password" name="password" placeholder="Password" class="form-control" required>
+                                         <input type="hidden" name="usertype" placeholder="Usertype"
+                                            class="form-control" value="rider" >
                                         <div class="button-box">
                                             <div class="login-toggle-btn">
                                                 <input type="checkbox">
@@ -57,5 +59,3 @@
         </div>
     </div>
 </div>
-
-

@@ -30,13 +30,13 @@ router.get('/', (req, res) => {
 
 router.get('/homecust', (req, res) => {
 	const title = 'TailorNow Home';
-	res.render('homecust', { title: title });
+	res.render('homecust', { title: title, user: req.user });
 });
 
 
 // Customer Notifications
 router.get('/notification', (req, res) => {
-	res.render('user/allnotifications', { title: "View all notifications" });
+	res.render('user/allnotifications', { title: "View all notifications" })
 });
 
 // Customer: Review
@@ -272,45 +272,7 @@ router.get('/educationplatformcontent', (req, res) => {
 	res.render('customer/educationplatformcontent', { title: "Education Platform Content" });
 });
 
-// customer: account page 
-router.get('/custaccount', (req, res) => {
-	alertMessage(res, 'success',
-		'You have updated your account details successfully!', 'fas fa-sign-in-alt', true);
-	alertMessage(res, 'danger',
-		'Something went wrong. Please try again! ', 'fas fa-exclamation-circle', false);
-	alertMessage(res, 'success',
-		'You have updated your password successfully!', 'fas fa-sign-in-alt', true);
-	let error_msg = 'Your passwords do not match please try again later!';
-	res.render('customer/custacct', { error_msg: error_msg });
-});
-// riders: register page 
-router.get('/rideregister', (req, res) => {
-	res.render('rider/rideregister');
-});
-// riders: registration complete page
-router.get('/rideregcomplete', (req, res) => {
-	res.render('rider/rideregcomplete');
-});
-// riders: login page 
-router.get('/riderlogin', (req, res) => {
-	alertMessage(res, 'success',
-		'You have logged in successfully!', 'fas fa-sign-in-alt', true);
-	alertMessage(res, 'danger',
-		'Login was unsuccessful. Please try again! ', 'fas fa-exclamation-circle', false);
-	res.render('rider/riderlogin');
-});
-// riders: account page 
-router.get('/rideraccount', (req, res) => {
-	alertMessage(res, 'success',
-		'You have updated your account details successfully!', 'fas fa-sign-in-alt', true);
-	alertMessage(res, 'danger',
-		'Something went wrong. Please try again! ', 'fas fa-exclamation-circle', false);
-	alertMessage(res, 'success',
-		'You have updated your password successfully!', 'fas fa-sign-in-alt', true);
-	let error_msg = 'Your passwords do not match please try again later!';
 
-	res.render('rider/rideracct', { error_msg: error_msg });
-});
 // riders: home page 
 router.get('/homerider', (req, res) => {
 	res.render('rider/homerider');
@@ -347,38 +309,11 @@ router.get('/rwalletransfer', (req, res) => {
 	res.render('rider/rwalletransfer',
 		{ success_msg: success_msg });
 });
-// tailor: login page 
-router.get('/tailorlogin', (req, res) => {
-	alertMessage(res, 'success',
-		'You have logged in successfully!', 'fas fa-sign-in-alt', true);
-	alertMessage(res, 'danger',
-		'Login was unsuccessful. Please try again! ', 'fas fa-exclamation-circle', false);
-	res.render('tailor/tailorlogin');
-});
-// tailor: register page 
-router.get('/tailoregister', (req, res) => {
-	res.render('tailor/tailoregister');
-});
-// tailor: registration complete page 
-router.get('/tailoregcomplete', (req, res) => {
-	res.render('tailor/tailoregcomplete');
-});
+
 // tailor: home page 
 router.get('/hometailor', (req, res) => {
 	res.render('tailor/hometailor');
 });
-// tailor: account page 
-router.get('/tailoraccount', (req, res) => {
-	alertMessage(res, 'success',
-		'You have updated your account details successfully!', 'fas fa-sign-in-alt', true);
-	alertMessage(res, 'danger',
-		'Something went wrong. Please try again! ', 'fas fa-exclamation-circle', false);
-	alertMessage(res, 'success',
-		'You have updated your password successfully!', 'fas fa-sign-in-alt', true);
-	let error_msg = 'Your passwords do not match please try again later!';
-	res.render('tailor/tailoracct', { error_msg: error_msg });
-});
-
 
 // tailor: view vouchers
 router.get('/vouchers', (req, res) => {
@@ -430,9 +365,11 @@ router.get('/flashdeals', (req, res) => {
 	res.render('customer/flashdeals', { title: "Flash Deals" });
 });
 
-
-
-
-
+// logout user 
+router.get('/logout', (req, res) => {
+	req.logout();
+	alertMessage(res, 'info', 'Bye-bye!', 'fas fa-power-off', true);
+	res.redirect('/homecust');
+});
 
 module.exports = router;

@@ -18,9 +18,13 @@
                     <div id="faq" class="panel-group">
                         <div class="panel panel-default single-my-account">
                             <div class="panel-heading my-account-title">
-                                <h3 class="panel-title"><span>1 .</span> <a data-toggle="collapse" data-parent="#faq" href="#my-account-1">Edit your account information </a></h3>
+                                <input type="hidden" name="_method" value="PUT">
+                                <h3 class="panel-title"><span>1 .</span> <a data-toggle="collapse" data-parent="#faq"
+                                        href="#my-account-1">Edit your account information </a>
+                                </h3>
                             </div>
                             <div id="my-account-1" class="panel-collapse collapse show">
+                                <form action="/customer/custaccount/{{User.id}}?_method=PUT" method="post">
                                 <div class="panel-body">
                                     <div class="myaccount-info-wrapper">
                                         <div class="account-info-wrapper">
@@ -31,44 +35,58 @@
                                             <div class="col-lg-6 col-md-6">
                                                 <div class="billing-info">
                                                     <label>First Name</label>
-                                                    <input type="text">
+                                                    <input type="text" class="form-control" name="firstname"
+                                                        value="{{User.firstname}}" required>
                                                 </div>
                                             </div>
                                             <div class="col-lg-6 col-md-6">
                                                 <div class="billing-info">
                                                     <label>Last Name</label>
-                                                    <input type="text">
+                                                    <input type="text" class="form-control" name="lastname"
+                                                        value="{{User.lastname}}" required>
                                                 </div>
                                             </div>
                                             <div class="col-lg-12 col-md-12">
                                                 <div class="billing-info">
                                                     <label>Address </label>
-                                                    <input type="email">
+                                                    <input type="text" class="form-control" name="address1"
+                                                        value="{{User.address1}}" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-12 col-md-12">
+                                                <div class="billing-info">
+                                                    <label>Address </label>
+                                                    <input type="text" class="form-control" name="address2"
+                                                        value="{{User.address2}}" required>
                                                 </div>
                                             </div>
                                             <div class="col-lg-6 col-md-6">
                                                 <div class="billing-info">
                                                     <label>Postal Code</label>
-                                                    <input type="text">
+                                                    <input type="text" class="form-control" name="postalcode"
+                                                        value="{{User.postalcode}}" required>
                                                 </div>
                                             </div>
                                             <div class="col-lg-6 col-md-6">
                                                 <div class="billing-info">
                                                     <label>City</label>
-                                                    <input type="text">
+                                                    <input type="text" class="form-control" name="city"
+                                                        value="{{User.city}}" required>
                                                 </div>
                                             </div>
-                                        
+
                                             <div class="col-lg-6 col-md-6">
                                                 <div class="billing-info">
                                                     <label>Phone Number</label>
-                                                    <input type="text">
+                                                    <input type="text" class="form-control" name="phoneno"
+                                                        value="{{User.phoneno}}" required>
                                                 </div>
                                             </div>
                                             <div class="col-lg-6 col-md-6">
                                                 <div class="billing-info">
                                                     <label>Email</label>
-                                                    <input type="text">
+                                                    <input type="text" class="form-control" name="email"
+                                                        value="{{User.email}}" required>
                                                 </div>
                                             </div>
                                         </div>
@@ -78,15 +96,18 @@
                                             </div>
                                             <div class="billing-btn">
                                                 <button type="submit">Continue</button>
+                                                
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            </form>
                         </div>
                         <div class="panel panel-default single-my-account">
                             <div class="panel-heading my-account-title">
-                                <h3 class="panel-title"><span>2 .</span> <a data-toggle="collapse" data-parent="#faq" href="#my-account-2">Change your password </a></h3>
+                                <h3 class="panel-title"><span>2 .</span> <a data-toggle="collapse" data-parent="#faq"
+                                        href="#my-account-2">Change your password </a></h3>
                             </div>
                             <div id="my-account-2" class="panel-collapse collapse">
                                 <div class="panel-body">
@@ -99,13 +120,15 @@
                                             <div class="col-lg-12 col-md-12">
                                                 <div class="billing-info">
                                                     <label>Password</label>
-                                                    <input type="password">
+                                                    <input type="text" class="form-control" name="password"
+                                                        value="{{User.password}}" required>
                                                 </div>
                                             </div>
                                             <div class="col-lg-12 col-md-12">
                                                 <div class="billing-info">
                                                     <label>Password Confirm</label>
-                                                    <input type="password">
+                                                    <input type="text" class="form-control" name="password"
+                                                        value="{{User.password}}" required>
                                                 </div>
                                             </div>
                                         </div>
@@ -123,7 +146,8 @@
                         </div>
                         <div class="panel panel-default single-my-account">
                             <div class="panel-heading my-account-title">
-                                <h3 class="panel-title"><span>3 .</span> <a data-toggle="collapse" data-parent="#faq" href="#my-account-3"> Card Details  </a></h3>
+                                <h3 class="panel-title"><span>3 .</span> <a data-toggle="collapse" data-parent="#faq"
+                                        href="#my-account-3"> Card Details </a></h3>
                             </div>
                             <div id="my-account-3" class="panel-collapse collapse">
                                 <div class="panel-body">
@@ -133,7 +157,8 @@
                                         </div>
                                         <div class="entries-wrapper">
                                             <div class="row">
-                                                <div class="col-lg-6 col-md-6 d-flex align-items-center justify-content-center">
+                                                <div
+                                                    class="col-lg-6 col-md-6 d-flex align-items-center justify-content-center">
                                                     <div class="entries-info text-center">
                                                         <p>Customer 1 </p>
                                                         <p> 8392 3829 3433 3422 </p>
@@ -141,7 +166,8 @@
                                                         <p>Visa </p>
                                                     </div>
                                                 </div>
-                                                <div class="col-lg-6 col-md-6 d-flex align-items-center justify-content-center">
+                                                <div
+                                                    class="col-lg-6 col-md-6 d-flex align-items-center justify-content-center">
                                                     <div class="entries-edit-delete text-center">
                                                         <a class="edit" href="#">Edit</a>
                                                         <a href="#">Delete</a>
@@ -163,7 +189,7 @@
                         </div>
                         <div class="panel panel-default single-my-account">
                             <div class="panel-heading my-account-title">
-                                <h3 class="panel-title"><span>4 .</span> <a href="/Corder_History">My Orders  </a></h3>
+                                <h3 class="panel-title"><span>4 .</span> <a href="/Corder_History">My Orders </a></h3>
                             </div>
                         </div>
                     </div>
@@ -171,4 +197,4 @@
             </div>
         </div>
     </div>
-</div> 
+</div>
