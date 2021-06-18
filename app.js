@@ -4,12 +4,16 @@
 * */
 const express = require('express');
 const session = require('express-session');
+const upload = require('express-fileupload');
 const path = require('path');
 const exphbs = require('express-handlebars');
 const methodOverride = require('method-override');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const { v4: uuidv4 } = require('uuid');
 const passport = require('passport');
+
+
 
 const flash = require('connect-flash');
 const FlashMessenger = require('flash-messenger');
@@ -38,9 +42,22 @@ const http = require("http").createServer(app);
 const io = require('socket.io')(http);
 var users = [];
 
+const Chat = require('./models/Chat');
+const Message = require('./models/Message');
+
+function getToday(){
+	// Get Date
+	var currentdate = new Date(); 
+	const monthNames = ["January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December"];
+	var datetime = currentdate.getDate() + " "
+			+ monthNames[currentdate.getMonth()]  + " " 
+			+ currentdate.getFullYear() + " "  
+			+ currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+	return datetime;
+}
+
 // add listener for new connection
 io.on("connection", function(socket){
-	// this is socket for each user
 	console.log("'\x1b[36m%s\x1b[0m'", "user connected: ", socket.id);
 
 	socket.on('disconnect', () => {
@@ -60,7 +77,27 @@ io.on("connection", function(socket){
 		// send event to receiver
 		var socketId = users[data.receiver];
 
+		var datetime = getToday();
+		data["timestamp"] = datetime;
 		io.to(socketId).emit("new_message", data);
+		console.log(data);
+
+		// Save in db
+		Message.create({
+			sentby: data.sender,
+			timestamp: datetime,
+			message: data.message,
+			chatId: data.chatid
+		}).catch(err => {
+			console.error('Unable to connect to the database:', err);
+		});
+	});
+
+	socket.on("send_upload", function(data){
+		// send event to receiver
+		var socketId = users[data.receiver];
+
+		io.to(socketId).emit("new_upload", data);
 	});
 });
 
@@ -120,6 +157,12 @@ Handlebars.registerHelper("calculatedisc", function(price, discount) {
 	return a.toFixed(2);
 });
 
+Handlebars.registerHelper('getToday', function () {
+	return getToday();
+});
+
+
+app.use(upload());
 
 // Body parser middleware to parse HTTP body in order to read HTTP data
 app.use(bodyParser.urlencoded({
@@ -175,6 +218,7 @@ app.use(methodOverride('_method'));
 
 // Bring in database connection
 const tailornowDB = require('./config/DBConnection');
+const { getDefaultSettings } = require('http2');
 // Connects to MySQL database
 tailornowDB.setUpDB(false); // To set up database with new tables set (true)
 
@@ -208,11 +252,6 @@ app.use(function(req, res, next) {
 * */
 const port = 5000;
 
-// Starts the server and listen to port 5000
-// app.listen(port, () => {
-// 	console.log('\x1b[36m%s\x1b[0m', `JIAYOUS, IT WILL ALL WORK OUT SOME DAY! Server started on port ${port}.`);
-// });
-
 http.listen(port, () => {
-	console.log("listening to port " + port);
+	console.log('\x1b[36m%s\x1b[0m', `JIAYOUS, IT WILL ALL WORK OUT SOME DAY! Server started on port ${port}.`);
 })

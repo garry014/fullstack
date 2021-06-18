@@ -982,3 +982,10 @@ $('#modal').on('show.bs.modal', function () {
         'max-height': '100%'
     });
 });
+
+io.on("send_notification", function (data) {
+    
+    setTimeout(function () {
+        alert('graceeeeeee');
+    }, 2000);
+});

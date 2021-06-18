@@ -22,9 +22,11 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-6 col-md-6">
-                <a href=""><i class="pe-7s-chat"></i> Seek help from {{ pdetails.storename }}</a>
+                <form action="/chatwith/{{pdetails.storename}}" method="post">
+                    <button style="border: 0; padding: 0; display: inline; background: none; text-decoration: underline;"><i class="pe-7s-chat"></i> Seek help from {{pdetails.storename}}</button>
+                </form>
                 <div class="product-details dec-img-wrap">
-                    <img src="/uploads/products/1.jpg" alt="">
+                    <img src="/uploads/products/{{pdetails.image}}" alt="">
                 </div>
             </div>
             <div class="col-lg-6 col-md-6">

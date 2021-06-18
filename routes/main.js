@@ -7,8 +7,13 @@ const alertMessage = require('../helpers/messenger');
 const Catalouge = require('../models/Catalouge');
 const Productchoices = require('../models/Productchoices');
 const Chat = require('../models/Chat');
+const Message = require('../models/Message');
+const Notification = require('../models/Notifications');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
+const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
+var io = require('socket.io')();
 
 ////// Flash Error Message for easy referrence ///////
 // alertMessage(res, 'success',
@@ -17,11 +22,69 @@ const Op = Sequelize.Op;
 // 		'Unauthorised access', 'fas fa-exclamation-triangle', true);
 //////////////////////////////////////////////
 
+function getToday() {
+	// Get Date
+	var currentdate = new Date();
+	const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+	var datetime = currentdate.getDate() + " "
+		+ monthNames[currentdate.getMonth()] + " "
+		+ currentdate.getFullYear() + " "
+		+ currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+	return datetime;
+}
+
+function cNotification(recipient, category, message, hyperlink) {
+	const data = {
+		"recipient": recipient,
+		"category": category,
+		"message": message,
+		"hyperlink": hyperlink,
+		"timestamp": getToday()
+	}
+	
+	io.sockets.emit('send_notification', data);
+
+	
+	Notification.create({
+		hyperlink: hyperlink,
+		category: category,
+		message: message,
+		recipient: recipient,
+		status: "Unread",
+		time: getToday()
+	}).catch(err => {
+		console.error('Unable to connect to the database:', err);
+	});
+}
+
 // create application/json parser
 var jsonParser = bodyParser.json();
 
 // create application/x-www-form-urlencoded parser
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
+
+router.get('/testupload', (req, res) => {
+	const title = 'Test upload';
+	res.render('testupload', { title: title })
+});
+
+router.post('/testupload', (req, res) => {
+	if (req.files) {
+		console.log(req.files);
+		var file = req.files.file;
+		var filename = file.name;
+		console.log("this one ", file);
+
+		file.mv('./public/uploads/products/' + filename, function (err) {
+			if (err) {
+				res.send(err);
+			}
+			else {
+				res.send("File Uploaded");
+			}
+		});
+	}
+});
 
 router.get('/', (req, res) => {
 	const title = 'TailorNow Home';
@@ -61,35 +124,184 @@ router.get('/design', (req, res) => {
 	res.render('customer/testaudio', { title: "Add product" });
 });
 
-router.get('/inbox', (req, res) => {
-	const currentuser = "Chainsmoker"; //temp var
+// Post Route to start chat
+router.post('/chatwith/:name', (req, res) => {
+	const currentuser = "Gary"; //temp var
+	console.log(req.params.name);
+
 	Chat.findAll({
 		where: {
-			[Op.or]: [{sender: currentuser}, {recipient: currentuser}]
+			[Op.and]: [{ sender: currentuser }, { recipient: req.params.name }]
+		},
+		raw: true
+	})
+	.then((chats) => {
+		cNotification("recipient", "category", "message", "hyperlink")
+		if(chats.length>0){
+			res.redirect('/inbox/'+chats[0].id);
+		}
+		else{
+			Chat.create({
+				sender: currentuser,
+				recipient: req.params.name,
+				senderstatus: "Read",
+				recipientstatus: "Unread"
+			}).catch(err => {
+				console.error('Unable to connect to the database:', err);
+			});
 		}
 	})
+	.catch(err => {
+		console.error('Unable to connect to the database:', err);
+	});
+});
+
+router.get('/inbox/:id', (req, res) => {
+	const currentuser = "Gary"; //temp var
+	var recipient = "";
+	const chatMsgs = [];
+	const chatids = [];
+	Chat.findAll({
+		where: {
+			[Op.or]: [{ sender: currentuser }, { recipient: currentuser }]
+		},
+		raw: true
+	})
 		.then((chats) => {
-			chat = [];
-			if(chats){
-				//Need to extract ONLY one section of each object
-				for (var c in chats) {
-					chat.push(chats[c].dataValues);
+			// Error: something wrong when chatid > 1
+			if (chats) {
+				// Need to extract ONLY one section of each chats object
+				// & check if current webpage ID exists
+				for (c = 0; c < chats.length; c++) {
+					if (chats[c].id == req.params.id) { // 1 is static data
+						chatIdExist = true;
+						recipient = chats[c].recipient;
+					}
+					chatids.push(chats[c].id);
+
 				};
 
-				res.render('user/chat', { 
-					title: "Chat", 
-					chat: chat,
-					currentuser: currentuser
-				});
+				Message.findAll({
+					where: {
+						chatId: chatids
+					},
+					order: [
+						['id', 'DESC'],
+					],
+					raw: true
+				})
+					.then((messageInChat) => {
+						// Filter to get the biggest msg id FOR EACH chat id.
+						const idcheck = chatids.reduce((acc, curr) => (acc[curr] = 0, acc), {});
+						const checkedlist = [];
+						for (var msg in messageInChat) {
+							for (var i in idcheck){
+								if (messageInChat[msg].chatId == i && !checkedlist.includes(messageInChat[msg].chatId)){
+									idcheck[i] = messageInChat[msg].message;
+									checkedlist.push(messageInChat[msg].chatId);
+								}
+							}
+						}
+
+						var keys = Object.keys(idcheck);
+						for (var c in chats){
+							keys.forEach(function(key){
+								if(chats[c].id == key){
+									chats[c]["message"] = idcheck[key];
+								}
+							});
+						}
+
+						console.log(idcheck);
+						// console.log(chats);
+					})
+					.catch(err => {
+						console.error('Unable to connect to the database:', err);
+					});
+
+				if (chatIdExist == true) {
+					Message.findAll({
+						where: { chatId: req.params.id, }, // static data 
+						raw: true
+					})
+						.then((messages) => {
+
+							// Get every first message of the chat
+							Message.findAll({
+								where: { chatId: req.params.id, }, // static data 
+								raw: true
+							})
+
+
+							res.render('user/chat', {
+								title: "Chat",
+								chats: chats,
+								messages: messages,
+								currentuser: currentuser,
+								recipient: recipient,
+								id: req.params.id
+							});
+						})
+						.catch(err => {
+							console.error('Unable to connect to the database:', err);
+						});
+				}
+				else {
+					res.render('user/chat', { title: "Chat" });
+				}
 			}
 			else {
 				res.render('user/chat', { title: "Chat" });
 			}
-			
+
 		})
 		.catch(err => {
 			console.error('Unable to connect to the database:', err);
 		});
+
+});
+
+// Chat - Upload Image
+router.post('/inbox/uploadimg', (req, res) => {
+	const currentuser = "Gary"; //temp var
+
+	var file = req.files.fileUpload;
+	var filename = file.name;
+	var filetype = file.mimetype.substring(6);
+	console.log(file);
+	const newid = uuidv4(); // Generate unique file id
+	var newFileName = uuidv4().concat(".").concat(filetype);
+
+	file.mv('./public/uploads/chat/' + filename, function (err) {
+		if (err) {
+			res.send(err);
+		}
+		else {
+			fs.rename('./public/uploads/chat/' + filename, './public/uploads/chat/' + newFileName, function (err) {
+				if (err) {
+					console.log('ERROR: ' + err)
+				}
+				else {
+					var datetime = getToday();
+					Message.create({
+						sentby: currentuser,
+						timestamp: datetime,
+						upload: newFileName,
+						chatId: 1
+					}).catch(err => {
+						console.error('Unable to connect to the database:', err);
+					});
+					return res.redirect('../inbox/1');
+				}
+			});
+		}
+	});
+
+});
+
+router.post('/inbox/uploadaud', (req, res) => {
+	console.log(req.body);
+	console.log(req.file);
 });
 
 // Customer View Shops
@@ -101,29 +313,29 @@ router.get('/viewshops', (req, res) => {
 		// 	[Sequelize.fn('DISTINCT', Sequelize.col('storename')) ,'storename'],
 		// ]
 	})
-	.then((shops)=>{
-		if(shops){
-			const shop = [];
-			for (var s in shops) {
-				shop.push(shops[s].dataValues);
-			};
+		.then((shops) => {
+			if (shops) {
+				const shop = [];
+				for (var s in shops) {
+					shop.push(shops[s].dataValues);
+				};
 
-			shop.forEach(shopItem => {
-				console.log(shopItem);
-				
-			});
-			res.render('customer/viewshops', { 
-				title: "View Shops",
-				shop: shop
-			});
-		}
-		else{
-			res.render('customer/viewshops', { title: "View Shops" });
-		}
-	})
-	.catch(err => {
-		console.error('Unable to connect to the database:', err);
-	});
+				shop.forEach(shopItem => {
+					console.log(shopItem);
+
+				});
+				res.render('customer/viewshops', {
+					title: "View Shops",
+					shop: shop
+				});
+			}
+			else {
+				res.render('customer/viewshops', { title: "View Shops" });
+			}
+		})
+		.catch(err => {
+			console.error('Unable to connect to the database:', err);
+		});
 });
 
 // Customer View Shop Items
@@ -134,12 +346,13 @@ router.get('/viewshops/:storename', (req, res) => {
 	})
 		.then(shopprod => {
 			if (shopprod.length > 0) {
-				title = 'View Items - ' + req.params.storename
-				user_status = "tailor"
+				title = 'View Items - ' + req.params.storename;
+				user_status = "cust";
 				res.render('customer/viewstore', {
 					title: title,
 					shopprod: shopprod,
-					user_status: user_status
+					user_status: user_status,
+					storename: req.params.storename
 				});
 			}
 			else {
