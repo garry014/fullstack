@@ -8,6 +8,7 @@ const Catalouge = require('../models/Catalouge');
 const Productchoices = require('../models/Productchoices');
 const Chat = require('../models/Chat');
 const Message = require('../models/Message');
+const Notification = require('../models/Notifications');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 const fs = require('fs');
@@ -29,6 +30,19 @@ function getToday() {
 		+ currentdate.getFullYear() + " "
 		+ currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
 	return datetime;
+}
+
+function cNotification(recipient, category, message, hyperlink) {
+	Notification.create({
+		hyperlink: hyperlink,
+		category: category,
+		message: message,
+		recipient: recipient,
+		status: "Unread",
+		time: getToday()
+	}).catch(err => {
+		console.error('Unable to connect to the database:', err);
+	});
 }
 
 // create application/json parser
@@ -98,12 +112,6 @@ router.get('/design', (req, res) => {
 	res.render('customer/testaudio', { title: "Add product" });
 });
 
-router.get('/inbox', (req, res) => {
-	const currentuser = "Gary"; //temp var
-
-	res.render('user/chat', { title: "Chat" });
-});
-
 // Post Route to start chat
 router.post('/chatwith/:name', (req, res) => {
 	const currentuser = "Gary"; //temp var
@@ -116,6 +124,7 @@ router.post('/chatwith/:name', (req, res) => {
 		raw: true
 	})
 	.then((chats) => {
+		cNotification("recipient", "category", "message", "hyperlink")
 		if(chats.length>0){
 			res.redirect('/inbox/'+chats[0].id);
 		}

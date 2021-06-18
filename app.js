@@ -56,7 +56,6 @@ function getToday(){
 
 // add listener for new connection
 io.on("connection", function(socket){
-	// this is socket for each user
 	console.log("'\x1b[36m%s\x1b[0m'", "user connected: ", socket.id);
 
 	socket.on('disconnect', () => {
