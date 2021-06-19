@@ -21,12 +21,12 @@ function isNumeric(value) {
 	return /^\d+$/.test(value);
 }
 
-router.get('/addproduct', (req, res) => {
+router.get('/addproduct', ensureAuthenticated, (req, res) => {
 	res.render('tailor/addproduct', { title: "Add product" });
 });
 
 // Add Product - POST
-router.post('/addproduct', urlencodedParser, (req, res) => {
+router.post('/addproduct', ensureAuthenticated, urlencodedParser, (req, res) => {
 	let errors = [];
 	let { name, price, discount, description, question, q1category } = req.body;
 
