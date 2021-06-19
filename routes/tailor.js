@@ -7,10 +7,12 @@ const alertMessage = require('../helpers/messenger');
 var bodyParser = require('body-parser');
 const Catalouge = require('../models/Catalouge');
 const Productchoices = require('../models/Productchoices');
+const User = require('../models/User');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
-const ensureAuthenticated = require('../helpers/auth');
+const bcrypt = require('bcryptjs');
 const passport = require('passport');
+const ensureAuthenticated = require('../helpers/auth');
 
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
