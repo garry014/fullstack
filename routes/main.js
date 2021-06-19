@@ -348,6 +348,9 @@ router.get('/viewshops/:storename', (req, res) => {
 			if (shopprod.length > 0) {
 				title = 'View Items - ' + req.params.storename;
 				user_status = "cust";
+				if (typeof req.user != "undefined") {
+					user_status = res.locals.user.usertype;
+				}
 				res.render('customer/viewstore', {
 					title: title,
 					shopprod: shopprod,

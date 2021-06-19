@@ -27,7 +27,9 @@
                             <button style="border: 0; padding: 0; display: inline; background: none; text-decoration: underline;"><i class="pe-7s-chat"></i> Seek help from {{storename}}</button>
                         </form>
                         {{else}}
-                        <a href="/tailor/addproduct" class="btn btn-light"><i class="fas fa-plus-square"></i> Add Product</a>
+                            {{#ifCond storename '==' user.shopname}}
+                            <a href="/tailor/addproduct" class="btn btn-light"><i class="fas fa-plus-square"></i> Add Product</a>
+                            {{/ifCond}}
                         {{/ifCond}}
                     </div>
                 </div>
@@ -41,19 +43,21 @@
                                 <div class="product-img">
                                     <a href="/view/{{id}}">
                                         <img class="default-img" src="/uploads/products/{{image}}" alt="">
-                                        <img class="hover-img" src="/uploads/products/1.jpg" alt="">
+                                        <img class="hover-img" src="/uploads/products/{{image}}" alt="">
                                     </a>
                                     {{#ifCond discount '!=' 0}}
                                         <span class="pink">-{{discount}}%</span>
                                     {{/ifCond}}
                                     <div class="product-action">
                                         {{#ifCond ../user_status '==' "tailor"}}
+                                            {{#ifCond storename '==' ../user.shopname}}
                                             <div class="pro-same-action pro-quickview" style="width:50%;">
                                                 <a href="/tailor/editproduct/{{id}}"><i class="fa fa-pencil"></i> Edit Item</a>
                                             </div>
                                             <div class="pro-same-action pro-wishlist" style="width:50%;">
                                                 <a href="#myModal_{{id}}" data-toggle="modal" data-target="#myModal_{{id}}"><i class="fa fa-trash-o"></i> Delete</a>
                                             </div>
+                                            {{/ifCond}}
                                         {{/ifCond}}
                                         <div class="pro-same-action pro-cart" style="width:100%;">
                                             <a href="/view/{{id}}"><i class="fa fa-info"></i> View Item</a>
