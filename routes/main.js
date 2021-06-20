@@ -13,6 +13,7 @@ const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
+const User = require('../models/User.js');
 var io = require('socket.io')();
 
 ////// Flash Error Message for easy referrence ///////
@@ -306,36 +307,45 @@ router.post('/inbox/uploadaud', (req, res) => {
 
 // Customer View Shops
 router.get('/viewshops', (req, res) => {
-	Catalouge.findAll({
-		// Get all DB values
-		// run a for loop to extract only the distinct storename, max discount
-		// attributes: [
-		// 	[Sequelize.fn('DISTINCT', Sequelize.col('storename')) ,'storename'],
-		// ]
+	User.findAll({
+		where: {
+			usertype: "tailor"
+		},
+		raw: true
 	})
-		.then((shops) => {
-			if (shops) {
-				const shop = [];
-				for (var s in shops) {
-					shop.push(shops[s].dataValues);
-				};
-
-				shop.forEach(shopItem => {
-					console.log(shopItem);
-
-				});
-				res.render('customer/viewshops', {
-					title: "View Shops",
-					shop: shop
-				});
-			}
-			else {
-				res.render('customer/viewshops', { title: "View Shops" });
-			}
+	.then((shopdetails) => {
+		console.log(shopdetails);
+		Catalouge.findAll({
+			// Get all DB values
+			// run a for loop to extract only the distinct storename, max discount
+			// attributes: [
+			// 	[Sequelize.fn('DISTINCT', Sequelize.col('storename')) ,'storename'],
+			// ]
 		})
-		.catch(err => {
-			console.error('Unable to connect to the database:', err);
-		});
+			.then((shops) => {
+				if (shops) {
+					const shop = [];
+					for (var s in shops) {
+						shop.push(shops[s].dataValues);
+					};
+	
+					shop.forEach(shopItem => {
+						console.log(shopItem);
+					});
+					res.render('customer/viewshops', {
+						title: "View Shops",
+						shopdetails: shopdetails,
+						shop: shop
+					});
+				}
+				else {
+					res.render('customer/viewshops', { title: "View Shops" });
+				}
+			})
+			.catch(err => {
+				console.error('Unable to connect to the database:', err);
+			});
+	});
 });
 
 // Customer View Shop Items
