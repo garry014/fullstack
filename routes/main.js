@@ -14,6 +14,7 @@ const Op = Sequelize.Op;
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const User = require('../models/User.js');
+const ensureAuthenticated = require('../helpers/auth.js');
 var io = require('socket.io')();
 
 ////// Flash Error Message for easy referrence ///////
@@ -126,9 +127,16 @@ router.get('/design', (req, res) => {
 });
 
 // Post Route to start chat
-router.post('/chatwith/:name', (req, res) => {
-	const currentuser = "Gary"; //temp var
-	console.log(req.params.name);
+router.post('/chatwith/:name', ensureAuthenticated, (req, res) => {
+	if (typeof req.user != "undefined") {
+		var currentuser;
+		if(req.user.dataValues.usertype == "tailor"){
+			currentuser = req.user.dataValues.shopname;
+		}
+		else {
+			currentuser = req.user.dataValues.username;
+		}
+	}
 
 	Chat.findAll({
 		where: {
@@ -147,7 +155,11 @@ router.post('/chatwith/:name', (req, res) => {
 				recipient: req.params.name,
 				senderstatus: "Read",
 				recipientstatus: "Unread"
-			}).catch(err => {
+			})
+			.then((chat) =>{
+				res.redirect('/inbox/'+chat.id);
+			})
+			.catch(err => {
 				console.error('Unable to connect to the database:', err);
 			});
 		}
@@ -157,8 +169,16 @@ router.post('/chatwith/:name', (req, res) => {
 	});
 });
 
-router.get('/inbox/:id', (req, res) => {
-	const currentuser = "Gary"; //temp var
+router.get('/inbox/:id', ensureAuthenticated, (req, res) => {
+	if (typeof req.user != "undefined") {
+		var currentuser;
+		if(req.user.dataValues.usertype == "tailor"){
+			currentuser = req.user.dataValues.shopname;
+		}
+		else {
+			currentuser = req.user.dataValues.username;
+		}
+	}
 	var recipient = "";
 	const chatMsgs = [];
 	const chatids = [];
@@ -171,6 +191,7 @@ router.get('/inbox/:id', (req, res) => {
 		.then((chats) => {
 			// Error: something wrong when chatid > 1
 			if (chats) {
+				chatIdExist = false;
 				// Need to extract ONLY one section of each chats object
 				// & check if current webpage ID exists
 				for (c = 0; c < chats.length; c++) {
@@ -213,14 +234,14 @@ router.get('/inbox/:id', (req, res) => {
 							});
 						}
 
-						console.log(idcheck);
+						// console.log(idcheck);
 						// console.log(chats);
 					})
 					.catch(err => {
 						console.error('Unable to connect to the database:', err);
 					});
 
-				if (chatIdExist == true) {
+				if (chatIdExist == true || req.params.id == "0") {
 					Message.findAll({
 						where: { chatId: req.params.id, }, // static data 
 						raw: true
@@ -248,7 +269,14 @@ router.get('/inbox/:id', (req, res) => {
 						});
 				}
 				else {
-					res.render('user/chat', { title: "Chat" });
+					alertMessage(res, 'danger', 'Access Denied, you do not have permission to view message that is not yours.', 'fas fa-exclamation-triangle', true);
+					res.render('user/chat', {
+						title: "Chat",
+						chats: chats,
+						currentuser: currentuser,
+						recipient: recipient,
+						id: req.params.id
+					});
 				}
 			}
 			else {
@@ -314,7 +342,6 @@ router.get('/viewshops', (req, res) => {
 		raw: true
 	})
 	.then((shopdetails) => {
-		console.log(shopdetails);
 		Catalouge.findAll({
 			// Get all DB values
 			// run a for loop to extract only the distinct storename, max discount
@@ -329,9 +356,9 @@ router.get('/viewshops', (req, res) => {
 						shop.push(shops[s].dataValues);
 					};
 	
-					shop.forEach(shopItem => {
-						console.log(shopItem);
-					});
+					// shop.forEach(shopItem => {
+					// 	console.log(shopItem);
+					// });
 					res.render('customer/viewshops', {
 						title: "View Shops",
 						shopdetails: shopdetails,

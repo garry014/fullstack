@@ -35,7 +35,15 @@
                             <div class="chat_ib">
                                 <h5>{{#ifCond currentuser "==" recipient}}{{sender}}{{else}}{{recipient}}{{/ifCond}}</h5>
                                 <p id="messagePreview">
-                                    {{#ifCond message "!=" null}}{{message}}{{else}}Sent an attachment{{/ifCond}}
+                                    {{#ifCond message "!=" null}}
+                                        {{#ifCond message "==" 0}}
+                                            <i>This chat is currently empty.</i>
+                                        {{else}}
+                                            {{message}}
+                                        {{/ifCond}}
+                                    {{else}}
+                                        <i>Sent an attachment</i>
+                                    {{/ifCond}}
                                 </p>
                             </div>
                         </div>
@@ -48,7 +56,16 @@
                                 </div>
                                 <div class="chat_ib">
                                     <h5>{{#ifCond currentuser "==" recipient}}{{sender}}{{else}}{{recipient}}{{/ifCond}}</h5>
-                                    <p>{{#ifCond message "!=" null}}{{message}}{{else}}Sent an attachment{{/ifCond}}</p>
+                                    <p>{{#ifCond message "!=" null}}
+                                            {{#ifCond message "==" 0}}
+                                                <i>This chat is currently empty.</i>
+                                            {{else}}
+                                                {{message}}
+                                            {{/ifCond}}
+                                        {{else}}
+                                            <i>Sent an attachment</i>
+                                        {{/ifCond}}
+                                    </p>
                                 </div>
                             </div>
                         </div>

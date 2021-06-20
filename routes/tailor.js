@@ -177,7 +177,6 @@ router.get('/editproduct/:id', ensureAuthenticated, (req, res) => {
 		raw: true
 	})
 		.then(pdetails => {
-			console.log(pdetails);
 			if (pdetails.storename != shopname) {
 				alertMessage(res, 'danger', 'You shall not pass!', 'fas fa-exclamation-triangle', true);
 				res.redirect('/viewshops');
