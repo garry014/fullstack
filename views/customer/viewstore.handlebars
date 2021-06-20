@@ -37,6 +37,7 @@
                 <div class="shop-bottom-area">
                     <div class="row">
                         <!--Start of Product List -->
+                        {{#ifCond shopprod.length '>=' 1}}
                         {{#each shopprod}}
                         <div class="col-xl-4 col-md-6 col-lg-4 col-sm-6">
                             <div class="product-wrap mb-25 scroll-zoom">
@@ -83,6 +84,9 @@
                             </div>
                         </div>
                         {{/each}}
+                        {{else}}
+                        This store currently does not have any product/services listed.
+                        {{/ifCond}}
                     </div>
 
 
