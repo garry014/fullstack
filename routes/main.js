@@ -90,12 +90,7 @@ router.post('/testupload', (req, res) => {
 
 router.get('/', (req, res) => {
 	const title = 'TailorNow Home';
-	res.render('mainselection', { title: title, path: "landing" })
-});
-
-router.get('/homecust', (req, res) => {
-	const title = 'TailorNow Home';
-	res.render('homecust', { title: title, user: req.user });
+	res.render('mainselection', { title: title, path: "landing" });
 });
 
 
@@ -178,6 +173,7 @@ router.get('/inbox/:id', ensureAuthenticated, (req, res) => {
 		else {
 			currentuser = req.user.dataValues.username;
 		}
+		req.session.username = currentuser;
 	}
 	var recipient = "";
 	const chatMsgs = [];
@@ -197,7 +193,14 @@ router.get('/inbox/:id', ensureAuthenticated, (req, res) => {
 				for (c = 0; c < chats.length; c++) {
 					if (chats[c].id == req.params.id) { // 1 is static data
 						chatIdExist = true;
-						recipient = chats[c].recipient;
+						if(currentuser == chats[c].recipient){
+							recipient = chats[c].sender;
+						}
+						else{
+							recipient = chats[c].recipient;
+						}
+						
+						console.log(recipient);
 					}
 					chatids.push(chats[c].id);
 
@@ -291,8 +294,8 @@ router.get('/inbox/:id', ensureAuthenticated, (req, res) => {
 });
 
 // Chat - Upload Image
-router.post('/inbox/uploadimg', (req, res) => {
-	const currentuser = "Gary"; //temp var
+router.post('/inbox/uploadimg/:id', (req, res) => {
+	const currentuser = req.session.username; //temp var
 
 	var file = req.files.fileUpload;
 	var filename = file.name;
@@ -316,11 +319,11 @@ router.post('/inbox/uploadimg', (req, res) => {
 						sentby: currentuser,
 						timestamp: datetime,
 						upload: newFileName,
-						chatId: 1
+						chatId: req.params.id
 					}).catch(err => {
 						console.error('Unable to connect to the database:', err);
 					});
-					return res.redirect('../inbox/1');
+					return res.redirect('../../inbox/'+req.params.id);
 				}
 			});
 		}
@@ -373,6 +376,36 @@ router.get('/viewshops', (req, res) => {
 				console.error('Unable to connect to the database:', err);
 			});
 	});
+});
+
+router.post('/inbox/delete/:id', ensureAuthenticated, (req, res) => {
+	// not working
+	Chat.findOne({
+		where: { id: req.params.id },
+		raw: true
+	})
+	.then((chat) => {
+		console.log(chat)
+		if(chat.sender == req.session.username){
+			console.log("changing recipientstatus")
+			Catalouge.update({
+				recipientstatus: "deleted" 
+			}, {
+				where: { id: req.params.id }
+			})
+			.catch(err => console.log(err));
+		}
+		else{
+			Catalouge.update({
+				senderstatus: "deleted" 
+			}, {
+				where: { id: req.params.id }
+			})
+			.catch(err => console.log(err));
+		}
+	})
+	.catch(err => console.log(err));
+	res.redirect('../../inbox/'+req.params.id);
 });
 
 // Customer View Shop Items

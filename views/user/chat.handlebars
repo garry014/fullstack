@@ -33,7 +33,7 @@
                             <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil">
                             </div>
                             <div class="chat_ib">
-                                <h5>{{#ifCond currentuser "==" recipient}}{{sender}}{{else}}{{recipient}}{{/ifCond}}</h5>
+                                <h5>{{#ifCond ../currentuser "==" recipient}}{{sender}}{{else}}{{recipient}}{{/ifCond}}</h5>
                                 <p id="messagePreview">
                                     {{#ifCond message "!=" null}}
                                         {{#ifCond message "==" 0}}
@@ -80,24 +80,14 @@
         {{#ifCond id '!=' 0}}
         <div class="mesgs">
             <div class="heading_msg">
-                <b>
-                    {{#each chats}}
-                        {{#ifCond id '==' ../id}}
-                            {{#ifCond sender '==' ../currentuser}}
-                                {{recipient}}
-                            {{else}}
-                                {{sender}}
-                            {{/ifCond}}
-                        {{/ifCond}}
-                    {{/each}}
-                </b>
+                <b>{{recipient}}</b>
 
                 <a href="/chat/archive/2" title="Mark as archive" style="float: right;"><i class="fa fa-archive"></i>
                     Archive</a>
 
 
 
-                <form action="/chat/delete/2" method="POST" style="display: inline-block; float: right;">
+                <form action="/inbox/delete/{{id}}" method="POST" style="display: inline-block; float: right;">
                     <button type="button" style="border:none; background: none; display: inline-block;"
                         data-toggle="modal" data-target="#myModal_2"><i class="fa fa-trash-o" style="font-size: 18px;"
                             title="Delete this chat"></i></button>
@@ -114,7 +104,7 @@
 
                                 <!-- Modal body -->
                                 <div class="modal-body">
-                                    Are you sure you want to delete the chat with Merlion Tailor?
+                                    Are you sure you want to delete the chat with {{recipient}}?
                                 </div>
 
                                 <!-- Modal footer -->
@@ -184,7 +174,8 @@
                     <div class="received_msg">
                         <div class="received_withd_msg">
                             <p><img id="myImg" src="/uploads/chat/{{upload}}" width="200px" height="auto"
-                                    alt="{{upload}}" title="Click to enlarge"></p>
+                                    alt="{{upload}}" title="Click to enlarge"
+                                    onclick="document.getElementById('enlargeImg{{id}}').style.display='block'"></p>
                             <span class="time_date">{{timestamp}} | {{sentby}}</span>
                         </div>
                     </div>
@@ -208,7 +199,7 @@
                     <!-- Send Text -->
                     <form onsubmit="return sendMessage();" class="contact-form-style">
                         <input autocomplete="off" class="write_msg" id="message" name="message"
-                            placeholder="Type a message" type="text" value="send help" style="padding-right: 120px;"
+                            placeholder="Type a message" type="text" style="padding-right: 120px;"
                             required>
                         <button class="msg_send_btn" type="submit"><i class="fa fa-paper-plane-o"
                                 aria-hidden="true"></i></button>
@@ -229,7 +220,7 @@
                                 </div>
                                 <div class="modal-body">
                                     <!-- Form -->
-                                    <form id='uploadimg' method='post' action='/inbox/uploadimg'
+                                    <form id='uploadimg' method='post' action='/inbox/uploadimg/{{id}}'
                                         enctype="multipart/form-data">
                                         <div class="uploader">
                                             <input id="file-upload" type="file" name="fileUpload" accept="image/*" />
@@ -332,10 +323,6 @@
 <!-- UI to show when screen size is small -->
 
 <!-- not done lol -->
-<form onsubmit="return enterName();">
-    <input id="name" placeholder="Enter Name" value="Gary">
-    <input type="submit">
-</form>
 
 <ul id="users"></ul>
 
@@ -369,21 +356,6 @@
     //////////////////////// Socket IO ////////////////////////////////
     var io = io();
 
-    var receiver = "";
-    var sender = "";
-
-    function enterName() {
-        var name = document.getElementById("name").value;
-
-        // Send it to server
-        io.emit("user_connected", name);
-
-        // save my name in global variable
-        sender = name;
-
-        return false;
-    }
-
     io.on("user_connected", function (username) {
         var html = "";
         html += "<li><button onclick='onUserSelected(this.innerHTML);'>" + username + "</button></li>";
@@ -401,8 +373,7 @@
 
         // Send message to server
         io.emit("send_message", {
-            sender: sender,
-            receiver: receiver,
+            receiver: '{{recipient}}',
             message: message,
             chatid: {{id}}
         });
@@ -417,6 +388,7 @@
 
         document.getElementById('msg_history').appendChild(div);
         document.getElementById("messagePreview").innerHTML = message;
+        document.getElementById("message").value = '';
         autoScrollDown();
 
         return false;
@@ -424,26 +396,28 @@
 
     // listen from server
     io.on("new_message", function (data) {
-        console.log("new_message is working");
-        const div = document.createElement('div');
-        div.className = 'incoming_msg';
-        div.innerHTML = `<div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-                        <div class="received_msg">
-                            <div class="received_withd_msg">
-                                <p>${data.message}</p>
-                                <span class="time_date"> ${data.timestamp} | ${data.sender}</span>
-                            </div>
-                        </div>`;
+        console.log(data.chatid, {{id}});
+        if(data.chatid == {{id}}){
+            console.log("new_message is working");
+            const div = document.createElement('div');
+            div.className = 'incoming_msg';
+            div.innerHTML = `<div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
+                            <div class="received_msg">
+                                <div class="received_withd_msg">
+                                    <p>${data.message}</p>
+                                    <span class="time_date"> ${data.timestamp} | ${data.sender}</span>
+                                </div>
+                            </div>`;
 
-        document.getElementById('msg_history').appendChild(div);
-        document.getElementById("messagePreview").innerHTML = data.message;
-        autoScrollDown();
+            document.getElementById('msg_history').appendChild(div);
+            document.getElementById("messagePreview").innerHTML = data.message;
+            autoScrollDown();
+        }
     });
 
     function sendUpload() {
         io.emit("send_upload", {
-            sender: sender,
-            receiver: receiver,
+            receiver: '{{recipient}}',
             upload: "Yolo"
         });
 

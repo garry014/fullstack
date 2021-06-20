@@ -16,6 +16,12 @@ const ensureAuthenticated = require('../helpers/auth');
 // 	res.render('customer/custlogin', {title: "Login"});
 // });
 
+// Customer Home Page
+router.get('/', (req, res) => {
+	const title = 'TailorNow Home';
+	res.render('homecust', { title: title, user: req.user });
+});
+
 router.get('/custlogin', (req, res) => {
 	res.render('customer/custlogin')
 });
@@ -31,8 +37,8 @@ router.post('/login', (req, res, next) => {
 		(req, res, next);
 });
 
-function onSuccess(response){
-	return '/homecust'
+function onSuccess(res){
+	return '/customer';
 }
 
 // customer: register
