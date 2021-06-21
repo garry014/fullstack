@@ -7,10 +7,11 @@
             <div class="col-lg-12 col-md-12">
                 <div class="contact-form" style="background-color: transparent; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
                     <div class="contact-title mb-30">
-                        <h2>Leaving Review for {{pdetails.name}}</h2>
+                        <h2>Updating Review for {{pdetails.name}}</h2>
                         *Required Field
                     </div>
-                    <form class="contact-form-style" action="/customer/review/{{id}}" method="post" enctype="multipart/form-data">
+                    <form class="contact-form-style" action="/customer/updatereview/{{itemid}}/{{id}}?_method=PUT" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="_method" value="PUT">
                         <div class="row">
                             <div class="col-lg-12"><label>Ratings<span style="color:red;">*</span></label></div>
                             <div class="wrapper">
@@ -25,11 +26,17 @@
                               <input type="radio" id="r5" name="rg1" value="1" onclick="getRadioValue()">
                               <label for="r5">&#9733;</label>
                             </div>
-                                <input class="form-control" id="stars" name="stars" type="hidden" value="">
+                                <input class="form-control" id="stars" name="stars" type="hidden" value="{{review.stars}}">
                             <div class="col-lg-12">
                                 <label for="review">Leave a Review</label>
-                                <textarea id="review" name="review"></textarea>
+                                <textarea id="review" name="review">{{review.review}}</textarea>
                             </div>
+                            {{#if review.photo}}
+                            <div class="col-lg-12">
+                                <center><b>Current Review Image:</b><br>
+                                <img src="/uploads/review/{{review.photo}}" width="200px" height="auto" alt="We apogolise that the current image is not showing up."></center><br>
+                            </div>
+                            {{/if}}
                             <div class="uploader">
                                 <input id="file-upload" type="file" name="file" accept="image/*" />
 
@@ -37,7 +44,7 @@
                                     <img id="file-image" src="#" alt="Preview" class="hidden">
                                     <div id="start">
                                     <i class="fa fa-download" aria-hidden="true"></i>
-                                    <div>Select an image file or drag here</div>
+                                    <div>Select an image file or drag here to change</div>
                                     <div id="notimage" class="hidden"><p style="color:red;">Invalid file type, please select an image</p></div>
                                     <span id="file-upload-btn" class="btn btn-primary">Select a file</span>
                                     </div>

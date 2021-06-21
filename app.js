@@ -100,6 +100,21 @@ Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
 	}
 });
 
+// For loop
+Handlebars.registerHelper('times', function(n, block) {
+    var accum = '';
+    for(var i = 0; i < n; ++i)
+        accum += block.fn(i);
+    return accum;
+});
+
+Handlebars.registerHelper('minusStars', function (n, block) {
+	var accum = '';
+    for(var i = 0; i < 5-n; ++i)
+        accum += block.fn(i);
+    return accum;
+});
+
 Handlebars.registerHelper('money2dp', function (distance) {
 	return distance.toFixed(2);
 });

@@ -7,14 +7,29 @@ const alertMessage = require('../helpers/messenger');
 const db = require('../config/DBConfig.js');
 const { username, password } = require('../config/db');
 const User = require('../models/User');
+const Review = require('../models/Review');
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const ensureAuthenticated = require('../helpers/auth');
+const Catalouge = require('../models/Catalouge');
+const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
 
 // customer: login page 
 // router.get('custlogin', (req, res) => {
 // 	res.render('customer/custlogin', {title: "Login"});
 // });
+
+function getToday() {
+	// Get Date
+	var currentdate = new Date();
+	const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+	var datetime = currentdate.getDate() + " "
+		+ monthNames[currentdate.getMonth()] + " "
+		+ currentdate.getFullYear() + " "
+		+ currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+	return datetime;
+}
 
 // Customer Home Page
 router.get('/', (req, res) => {
@@ -27,7 +42,7 @@ router.get('/custlogin', (req, res) => {
 });
 
 router.post('/login', (req, res, next) => {
-	
+
 	passport.authenticate('local', {
 		successRedirect: onSuccess(res),
 		failureRedirect: '../customer/custlogin', // Route to /login URL
@@ -37,7 +52,7 @@ router.post('/login', (req, res, next) => {
 		(req, res, next);
 });
 
-function onSuccess(res){
+function onSuccess(res) {
 	return '/customer';
 }
 
@@ -210,6 +225,214 @@ router.put('/custaccount/:id', ensureAuthenticated, (req, res) => {
 	}).catch(err => console.log(err));
 });
 // req.params is where u pass in the variables into the URL 
+
+// Review - GET
+router.get('/review/:id', ensureAuthenticated, (req, res) => {
+	Catalouge.findOne({
+		where: {
+			id: req.params.id
+		},
+		raw: true
+	})
+		.then((pdetails) => {
+			if (pdetails) {
+				res.render('customer/review', {
+					title: "Leave a review",
+					id: req.params.id,
+					pdetails: pdetails
+				});
+			}
+			else {
+				res.redirect('/404');
+			}
+		})
+});
+
+// Review - POST
+router.post('/review/:id', ensureAuthenticated, (req, res) => {
+	let errors = [];
+	let { stars, review } = req.body;
+
+	if (stars == "") {
+		errors.push({ msg: 'Please select a rating.' });
+	}
+
+	if (errors.length == 0) {
+		// Image Upload
+		var newFileName = "";
+		if (req.files) {
+			var file = req.files.file;
+			var filename = file.name;
+			var filetype = file.mimetype.substring(6);
+			const newid = uuidv4(); // Generate unique file id
+
+			newFileName = newid + '.' + filetype;
+			if (fs.existsSync(newFileName)) {
+				fs.unlinkSync(newFileName);
+			}
+
+			file.mv('./public/uploads/review/' + filename, function (err) {
+				if (err) {
+					res.send(err);
+				}
+				else {
+					fs.rename('./public/uploads/review/' + filename, './public/uploads/review/' + newFileName, function (err) {
+						if (err) console.log('ERROR: ' + err);
+					});
+				}
+			});
+		}
+
+		Review.create({
+			username: req.user.username,
+			photo: newFileName,
+			review: review,
+			stars: stars,
+			timestamp: getToday(),
+			productid: req.params.id
+		}).then(() => {
+			res.redirect('/view/'+req.params.id);
+		})
+		.catch(err => {
+			console.error('Unable to connect to the database:', err);
+		});
+	}
+
+});
+
+// Update Review - GET
+router.get('/updatereview/:itemid/:id', ensureAuthenticated, (req, res) => {
+	Catalouge.findOne({
+		where: {
+			id: req.params.itemid
+		},
+		raw: true
+	})
+		.then((pdetails) => {
+			Review.findOne({
+				where: {
+					id: req.params.id
+				},
+				raw: true
+			})
+			.then((review) =>{
+				if (review) {
+					res.render('customer/editreview', {
+						title: "Update review",
+						itemid: req.params.itemid,
+						id: req.params.id,
+						pdetails: pdetails,
+						review: review
+					});
+				}
+				else {
+					res.redirect('/404');
+				}
+			})
+		})
+});
+
+
+// Update Review - PUT
+router.put('/updatereview/:itemid/:id', ensureAuthenticated, (req, res) => {
+	let errors = [];
+	let { stars, review } = req.body;
+
+	if (stars == "") {
+		errors.push({ msg: 'Please select a rating.' });
+	}
+
+	if (errors.length == 0) {
+		// Image Upload
+		Review.findOne({
+			where: {
+				id: req.params.id
+			},
+			raw: true
+		})
+		.then((reviews) =>{
+			var imageLink = reviews.photo;
+			if (req.files) {
+				fs.unlink("./public/uploads/review/" + imageLink, (err) => {
+					if (err) {
+						console.log("failed to delete local image:" + err);
+					} else {
+						console.log('successfully deleted local image');
+					}
+				});
+
+				var file = req.files.file;
+				var filename = file.name;
+				var filetype = file.mimetype.substring(6);
+				const newid = uuidv4(); // Generate unique file id
+	
+				imageLink = newid + '.' + filetype;
+				if (fs.existsSync(imageLink)) {
+					fs.unlinkSync(imageLink);
+				}
+	
+				file.mv('./public/uploads/review/' + filename, function (err) {
+					if (err) {
+						res.send(err);
+					}
+					else {
+						fs.rename('./public/uploads/review/' + filename, './public/uploads/review/' + imageLink, function (err) {
+							if (err) console.log('ERROR: ' + err);
+						});
+					}
+				});
+			}
+	
+			Review.update({
+				photo: imageLink,
+				review: review,
+				stars: stars,
+				timestamp: getToday()
+			}, {
+				where: { id: req.params.id }
+			})
+			.catch(err => console.log(err));
+			alertMessage(res, 'info', 'Successfully updated review.', 'far fa-laugh-wink', true);
+			res.redirect('/view/'+req.params.itemid);
+		})
+	}
+});
+
+// Delete Review
+router.get('/deletereview/:itemid/:id', ensureAuthenticated, (req, res) => {
+	Review.findOne({
+		where: {
+			id: req.params.id
+		},
+		raw: true
+	})
+	.then((reviews) =>{
+		if(reviews){
+			fs.unlink("./public/uploads/review/" + reviews.photo, (err) => {
+				if (err) {
+					console.log("failed to delete local image:" + err);
+				} else {
+					console.log('successfully deleted local image');
+				}
+			});
+
+			Review.destroy({
+				where: {
+					id: req.params.id
+				}
+			})
+				.then(() => {
+					alertMessage(res, 'info', 'Successfully deleted review.', 'far fa-trash-alt', true);
+					res.redirect('/view/' + req.params.itemid);
+				})
+		}
+		else {
+			res.redirect('/404');
+		}
+		
+	})
+})
+
 
 
 

@@ -15,6 +15,7 @@ const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const User = require('../models/User.js');
 const ensureAuthenticated = require('../helpers/auth.js');
+const Review = require('../models/Review.js');
 var io = require('socket.io')();
 
 ////// Flash Error Message for easy referrence ///////
@@ -99,10 +100,6 @@ router.get('/notification', (req, res) => {
 	res.render('user/allnotifications', { title: "View all notifications" })
 });
 
-// Customer: Review
-router.get('/review', (req, res) => {
-	res.render('customer/review', { title: "Leave a review" });
-});
 // Customer : reward page
 router.get('/rewardpage', (req, res) => {
 	res.render('customer/rewardpage', { title: "Rewards" })
@@ -472,11 +469,21 @@ router.get("/view/:id", (req, res) => {
 						});
 				}
 
-				res.render('customer/productview', {
-					title: pdetails.name + ' - ' + pdetails.storename,
-					pdetails: getDetails,
-					choicesArray: choicesArray,
-					discprice: discprice
+				Review.findAll({
+					where: { productid: req.params.id },
+					raw: true
+				})
+				.then((reviews) => {
+					res.render('customer/productview', {
+						title: pdetails.name + ' - ' + pdetails.storename,
+						pdetails: getDetails,
+						choicesArray: choicesArray,
+						discprice: discprice,
+						reviews:reviews
+					});
+				})
+				.catch(err => {
+					console.error('Unable to connect to the database:', err);
 				});
 			}
 			else {
