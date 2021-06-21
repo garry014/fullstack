@@ -190,7 +190,8 @@ router.get('/inbox/:id', ensureAuthenticated, (req, res) => {
 				chatIdExist = false;
 				// Need to extract ONLY one section of each chats object
 				// & check if current webpage ID exists
-				for (c = 0; c < chats.length; c++) {
+				for (var c = chats.length-1; c >= 0; c--) {
+					console.log(chats[c].id, req.params.id);
 					if (chats[c].id == req.params.id) { // 1 is static data
 						chatIdExist = true;
 						if(currentuser == chats[c].recipient){
@@ -199,11 +200,17 @@ router.get('/inbox/:id', ensureAuthenticated, (req, res) => {
 						else{
 							recipient = chats[c].recipient;
 						}
-						
-						console.log(recipient);
 					}
-					chatids.push(chats[c].id);
 
+					if (chats[c].sender ==currentuser && chats[c].senderstatus == "deleted"){
+						chats.splice(c,1);
+					}
+					else if (chats[c].recipient ==currentuser && chats[c].recipientstatus == "deleted"){
+						chats.splice(c,1);
+					}
+					else {
+						chatids.push(chats[c].id);
+					}
 				};
 
 				Message.findAll({
@@ -388,16 +395,16 @@ router.post('/inbox/delete/:id', ensureAuthenticated, (req, res) => {
 		console.log(chat)
 		if(chat.sender == req.session.username){
 			console.log("changing recipientstatus")
-			Catalouge.update({
-				recipientstatus: "deleted" 
+			Chat.update({
+				senderstatus: "deleted" 
 			}, {
 				where: { id: req.params.id }
 			})
 			.catch(err => console.log(err));
 		}
 		else{
-			Catalouge.update({
-				senderstatus: "deleted" 
+			Chat.update({
+				recipientstatus: "deleted" 
 			}, {
 				where: { id: req.params.id }
 			})
@@ -405,6 +412,7 @@ router.post('/inbox/delete/:id', ensureAuthenticated, (req, res) => {
 		}
 	})
 	.catch(err => console.log(err));
+	alertMessage(res, 'success', 'Deleted message successfully!', 'fas fa-check-circle', true);
 	res.redirect('../../inbox/'+req.params.id);
 });
 
