@@ -251,7 +251,7 @@ router.get('/review/:id', ensureAuthenticated, (req, res) => {
 // Review - POST
 router.post('/review/:id', ensureAuthenticated, (req, res) => {
 	let errors = [];
-	let { stars, review } = req.body;
+	let { stars, review, storename } = req.body;
 
 	if (stars == "") {
 		errors.push({ msg: 'Please select a rating.' });
@@ -285,6 +285,7 @@ router.post('/review/:id', ensureAuthenticated, (req, res) => {
 
 		Review.create({
 			username: req.user.username,
+			storename: storename,
 			photo: newFileName,
 			review: review,
 			stars: stars,

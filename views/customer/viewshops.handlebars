@@ -44,8 +44,11 @@
                                             {{address1}} {{address2}}<br>
                                             {{city}} {{postalcode}}<br>
                                             <!-- if else loop -->
-                                            <span class="fa fa-star" style="color: orange;"></span><span class="fa fa-star" style="color: orange;"></span><span class="fa fa-star" style="color: orange;"></span><span class="fa fa-star"></span><span class="fa fa-star"></span>
-                                            3 stars
+                                            {{#each ../review}}
+                                            {{#ifCond storename '==' ../shopname}}
+                                                    {{#times avgRating}}<span class="fa fa-star" style="color: orange;"></span>{{/times}}{{#minusStars avgRating}}<span class="fa fa-star"></span>{{/minusStars}}{{avgRating}} stars
+                                            {{/ifCond}} 
+                                            {{/each}}
                                         </div>
                                     </div>
                                 </div>

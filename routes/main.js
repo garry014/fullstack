@@ -340,48 +340,6 @@ router.post('/inbox/uploadaud', (req, res) => {
 	console.log(req.file);
 });
 
-// Customer View Shops
-router.get('/viewshops', (req, res) => {
-	User.findAll({
-		where: {
-			usertype: "tailor"
-		},
-		raw: true
-	})
-	.then((shopdetails) => {
-		Catalouge.findAll({
-			// Get all DB values
-			// run a for loop to extract only the distinct storename, max discount
-			// attributes: [
-			// 	[Sequelize.fn('DISTINCT', Sequelize.col('storename')) ,'storename'],
-			// ]
-		})
-			.then((shops) => {
-				if (shops) {
-					const shop = [];
-					for (var s in shops) {
-						shop.push(shops[s].dataValues);
-					};
-	
-					// shop.forEach(shopItem => {
-					// 	console.log(shopItem);
-					// });
-					res.render('customer/viewshops', {
-						title: "View Shops",
-						shopdetails: shopdetails,
-						shop: shop
-					});
-				}
-				else {
-					res.render('customer/viewshops', { title: "View Shops" });
-				}
-			})
-			.catch(err => {
-				console.error('Unable to connect to the database:', err);
-			});
-	});
-});
-
 router.post('/inbox/delete/:id', ensureAuthenticated, (req, res) => {
 	// not working
 	Chat.findOne({
@@ -413,6 +371,68 @@ router.post('/inbox/delete/:id', ensureAuthenticated, (req, res) => {
 	res.redirect('../../inbox/'+req.params.id);
 });
 
+// Customer View Shops
+router.get('/viewshops', (req, res) => {
+	User.findAll({
+		where: {
+			usertype: "tailor"
+		},
+		raw: true
+	})
+	.then((shopdetails) => {
+		Catalouge.findAll({
+			// Get all DB values
+			// run a for loop to extract only the distinct storename, max discount
+			// attributes: [
+			// 	[Sequelize.fn('DISTINCT', Sequelize.col('storename')) ,'storename'],
+			// ]
+		})
+			.then((shops) => {
+				if (shops) {
+					// Review average.
+
+					const shop = [];
+					for (var s in shops) {
+						shop.push(shops[s].dataValues);
+					};
+	
+					// shop.forEach(shopItem => {
+					// 	console.log(shopItem);
+					// });
+					
+					// Review Ratings Calculation
+					Review.findAll({
+						attributes: ['storename', [Sequelize.fn('AVG', Sequelize.col('stars')), 'avgRating']],
+						group: 'storename',
+						raw: true
+					})
+					.then((review) => {
+						for(var i=0; i<review.length; i++){
+							review[i].avgRating = parseFloat(review[i].avgRating);
+						}
+
+						console.log(review);
+						console.log(shopdetails);
+						res.render('customer/viewshops', {
+							title: "View Shops",
+							shopdetails: shopdetails,
+							shop: shop,
+							review: review
+						});
+					})
+
+				}
+				else {
+					res.render('customer/viewshops', { title: "View Shops" });
+				}
+			})
+			.catch(err => {
+				console.error('Unable to connect to the database:', err);
+			});
+	});
+});
+
+
 // Customer View Shop Items
 router.get('/viewshops/:storename', (req, res) => {
 	Catalouge.findAll({
@@ -420,22 +440,42 @@ router.get('/viewshops/:storename', (req, res) => {
 		raw: true
 	})
 		.then(shopprod => {
-			title = 'View Items - ' + req.params.storename;
-			user_status = "cust";
-			if (typeof req.user != "undefined") {
-				user_status = res.locals.user.usertype;
+			if(shopprod.length > 0){
+				var itemsId = [];
+				shopprod.forEach(e => {
+					itemsId.push(e.id);
+				});
+				
+				Review.findAll({
+					where: { productid: itemsId },
+					attributes: ['productid', [Sequelize.fn('AVG', Sequelize.col('stars')), 'avgRating']],
+   					group: 'productid',
+					raw: true
+				})
+				.then((review) => {
+					for(var i=0; i<review.length; i++){
+						review[i].avgRating = parseFloat(review[i].avgRating);
+					}
+					title = 'View Items - ' + req.params.storename;
+					user_status = "cust";
+					if (typeof req.user != "undefined") {
+						user_status = res.locals.user.usertype;
+					}
+					res.render('customer/viewstore', {
+						title: title,
+						shopprod: shopprod,
+						user_status: user_status,
+						review: review,
+						storename: req.params.storename
+					});
+				})
 			}
-			res.render('customer/viewstore', {
-				title: title,
-				shopprod: shopprod,
-				user_status: user_status,
-				storename: req.params.storename
-			});
 		})
 		.catch(err => {
 			console.error('Unable to connect to the database:', err);
 		});
 });
+
 
 router.get("/view/:id", (req, res) => {
 	// http://localhost:5000/view/1
@@ -474,11 +514,20 @@ router.get("/view/:id", (req, res) => {
 					raw: true
 				})
 				.then((reviews) => {
+					var avgRating = 0;
+					if(reviews.length > 0){
+						reviews.forEach(r => {
+							avgRating = avgRating + r.stars;
+						});
+						avgRating = avgRating / reviews.length;
+					}
+					
 					res.render('customer/productview', {
 						title: pdetails.name + ' - ' + pdetails.storename,
 						pdetails: getDetails,
 						choicesArray: choicesArray,
 						discprice: discprice,
+						avgRating: avgRating,
 						reviews:reviews
 					});
 				})

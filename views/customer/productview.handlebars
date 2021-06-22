@@ -43,8 +43,17 @@
                         
                     </div>
                     <div class="pro-details-rating-wrap">
-                        3.0 stars <span class="fa fa-star" style="color: orange;"></span><span class="fa fa-star" style="color: orange;"></span><span class="fa fa-star" style="color: orange;"></span><span class="fa fa-star"></span><span class="fa fa-star"></span>
-                        
+                        {{#ifCond avgRating '>' 0}}
+                        {{avgRating}} stars  {{#times avgRating}}
+                                                <span class="fa fa-star" style="color: orange;"></span>
+                                            {{/times}}
+                                            <!-- minusStars not working -->
+                                            {{#minusStars avgRating}}
+                                                <span class="fa fa-star"></span>
+                                            {{/minusStars}}
+                        {{else}}
+                        <i>This item currently has no reviews.</i>
+                        {{/ifCond}}
                     </div>
                     <div class="pro-details-list">
                         {{ pdetails.description }}

@@ -7,6 +7,9 @@ const Review = db.define('review', {
     username: {
         type: Sequelize.STRING
     },
+    storename: {
+        type: Sequelize.STRING
+    },
     photo: {
         type: Sequelize.STRING
     },
