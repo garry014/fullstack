@@ -1,15 +1,18 @@
 // /rider/___________
 
+// DB Table Connections
+const User = require('../models/User');
+
+// Handlebars Helpers
+const alertMessage = require('../helpers/messenger');
+const ensureAuthenticated = require('../helpers/auth');
+
+// Other Requires
 const express = require('express');
 const router = express.Router();
-var validator = require('validator');
-const alertMessage = require('../helpers/messenger');
-const db = require('../config/DBConfig.js');
-const { username, password } = require('../config/db');
-const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
-const ensureAuthenticated = require('../helpers/auth');
+
 
 // riders: login page 
 router.get('/riderlogin', (req, res) => {

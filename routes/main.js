@@ -1,21 +1,24 @@
-const express = require('express');
-var bodyParser = require('body-parser');
-const router = express.Router();
-const db = require('../config/DBConfig.js');
-const { username, password } = require('../config/db');
-const alertMessage = require('../helpers/messenger');
+// DB Table Connections
 const Catalouge = require('../models/Catalouge');
 const Productchoices = require('../models/Productchoices');
 const Chat = require('../models/Chat');
 const Message = require('../models/Message');
 const Notification = require('../models/Notifications');
+const User = require('../models/User.js');
+const Review = require('../models/Review.js');
+
+// Handlebars Helpers
+const alertMessage = require('../helpers/messenger');
+const ensureAuthenticated = require('../helpers/auth.js');
+
+// Other Requires
+const express = require('express');
+var bodyParser = require('body-parser');
+const router = express.Router();
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
-const User = require('../models/User.js');
-const ensureAuthenticated = require('../helpers/auth.js');
-const Review = require('../models/Review.js');
 var io = require('socket.io')();
 
 ////// Flash Error Message for easy referrence ///////

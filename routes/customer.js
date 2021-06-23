@@ -1,17 +1,19 @@
 // /customer/___________
 
+// DB Table Connections
+const Catalouge = require('../models/Catalouge');
+const Review = require('../models/Review');
+const User = require('../models/User');
+
+// Handlebars Helpers
+const alertMessage = require('../helpers/messenger');
+const ensureAuthenticated = require('../helpers/auth');
+
+// Other Requires
 const express = require('express');
 const router = express.Router();
-var validator = require('validator');
-const alertMessage = require('../helpers/messenger');
-const db = require('../config/DBConfig.js');
-const { username, password } = require('../config/db');
-const User = require('../models/User');
-const Review = require('../models/Review');
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
-const ensureAuthenticated = require('../helpers/auth');
-const Catalouge = require('../models/Catalouge');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 

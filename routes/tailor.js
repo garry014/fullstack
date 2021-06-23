@@ -1,18 +1,23 @@
 // Redirections/Form submit/hyperlink links /tailor/___________
 // But the links here, put /________ directly
-const express = require('express');
-const router = express.Router();
-var validator = require('validator');
-const alertMessage = require('../helpers/messenger');
-var bodyParser = require('body-parser');
+
+// DB Table Connections
 const Catalouge = require('../models/Catalouge');
 const Productchoices = require('../models/Productchoices');
 const User = require('../models/User');
+
+// Handlebars Helpers
+const alertMessage = require('../helpers/messenger');
+const ensureAuthenticated = require('../helpers/auth');
+
+// Other Requires
+const express = require('express');
+const router = express.Router();
+var bodyParser = require('body-parser');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
-const ensureAuthenticated = require('../helpers/auth');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 
