@@ -16349,3 +16349,6 @@ textarea:focus {
 .text-center text-light my-5{
   color: black;
 }
+.purchaseTable{
+  border: 1px solid grey;
+}
