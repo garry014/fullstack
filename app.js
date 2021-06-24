@@ -128,8 +128,6 @@ Handlebars.registerHelper("calculatedisc", function (price, discount) {
 });
 
 Handlebars.registerHelper("link", function(data) {
-	console.log(data)
-		
    return new Handlebars.SafeString("<a href='" + data.hash.url + data.hash.id + "'>" + data.hash.text +"</a>");
 });
 
