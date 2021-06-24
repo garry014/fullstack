@@ -11,25 +11,25 @@
                     <div id="lg2" class="tab-pane">
                         <div class="login-form-container">
                             <div class="login-register-form">
-                                <form action="#" method="post">
+                                <form action="/tailor/updatedeal/{{deals.id}}?_method=PUT" method="post" id="updatedeal">
                                     <div class="form-group">
                                         <label for="name">Product Name</label>
-                                        <input id="pname" name="pname" class="form-control" type="text" value="" >
+                                        <input id="pname" name="pname" class="form-control" type="text" value="{{deals.pname}}" >
                                     </div>
 
                                     <div class="form-group">
                                         <label for="name">Discounted Price ($)</label>
-                                        <input id="discountp" name="discountp" class="form-control" type="text" value="" >
+                                        <input id="discountp" name="discountp" class="form-control" type="text" value="{{deals.discountp}}" >
                                     </div>
 
                                     <div class="form-group">
                                         <label for="name">Start Date (DD/MM/YYYY)</label>
-                                        <input id="dstartdate" name="dstartdate" class="form-control" type="text" value="" >
+                                        <input id="dstartdate" name="dstartdate" class="form-control" type="text" value="{{deals.dstartdate}}" >
                                     </div>
 
                                     <div class="form-group">
                                         <label for="name">End Date (DD/MM/YYYY)</label>
-                                        <input id="dexpirydate" name="dexpirydate" class="form-control" type="text" value="" >
+                                        <input id="dexpirydate" name="dexpirydate" class="form-control" type="text" value="{{deals.dexpirydate}}" >
                                     </div>
 
                                     <div class="button-box">
