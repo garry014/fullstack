@@ -6,6 +6,7 @@ const Message = require('../models/Message');
 const Notification = require('../models/Notifications');
 const User = require('../models/User.js');
 const Review = require('../models/Review.js');
+const Cart = require('../models/Cart');
 
 // Handlebars Helpers
 const alertMessage = require('../helpers/messenger');
@@ -23,6 +24,7 @@ const { request } = require('http');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 var io = require('socket.io')();
+var sess;
 
 ////// Flash Error Message for easy referrence ///////
 // alertMessage(res, 'success',
@@ -74,6 +76,13 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 router.get('/', (req, res) => {
 	const title = 'TailorNow Home';
+	sess = req.session;
+	if (!("myCart" in sess)) {
+		// if dont have key, add key and initialize with empty array to fill in items to cart
+		sess["myCart"] = []
+	}
+
+	sess["cartSize"] = sess["myCart"].length;
 	res.render('mainselection', { title: title, path: "landing" });
 });
 
@@ -89,12 +98,240 @@ router.get('/rewardpage', (req, res) => {
 })
 // Customer : checkout page
 router.get('/customers_checkout', (req, res) => {
-	res.render('customer/customers_checkout', { title: "customers_checkout" })
+	sess = req.session;
+
+	console.log(sess["myCart"]);
+	res.render('customer/customers_checkout', { title: "customers_checkout", sess: sess })
 })
 // Customer : after transaction page
 router.get('/transaction_complete', (req, res) => {
+	sess = req.session;
+	//send into sql
+	console.log("cart", sess["mycart"])
+	let cartId = Date.now()/1000;
+
+	sess["myCart"].forEach(cartItem => {
+		let insertData = {
+			name: cartItem.itemname,
+			price: cartItem.price,
+			quantity: cartItem.qty,
+			customqn: cartItem.customqn,
+			custom: cartItem.custom,
+			userid: 0,
+			timestamp: cartId
+		}
+		console.log("insertData==>", insertData);
+		Cart.create(insertData).then(success =>{
+			console.log("Receipt created==>", success)
+			sess["myCart"] = []
+		}).catch(err => {
+			console.error('Unable to connect to the database:', err);
+		});
+		
+	});
+
+
 	res.render('customer/transaction_complete', { title: "transaction_complete" })
 })
+
+router.post('/transaction_complete', (req, res) => {
+	sess = req.session;
+	//send into sql
+	//change sql table from cart to billing details
+	console.log("Billing Details", sess["mycart"])
+	sess["myCart"].forEach(cartItem => {
+		Cart.create({
+			name: cartItem.itemname,
+			price: cartItem.price,
+			quantity: cartItem.qty,
+			customqn: cartItem.customqn,
+			custom: cartItem.custom
+		}).catch(err => {
+			console.error('Unable to connect to the database:', err);
+		});
+		sess["myCart"] = []
+	});
+
+
+	res.render('customer/transaction_complete', { title: "transaction_complete" })
+})
+
+//delete
+deleteCartItem = (inItemId, sess) => {
+	console.log("delete myCart==>",  sess["myCart"])
+	let itemId = parseInt(inItemId)
+	if (itemId < sess["myCart"].length) {
+		sess["myCart"].splice(itemId, 1);
+	}
+	console.log("delete after myCart==>",  sess["myCart"])
+	let i = 0;
+	for (let item of sess["myCart"]) {
+		item.itemId = i;
+		++i;
+	}
+
+}
+
+router.get('/deleteSessItem/:id', (req, res) => {
+	sess = req.session;
+	console.log(sess["myCart"]);
+	console.log("req.param==>", req.params);
+	deleteCartItem(req.params.id, sess);
+	// You create a new array (A)
+	// var newArray = []
+
+	// for (var item in sess["myCart"]) {
+	// 	newArray.push(sess["myCart"][item]);
+	// }
+
+	// ///
+	// for (var item in newArray) {
+	// 	if (newArray[item].itemId == req.params.id) {
+	// 		newArray[item].splice("");
+
+	// 		// You give the array A the values of sess["mycart"]
+	// 		// For loop to check if itemId == id
+	// 		// Pass back values to session
+	// 		console.log(newArray);
+	// 	}
+	// }
+
+
+	res.redirect('/customers_checkout');
+});
+// retrieving the data from amelia ( test ) 
+router.post("/transaction_complete", (req, res) => {
+	let { fname, lname, addressline1, addressline2, City, PostalCode, Email, phone_number } = req.body
+
+	console.log("test", fname)
+
+	if (!("cdetails" in acct)) {
+		acct["cdetails"] = []
+	}
+	acct["cdetails"].push({
+		"fname": fname,
+		"lname": lname,
+		"addressline1": addressline1,
+		"addressline2": addressline2,
+		"city": City,
+		"PostalCode": PostalCode,
+		"Email": Email,
+		"phone_number": phone_number,
+
+	})
+});
+
+router.post("/view/:id", (req, res) => {
+	// let backURL = req.header('Referer') ||'/'
+	let { itemname, price, storename, qty, customqn, custom } = req.body;
+
+	console.log("form: ", itemname)
+	sess = req.session;
+	// to clear cart
+	//sess["myCart"] = [] 
+	if (!("myCart" in sess)) {
+		// if dont have key, add key and initialize with empty array to fill in items to cart
+		sess["myCart"] = []
+	}
+	sess["myCart"].push({
+		"itemId": 0,
+		"itemname": itemname,
+		"price": price,
+		"storename": storename,
+		"qty": qty,
+		"subtotal": qty * price,
+		"customqn": (customqn) ? customqn : "Nil",
+		"custom": custom
+	})
+	// update card item ID
+	let i = 0;
+	for (let item of sess["myCart"]) {
+		item.itemId = i;
+		++i;
+	}
+
+	// console.log(sess["myCart"]);	
+	// // res.redirect(sess["lastViewStore"]["url"]);
+	// res.redirect(backURL);
+	res.redirect('/viewshops/' + storename);
+});
+
+//customer purchase history
+router.get('/purchasehistory', (req, res) => {
+	sess = req.session;
+	let that = this;
+	userId = sess["loginId"]
+	sess["purchases"] = []
+	Cart.findAll({
+		where: { userid: 0 },
+		raw: true
+		// Get all DB values
+		// run a for loop to extract only the distinct storename, max discount
+		// attributes: [
+		// 	[Sequelize.fn('DISTINCT', Sequelize.col('storename')) ,'storename'],
+	})
+	.then((purchases) => {
+		console.log("/purchase_history body data===> ", purchases);
+		if(purchases){
+
+		
+		let purchaseDict = {}
+		for (let data of purchases){
+			if(!(data.timestamp in purchaseDict)){
+				purchaseDict[data.timestamp] = []
+			}
+			purchaseDict[data.timestamp].push(data)
+		}
+
+		// sess["purchases"] = [];
+		// let cartNum = 1;
+
+		// Iterating individual cart purchases so far
+		for(let purchaseKey in purchaseDict){
+			let purchaseData = purchaseDict[purchaseKey]
+			let purchasedCart = {
+				cartId:purchaseData[0].timestamp,
+				items: [], 
+				total: 0
+			}
+			let itemId = 1
+
+			// Populating items inside one cart purchase
+			for(let cartItem of purchaseData){
+				let cartInfo = {
+
+				}	
+				cartInfo["itemId"] = itemId;
+				cartInfo["itemname"] = cartItem.name;
+				cartInfo["qty"] = cartItem.quantity;
+				cartInfo["price"] = cartItem.price;
+				cartInfo["subtotal"] = cartItem.quantity * cartItem.price;
+				purchasedCart["total"] += cartInfo["subtotal"];
+				cartInfo["subtotalStr"] = cartInfo["subtotal"].toFixed(2);
+				purchasedCart["items"].push(cartInfo);
+				itemId += 1;
+			}
+			purchasedCart["totalStr"] = purchasedCart["total"].toFixed(2);
+			sess["purchases"].push(purchasedCart)
+		}
+
+		
+	}
+	else{
+		sess["purchases"] = [];
+	}
+	console.log("sess purchases==>", sess["purchases"])
+	// console.log("sess purchases items==>", sess["purchases"][0].items)
+	res.render('customer/purchasehistory', {
+		title: "Purchase History",
+		purchases: sess["purchases"],
+	});
+	// res.render('customer/purchasehistory', { title: "Purchase History" });
+}).catch((err)=>{
+//error codes
+})
+});
+
 
 // FOR DESIGNING PURPOSES ONLY
 router.get('/design', (req, res) => {
