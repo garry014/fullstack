@@ -103,6 +103,13 @@ Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
 	}
 });
 
+Handlebars.registerHelper('eq', function () {
+    const args = Array.prototype.slice.call(arguments, 0, -1);
+    return args.every(function (expression) {
+        return args[0] === expression;
+    });
+});
+
 // For loop
 Handlebars.registerHelper('times', function(n, block) {
     var accum = '';
