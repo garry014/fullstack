@@ -1,17 +1,4 @@
-<div class="breadcrumb-area pt-35 pb-35 bg-gray-3">
-    <div class="container">
-        <div class="breadcrumb-content text-center">
-            <ul>
-                <li>
-                    <a href="main.handlebars">Home</a>
-                </li>
-                <li class="active">Checkout </li>
-            </ul>
-        </div>
-    </div>
-</div>
-<div class="checkout-area pt-95 pb-100">
-    <div class="container">
+
         <div class="row">
             <div class="col-lg-7">
                 <div class="billing-info-wrap">
@@ -20,55 +7,16 @@
                         <div class="row">
                             <div class="col-lg-6 col-md-6">
                                 <div class="billing-info mb-20">
+                    <div class="billing-info mb-20">
+                        <form method="POST" id="thisForm" action="">
+                            <h3>Billing Details</h3>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6">
+
                                     <label for="firstname">FirstName</label>
                                     <input type="text" name="first-name" placeholder="First Name"
                                         value="{{request.form.firstname }}">
-                                </div>
-                            </div>
-                            <div class="col-lg-6 col-md-6">
-                                <div class="billing-info mb-20">
-                                    <label for="lastname">LastName</label>
-                                    <input type="text" name="last-name" placeholder="Last Name"
-                                        value="{{request.form.lastname }}">
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="billing-info mb-20">
-                                    <label for="Address1">Address Line 1</label>
-                                    <input type="text" name="Address-Line-1" placeholder="Address "
-                                        value="{{request.form.AddressLine1 }}">
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="billing-info mb-20">
-                                    <label for="Address2">Address Line 2</label>
-                                    <input type="text" name="Address-Line-2" placeholder="Address-Line-2"
-                                        value="{{request.form.AddressLine2 }}">
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="billing-info mb-20">
-                                    <label for="city">City</label>
-                                    <input type="text" name="city" placeholder="city" value="{{request.form.city }}">
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="billing-info mb-20">
-                                    <label for="postal_code">Postal Code</label>
-                                    <input type="text" name="postal-code" placeholder="Postal Code"
-                                        value="{{request.form.postal_code }}">
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="billing-info mb-20">
-                                    <label for="Email">Email</label>
-                                    <input type="text" name="email" placeholder="email" value="{{request.form.email }}">
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="billing-info mb-20">
-                                    <label for="phone_number">Phone Number</label>
-                                    <input type="text" name="phone_number" placeholder="phone_number"
+          
                                         value="{{request.form.phone_number }}">
                                 </div>
                             </div>
@@ -96,6 +44,22 @@
                                     <input type="text" name="delivery_options" placeholder="delivery_options"
                                         value="{{request.form.delivery_options }}">
                                 </div>
+                    </div>
+                    <!--                    <div class="checkout-account mb-50">-->
+                    <!--                        <input class="checkout-toggle2" type="checkbox">-->
+                    <!--                        <span>Create an account?</span>-->
+                    <!--                    </div>-->
+                    <!--                    <div class="checkout-account-toggle open-toggle2 mb-30">-->
+                    <!--                        <input placeholder="Email address" type="email">-->
+                    <!--                        <input placeholder="Password" type="password">-->
+                    <!--                        <button class="btn-hover checkout-btn" type="submit">register</button>-->
+                    <!--                    </div>-->
+                    <div class="additional-info-wrap">
+                        <div class="col-lg-12">
+                            <div class="billing-info mb-20">
+                                <label for="order_notes">Additional Information</label>
+                                <input type="text" name="order_notes" placeholder="order_notes"
+                                    value="{{request.form.order_notes }}">
                             </div>
                             <div class="col-lg-12">
                                 <div class="billing-info mb-20">
@@ -103,6 +67,12 @@
                                     <input type="text" name="delivery_time" placeholder="delivery_time"
                                         value="{{request.form.delivery_time }}">
                                 </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="billing-info mb-20">
+                                <label for="delivery_options">Delivery Options</label>
+                                <input type="text" name="delivery_options" placeholder="delivery_options"
+                                    value="{{request.form.delivery_options }}">
                             </div>
                             <div class="col-lg-12">
                                 <div class="billing-info mb-20">
@@ -110,120 +80,68 @@
                                     <input type="text" name="delivery_date" placeholder="delivery_date"
                                         value="{{request.form.delivery_date }}">
                                 </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="billing-info mb-20">
+                                <label for="delivery_time">Delivery Time</label>
+                                <input type="text" name="delivery_time" placeholder="delivery_time"
+                                    value="{{request.form.delivery_time }}">
                             </div>
                             <div class="checkout-account-toggle open-toggle2 mb-30">
                                 <a href="user/transaction_complete"><button class="btn-hover checkout-btn"
                                         type="submit">Confirm</button></a>
                                 
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="billing-info mb-20">
+                                <label for="delivery_date">Delivery Date</label>
+                                <input type="text" name="delivery_date" placeholder="delivery_date"
+                                    value="{{request.form.delivery_date }}">
                             </div>
                         </div>
+                        <div class="checkout-account-toggle open-toggle2 mb-30">
+                            <a href="user/transaction_complete"><button class="btn-hover checkout-btn"
+                                    type="submit">Confirm</button></a>
+
+                        </div>
+                    </div>
                     </form>
                     <div class="checkout-account mt-25">
                         <input class="checkout-toggle" type="checkbox">
-                        <span>Ship to a different address?</span>
-                    </div>
-                    <div class="different-address open-toggle mt-30">
-                        <div class="row">
-                            <div class="col-lg-6 col-md-6">
-                                <div class="billing-info mb-20">
-                                    <label>First Name</label>
-                                    <input type="text">
-                                </div>
-                            </div>
-                            <div class="col-lg-6 col-md-6">
-                                <div class="billing-info mb-20">
-                                    <label>Last Name</label>
-                                    <input type="text">
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="billing-info mb-20">
-                                    <label>Company Name</label>
-                                    <input type="text">
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="billing-select mb-20">
-                                    <label>Country</label>
-                                    <select>
-                                        <option>Select a country</option>
-                                        <option>Azerbaijan</option>
-                                        <option>Bahamas</option>
-                                        <option>Bahrain</option>
-                                        <option>Bangladesh</option>
-                                        <option>Barbados</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="billing-info mb-20">
-                                    <label>Street Address</label>
-                                    <input class="billing-address" placeholder="House number and street name"
-                                        type="text">
-                                    <input placeholder="Apartment, suite, unit etc." type="text">
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="billing-info mb-20">
-                                    <label>Town / City</label>
-                                    <input type="text">
-                                </div>
-                            </div>
-                            <div class="col-lg-6 col-md-6">
-                                <div class="billing-info mb-20">
-                                    <label>State / County</label>
-                                    <input type="text">
-                                </div>
-                            </div>
-                            <div class="col-lg-6 col-md-6">
-                                <div class="billing-info mb-20">
-                                    <label>Postcode / ZIP</label>
-                                    <input type="text">
-                                </div>
-                            </div>
-                            <div class="col-lg-6 col-md-6">
-                                <div class="billing-info mb-20">
-                                    <label>Phone</label>
-                                    <input type="text">
-                                </div>
-                            </div>
-                            <div class="col-lg-6 col-md-6">
-                                <div class="billing-info mb-20">
-                                    <label>Email Address</label>
-                                    <input type="text">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    </form>
-                </div>
-            </div>
-            <div class="col-lg-5">
-                <div class="your-order-area">
-                    <h3>Your order</h3>
-                    <div class="your-order-wrap gray-bg-4">
-                        <div class="your-order-product-info">
-                            <div class="your-order-top">
-                                <ul>
-                                    <li>Product</li>
-                                    <li>Total</li>
+
                                 </ul>
                             </div>
                             <div class="your-order-middle">
+                                {{#each sess.myCart}}
                                 <ul>
                                     <li><span class="order-middle-left"><a href=><i class="fa fa-times"></i></a></span>
                                         <span class="order-price"></span>
+                                    {{!-- <span>{{this.itemId}}</span> --}}
+                                    <li><span class="order-middle-left">{{this.itemname}}
+                                        {{link text="   Remove" url="/deleteSessItem/" id=this.itemId}}
+                                        {{!-- <a href="/deleteSessItem/{{this.itemId}}"><i class="fa fa-times"></i></a> --}}
+                                        </span>
+                                        <span class="order-price">{{this.subtotal}}</span>
                                     </li>
+                                    <li style="margin-left:10px;">{{this.customqn}}</li>
+                                    <li style="margin-left:15px;">{{this.custom}}</li>
                                 </ul>
+                                {{else}}
+                                <ul>
+                                    <li>Cart is empty!</li>
+                                </ul>
+                                {{/each}}
 
                                 <div class="your-order-total">
                                     <ul>
                                         <li class="order-total">Total</li>
                                         <li></li>
+                                        <li>{{this.total}}</li>
+                                        
                                     </ul>
                                 </div>
                                 <!--                                 <p>Note: Self Collection is available only from 9am-6pm from monday to friday.</p>-->
-                            </div>
+
                         </div>
                     </div>
                     <div class="Place-order mt-25">
@@ -231,6 +149,10 @@
                             <div style="text-align: center;">
                                 <div id="paypal-button-container"></div>
                             </div>
+                       <div id="smart-button-container">
+                          <div style="text-align: center;">
+                            <div id="paypal-button-container"></div>
+                          </div>
                         </div>
                         <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID"> // Replace YOUR_CLIENT_ID with your sandbox client ID
                         </script>
@@ -239,33 +161,20 @@
 
                         <!-- Add the checkout buttons, set up the order and approve the order -->
                         <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=SGD" data-sdk-integration-source="button-factory"></script>
+                          <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD" data-sdk-integration-source="button-factory"></script>
                           <script>
                             function initPayPalButton() {
                               paypal.Buttons({
-                                style: {
-                                  shape: 'rect',
-                                  color: 'gold',
-                                  layout: 'vertical',
-                                  label: 'checkout',
 
-                                },
-
-                                createOrder: function(data, actions) {
-                                  return actions.order.create({
-                                    purchase_units: [{"amount":{"currency_code":"SGD","value":1}}]
-                                  });
-                                },
 
                                 onApprove: function(data, actions) {
                                   return actions.order.capture().then(function(details) {
                                     window.location.replace("/transaction_complete");
+                                    alert('Transaction completed by ' + details.payer.name.given_name + '!');
+                                    window.location.replace("/transaction_complete")
                                   });
                                 },
 
-                                onError: function(err) {
-                                  console.log(err);
-                                }
-                              }).render('#paypal-button-container');
                             }
                             initPayPalButton();
                           </script>
@@ -273,6 +182,3 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
