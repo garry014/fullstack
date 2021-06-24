@@ -9,6 +9,8 @@ const Catalouge = require('../models/Catalouge');
 const Productchoices = require('../models/Productchoices');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
+const Course = require('../models/Course');
+const Video = require('../models/Video');
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
@@ -362,6 +364,250 @@ router.get('/deleteProduct/:id', (req, res) => {
 				})
 		};
 	})
-})
+});
+
+
+// stacey
+
+// tailor: create course
+router.get('/createcourse', (req, res) => {
+	res.render('tailor/createcourse', { title: "Create Course" });
+});
+
+router.post('/createcourse', (req, res) => {
+	let title = req.body.title;
+	let language = req.body.language;
+	let day = req.body.day;
+	let material = req.body.material;
+	let description = req.body.description;
+	let price = req.body.price;
+	let thumbnail = req.body.thumbnail;
+	
+	
+	console.log(title, language);
+
+	if(req.files){
+		
+		console.log(req.files);
+		var file = req.files.thumbnail;
+		var filename = file.name;
+		console.log(filename);
+
+		file.mv('./public/uploads/courseimg/'+ filename, function(err){
+			if (err){
+				res.send(err);
+			}
+		});
+	}
+
+	// Multi-value components return array of strings or undefined
+	Course.create({
+		title: title,
+		language: language,
+		day: day,
+		material: material,
+		description: description,
+		price:price,
+		thumbnail : filename,
+		user : 1
+	}).then((course) => {
+		res.redirect('/tailor/viewcourse/:user'); // redirect to call router.get(/listVideos...) to retrieve all updated
+		// videos
+	}).catch(err => console.log(err))
+});
+
+
+
+router.get('/viewcourse/:id', (req, res) => {
+	Course.findAll({
+		where: {
+			user: 1 //ummmmmmmmmmmmmm
+		},
+		raw: true
+	}).then((course) => {
+		//console.log(course);
+		res.render('tailor/viewcourse', { title: "View Course", course:course });
+	}).catch(err => console.log(err));
+});
+
+//delete c
+router.post('/deletecourse/:id', (req, res) => {
+	//let courseId = req.params.id;
+	//let userId = 1;
+	//console.log(courseId) // Select * from videos where videos.id=videoID and videos.userId=userID
+	Course.findOne({
+		where: {
+			id: req.params.id,
+			user: 1
+		},
+		raw:true
+		// attributes: ['id']
+	}).then((course) => { // if record is found, user is owner of video
+		if (course) {
+			Course.destroy({
+				where: {
+					id: req.params.id
+				}
+			}).then(() => {
+				alertMessage(res, 'info', 'course deleted', 'far fa-trash-alt', true);
+				res.redirect('/tailor/viewcourse/1'); // To retrieve all videos again
+			}).catch(err => console.log(err));
+		} else {
+			alertMessage(res, 'danger', 'Unauthorised access to course', 'fas fa-exclamation-circle', true);
+			res.redirect('/tailor/viewcourse/1');
+		}
+	});
+});
+
+// tailor: update course
+router.get('/updatecourse/:id', (req, res) => {
+	Course.findOne({
+		where: {
+			id: req.params.id //ummmmmmmmmmmmmm
+		},
+		raw:true
+	}).then((course) => {
+		//console.log(course);
+		res.render('tailor/updatecourse', { title: "Update Course", course:course });
+	}).catch(err => console.log(err));
+});
+
+
+router.put('/updatecourse/:id', (req, res) => {   // id is course id
+	let title = req.body.title;
+	let language = req.body.language;
+	let day = req.body.day;
+	let material = req.body.material;
+	let description = req.body.description;
+	let price = req.body.price;
+	let thumbnail = req.body.thumbnail;
+	console.log(title);
+
+	Course.update({
+		title: title,
+		language: language,
+		day: day,
+		material: material,
+		description: description,
+		price:price,
+		thumbnail : thumbnail,
+		user : 1
+	}, {
+		where: {
+			id: req.params.id
+		}
+	}).then(() => {
+		res.redirect('/tailor/viewcourse/1'); 
+			// videos
+	}).catch(err => console.log(err));
+});
+
+
+
+
+// tailor: add/delete/update course content
+
+//display the title after adding NOT IT LOL. 
+//somewhere, the ID is working correctly i suppose bc i tried to enter 10 and the page loads forever (theres no course id 10)
+//view topics addded
+router.get('/addcontent/:id', (req, res) => {
+	Course.findOne({
+		where: {
+			id: req.params.id, //ummmmmmmmmmmmmm
+			user: 1
+		},
+		raw: true
+	}).then((course) => {
+		//console.log(course.id); ////ok well these r the same unless it's in string or wtv,
+		//console.log(req.params.id); // it's not going in the if and idk if that's rly needed
+		Video.findAll({
+			where: {
+				courseid: req.params.id
+			},
+			raw: true
+		})
+			.then((videos) => {
+				res.render('tailor/addcontent', { 
+					title: "Course Content", 
+					course:course, 
+					videos: videos,
+					id:req.params.id 
+				});
+			}) 
+				//.then((videos)
+				
+				//);
+
+	}).catch(err => console.log(err));
+	//is delete supp to be here too???
+
+
+});
+
+//create topic
+router.post('/addcontent/:id', (req, res) => {
+	let topic = req.body.topic;
+	let video = req.body.video;
+	//let courseid = req.course.id //?????????? cannot
+	//video not showing in sql but is storing??  whats ur prob.
+	console.log(topic,video); 
+	
+	if(req.files){
+		console.log(req.files);
+		var file = req.files.video;
+		var filename = file.name;
+		console.log(filename);
+
+		file.mv('./public/uploads/video/'+ filename, function(err){
+			if (err){
+				res.send(err);
+			}
+		});
+	}
+
+	// Multi-value components return array of strings or undefined
+	Video.create({
+		topic: topic,
+		video: filename,
+		courseid: req.params.id
+	}).then((videocontent) => {
+		res.redirect('/tailor/addcontent/' + req.params.id); // redirect to call router.get(/listVideos...) to retrieve all updated
+		// videos
+	}).catch(err => console.log(err))
+});
+
+//delete topic, is it even going in here.
+//put? post? not get? what?
+router.get('/deletecontent/:courseid/:id', (req, res) => {
+	Video.findOne({
+		where: {
+			id: req.params.id //id
+			//user: 1
+		}
+		//raw:true 
+	}).then((videos) => { 
+		
+		console.log(videos)
+		if (videos) {
+			Video.destroy({
+				where: {
+					id: req.params.id
+				}
+			}).then(() => {
+				alertMessage(res, 'info', 'topic deleted', 'far fa-trash-alt', true);
+				res.redirect('/tailor/addcontent/' + req.params.courseid ); // To retrieve all videos again
+			}).catch(err => console.log(err));
+		} else {
+			alertMessage(res, 'danger', 'Unauthorised access to topic', 'fas fa-exclamation-circle', true);
+			res.redirect('/tailor/addcontent/' + req.params.id);
+		}
+	});
+});
+
+
+// tailor: calendar schedule
+router.get('/tailorschedule', (req, res) => {
+	res.render('tailor/tailorschedule', { title: "Education Platform Content" });
+});
 
 module.exports = router;

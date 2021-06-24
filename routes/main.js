@@ -9,6 +9,9 @@ const Productchoices = require('../models/Productchoices');
 const Chat = require('../models/Chat');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
+const Course = require('../models/Course');
+const Video = require('../models/Video');
+const { request } = require('http');
 
 ////// Flash Error Message for easy referrence ///////
 // alertMessage(res, 'success',
@@ -223,30 +226,6 @@ router.get("/view/:id", (req, res) => {
 		});
 });
 
-// tailor: create course
-router.get('/createcourse', (req, res) => {
-	res.render('tailor/createcourse', { title: "Create Course" });
-});
-
-// tailor: view courses
-router.get('/viewcourse', (req, res) => {
-	res.render('tailor/viewcourse', { title: "View Course" });
-});
-
-// tailor: update course
-router.get('/updatecourse', (req, res) => {
-	res.render('tailor/updatecourse', { title: "Update Course" });
-});
-
-// tailor: add/delete/update course content
-router.get('/addcontent', (req, res) => {
-	res.render('tailor/addcontent', { title: "Course Content" });
-});
-
-// tailor: calendar schedule
-router.get('/tailorschedule', (req, res) => {
-	res.render('tailor/tailorschedule', { title: "Education Platform Content" });
-});
 // tailor : manage advertisement
 router.get('/manageads', (req, res) => {
 	res.render('tailor/manageads', { title: "manageads" })
@@ -257,43 +236,6 @@ router.get('/advertise', (req, res) => {
 })
 
 
-// customer: course catalogue
-router.get('/coursecatalogue', (req, res) => {
-	res.render('customer/coursecatalogue', { title: "View Shops - Course" });
-});
-
-// customer: course catalogue details
-router.get('/course', (req, res) => {
-	res.render('customer/course', { title: "Course Details" });
-});
-
-// customer: course cart payment
-router.get('/coursepayment', (req, res) => {
-	res.render('customer/coursepayment', { title: "Course Payment" });
-});
-
-// customer: course payment successful
-router.get('/coursepaymentsuccessful', (req, res) => {
-	res.render('customer/coursepaymentsuccessful', { title: "Course Payment Successful" });
-});
-
-// customer: education platform
-router.get('/educationplatform', (req, res) => {
-	res.render('customer/educationplatform', { title: "Education Platform" });
-});
-
-// customer: education platform content
-router.get('/educationplatformcontent', (req, res) => {
-	res.render('customer/educationplatformcontent', { title: "Education Platform Content" });
-});
-
-router.get('/educationplatform', (req, res) => {
-	res.render('customer/educationplatform', { title: "Education Platform" });
-});
-
-router.get('/educationplatformcontent', (req, res) => {
-	res.render('customer/educationplatformcontent', { title: "Education Platform Content" });
-});
 
 // customer: account page 
 router.get('/custaccount', (req, res) => {
