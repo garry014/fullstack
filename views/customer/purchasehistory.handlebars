@@ -1,0 +1,52 @@
+
+<div class="py-5 text-center align-items-center d-flex">
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                
+
+                <h1 class="h3 mb-3 font-weight-normal">Purchases</h1>
+                {{#if purchases}}
+                {{#with purchases as | purchases |}}
+                {{#each purchases}}
+                <div>Cart Id: {{cartId}}</div>
+                <table class="table purchaseTable">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Item Name</th>
+                            <th scope="col">Item Quantity</th>
+                            <th scope="col">Item Price</th>
+                            <th scope="col">subtotal</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each items}}
+                        <tr>
+                            <th scope="row">{{this.itemId}}</th>
+                            <td>{{this.itemname}}</td>
+                            <td>{{this.qty}}</td>
+                            <td>${{this.price}}</td>
+                            <td>${{this.subtotalStr}}</td>
+                        </tr>
+                        {{/each}}
+
+                        
+
+                        <tr>
+                            <td colspan='10'>Total : ${{totalStr}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                {{/each}}
+                {{/with}}
+                {{else}}
+                    <ul>
+                        <li>You did not purchase anything!</li>
+                    </ul>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</div>
