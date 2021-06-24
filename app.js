@@ -223,6 +223,87 @@ app.use('/tailor', tailorRoute);
 app.use('/customer', custRoute);
 app.use('/rider', riderRoute);
 
+// Create socket instance
+const io = require('socket.io')(http);
+var users = [];
+
+const Chat = require('./models/Chat');
+const Message = require('./models/Message');
+
+function getToday(){
+	// Get Date
+	var currentdate = new Date(); 
+	const monthNames = ["January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December"];
+	var datetime = currentdate.getDate() + " "
+			+ monthNames[currentdate.getMonth()]  + " " 
+			+ currentdate.getFullYear() + " "  
+			+ currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+	return datetime;
+}
+
+io.use(sharedsession(session));
+// add listener for new connection
+io.on("connection", function(socket){
+	console.log("'\x1b[36m%s\x1b[0m'", "user connected: ", socket.id);
+	var currentuser = socket.handshake.session.username;
+	users[currentuser] = socket.id;
+	
+
+	socket.on('disconnect', () => {
+		console.log('user disconnected: ', socket.id);
+	});
+
+	// socket.on("user_connected", function(username){
+	// 	users[username] = socket.id;
+
+	// 	// socket id will be used to send msg to individual person
+
+	// 	//notify all connect clients
+	// 	io.emit("user_connected", username);
+	// });
+
+	socket.on("send_message", function(data){
+		// send event to receiver
+		var socketId = users[data.receiver];
+
+		var datetime = getToday();
+		data["timestamp"] = datetime;
+		data["sender"] = currentuser;
+		io.to(socketId).emit("new_message", data);
+		console.log(data);
+
+		// Save in db
+		Message.create({
+			sentby: currentuser,
+			timestamp: datetime,
+			message: data.message,
+			chatId: data.chatid
+		}).catch(err => {
+			console.error('Unable to connect to the database:', err);
+		});
+	});
+
+	socket.on("send_upload", function(data){
+		// send event to receiver
+		data["sender"] = currentuser;
+		var socketId = users[data.receiver];
+
+		io.to(socketId).emit("new_upload", data);
+	});
+});
+// This route maps the root URL to any path defined in main.js
+
+global.fnName = function(){ 
+	var data = {
+		"recipient": "recipient",
+		"category": "category",
+		"message": "message",
+		"hyperlink": "hyperlink",
+		"timestamp": getToday()
+	}
+	io.sockets.emit('send_notification', data);
+};
+
 // fix google redirect page problem & must display login name 
 passport.use(new GoogleStrategy({
 	clientID: '601670228405-m3un3mco0q1q9faa22ho21e1g5abtd1j.apps.googleusercontent.com',

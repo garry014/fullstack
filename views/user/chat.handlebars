@@ -80,21 +80,7 @@
         {{#ifCond id '!=' 0}}
         <div class="mesgs">
             <div class="heading_msg">
-<<<<<<< HEAD
-                <b>
-                    {{#each chats}}
-                        {{#ifCond id '==' ../id}}
-                            {{#ifCond sender '==' ../user}}
-                                {{recipient}}
-                            {{else}}
-                                {{sender}}
-                            {{/ifCond}}
-                        {{/ifCond}}
-                    {{/each}}
-                </b>
-=======
                 <b>{{recipient}}</b>
->>>>>>> 1d0d2df5b00463c9ae28ea60421a19b06afe8ca0
 
                 <a href="/chat/archive/2" title="Mark as archive" style="float: right;"><i class="fa fa-archive"></i>
                     Archive</a>
@@ -370,18 +356,6 @@
     //////////////////////// Socket IO ////////////////////////////////
     var io = io();
 
-    io.on("user_connected", function (username) {
-        var html = "";
-        html += "<li><button onclick='onUserSelected(this.innerHTML);'>" + username + "</button></li>";
-
-        document.getElementById("users").innerHTML += html;
-    });
-
-    function onUserSelected(username) {
-        // save selected user in global var
-        receiver = username;
-    }
-
     function sendMessage() {
         var message = document.getElementById("message").value;
 
@@ -445,8 +419,7 @@
 
     });
     
-    io.on("send_notification", function (data) {
-        console.log("send_notification recieved");
-
-    });
+    //io.on("send_notification", function (data) {
+    //    alert(data);
+    //});
 </script>
