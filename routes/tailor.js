@@ -20,7 +20,6 @@ const Course = require('../models/Course');
 const Video = require('../models/Video');
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
-const ensureAuthenticated = require('../helpers/auth');
 const JWT_SECRET = 'secret super'
 const jwt = require('jsonwebtoken');
 

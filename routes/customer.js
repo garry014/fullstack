@@ -14,7 +14,6 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
-const ensureAuthenticated = require('../helpers/auth');
 var nodemailer = require('nodemailer');
 const JWT_SECRET = 'secret super'
 const jwt = require('jsonwebtoken');

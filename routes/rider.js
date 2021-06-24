@@ -12,8 +12,6 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
-<<<<<<< HEAD
-const ensureAuthenticated = require('../helpers/auth');
 const JWT_SECRET = 'secret super'
 const jwt = require('jsonwebtoken');
 
@@ -22,9 +20,6 @@ const jwt = require('jsonwebtoken');
 router.get('/homerider', (req, res) => {
 	res.render('rider/homerider', {path:"rider" });
 });
-=======
-
->>>>>>> 1d0d2df5b00463c9ae28ea60421a19b06afe8ca0
 
 // riders: login page 
 router.get('/riderlogin', (req, res) => {
