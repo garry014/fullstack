@@ -804,7 +804,7 @@ router.get('/tailoraccount/:id', ensureAuthenticated, (req, res) => {
 		raw: true
 	}).then((Tailor) => {
 		console.log(Tailor);
-		if (req.params.id === Tailor.id) {
+		if (req.params.id == Tailor.id) {
 			res.render('tailor/tailoracct', {
 				User: Tailor
 			});

@@ -36,6 +36,10 @@ function getToday() {
 	return datetime;
 }
 
+router.get('/homecust', (req, res) => {
+	res.render('homecust')
+});
+
 // Customer Home Page
 router.get('/', (req, res) => {
 	const title = 'TailorNow Home';
@@ -173,7 +177,8 @@ router.get('/custaccount/:id', ensureAuthenticated, (req, res) => {
 		},
 		raw: true
 	}).then((Customer) => {
-		console.log(Customer);
+		// console.log(Customer);
+		// console.log(req.params.id);
 		if (req.params.id == Customer.id) {
 			res.render('customer/custacct', {
 				User: Customer
@@ -223,7 +228,7 @@ router.put('/custaccount/:id', ensureAuthenticated, (req, res) => {
 	}).then(() => {
 		// get value from customeraccount
 		alertMessage(res, 'success', 'Account has been updated successfully!', 'fas fa-sign-in-alt', true);
-		res.redirect('/customer/custaccount/' + req.params.id);
+		res.redirect('../customer/custaccount/' + req.params.id);
 	}).catch(err => console.log(err));
 });
 // req.params is where u pass in the variables into the URL 

@@ -146,13 +146,13 @@ router.get('/rideraccount/:id', ensureAuthenticated,(req, res) => {
 		raw: true
 	}).then((Rider) => {
 		console.log(Rider);
-		if (req.params.id === Rider.id) {
-			res.render('rider/rideraccount/', { 
+		if (req.params.id == Rider.id) {
+			res.render('rider/rideraccount', { 
 				User: Rider
 			});
 		} else {
 			alertMessage(res, 'danger', 'Access Denied', 'fas fa-exclamation-circle', true);
-			res.redirect('/clogout');
+			res.redirect('/rlogout');
 			// sth wrong here with the res.redirect 
 		}
 	}).catch(err => console.log(err));
