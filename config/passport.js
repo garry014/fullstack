@@ -39,4 +39,5 @@ function localStrategy(passport) {
             });
     });
 }
+
 module.exports = { localStrategy };

@@ -10,6 +10,14 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const ensureAuthenticated = require('../helpers/auth');
+const JWT_SECRET = 'secret super'
+const jwt = require('jsonwebtoken');
+
+
+// riders: home page 
+router.get('/homerider', (req, res) => {
+	res.render('rider/homerider', {path:"rider" });
+});
 
 // riders: login page 
 router.get('/riderlogin', (req, res) => {
@@ -18,10 +26,12 @@ router.get('/riderlogin', (req, res) => {
 
 router.post('/login', (req, res, next) => {
 	passport.authenticate('local', {
-		successRedirect: '/homerider',
+		successRedirect: '../rider/homerider',
 		failureRedirect: '../rider/riderlogin', // Route to /login URL
-		failureFlash: true
-	})(req, res, next);
+		failureFlash: 'Invalid username or password.',
+		userProperty: res.user
+	})
+	(req, res, next);
 });
 
 // riders: register page 
@@ -52,7 +62,7 @@ router.post('/rideregister', (req, res) => {
 		req.body.phoneno,
         req.body.transport,
         req.body.licenseno,
-		req.body.usertype
+		req.body.usertype='rider'
 		);
 
 	// Checks if both passwords entered are the same
@@ -88,11 +98,11 @@ router.post('/rideregister', (req, res) => {
 			usertype
 		});
 	} else {
-		User.findOne({ where: { username: req.body.username } })
+		User.findOne({ where: { username: req.body.username, email: req.body.email, usertype: req.body.usertype } })
 			.then(Rider => {
 				if (Rider) {
 					res.render('rider/rideregister', {
-						error: User.username + 'already registered',
+						error: 'User has already registered or email has been used.',
 						firstname,
 						lastname,
 						username,
@@ -140,7 +150,7 @@ router.get('/rideraccount/:id', ensureAuthenticated,(req, res) => {
 			});
 		} else {
 			alertMessage(res, 'danger', 'Access Denied', 'fas fa-exclamation-circle', true);
-			res.redirect('/logout');
+			res.redirect('/clogout');
 			// sth wrong here with the res.redirect 
 		}
 	}).catch(err => console.log(err));
@@ -182,5 +192,166 @@ router.put('/rideraccount/:id', ensureAuthenticated, (req, res) => {
 });
 // req.params is where u pass in the variables into the URL 
 
+router.get('/forgetpassword', (req, res, next) => {
+	res.render('rider/rforgetpassword')
+});
 
+router.post('/forgetpassword', (req, res, next) => {
+	// CHECK IF EMAIL IS REGISTERED IN THE DATABASE 
+	const { email } = req.body;
+	User.findOne({
+		where: {
+			email: email,
+			usertype: 'rider'
+		},
+		raw: true
+	}).then((user) => {
+		console.log(user);
+		if (!user) {
+			res.redirect('../rider/rinvalid');
+			return;
+		}
+		console.log('password-->', user.password);
+		const secret = JWT_SECRET + user.password
+		const payload = {
+			email: user.email,
+			id: user.id
+		}
+		const token = jwt.sign(payload, secret, { expiresIn: '15m' });
+		const link = `http://localhost:5000/rider/resetpassword/${user.id}/${token}`;
+		console.log('\n\n' + link + '\n\n');
+		res.redirect('../rider/rreset');
+	}).catch(err => console.log(err));
+});
+
+router.get('/rinvalid', (req, res) => {
+	res.render('rider/rinvalidemail');
+});
+
+router.get('/rreset', (req, res, next) => {
+	res.render('rider/rresetlink')
+});
+
+router.get('rpwsuccess', (req, res, next) => {
+	res.render('rider/rpwsuccess')
+});
+
+router.get('/resetpassword/:id/:token', (req, res, next) => {
+	const { id, token } = req.params
+	console.log(id, token)
+
+	User.findOne({
+		where: {
+			id: id
+		},
+		raw: true
+	}).then((user) => {
+		// check if this id exist in database 
+		if (!user) {
+			res.send('Invalid id')
+			return
+		}
+		//valid id, and we have a valid user with this id 
+		console.log('reset password-->', user.password);
+		const secret = JWT_SECRET + user.password
+		try {
+			const payload = jwt.verify(token, secret)
+			console.log('jwt--->', payload);
+			res.render('rider/rresetpassword', { email: user.email })
+		} catch (error) {
+			console.log(error.message);
+			res.send(error.message);
+
+		}
+	}).catch(err => console.log(err));
+
+});
+
+router.post('/resetpassword/:id/:token', (req, res, next) => {
+	const { id, token } = req.params;
+	const { password, password2 } = req.body;
+	User.findOne({
+		where: {
+			id: id
+		},
+		raw: true
+	}).then((user) => {
+		// check if this id exist in database 
+		// if (!user) {
+		// 	res.send('Invalid id')
+		// 	return
+		// }
+		const secret = JWT_SECRET + user.password
+		try {
+			let errors = [];
+			const payload = jwt.verify(token, secret);
+			// Checks if both passwords entered are the same
+			if (password !== password2) {
+				console.log('match')
+				errors.push({
+					msg: 'Passwords do not match.'
+				});
+			}
+			// Checks that password length is more than 8 (upgrade this to include checking for special characters etc)
+			if (req.body.password.length < 8) {
+				console.log('length')
+				errors.push({
+					msg: 'Passwords must at least have 8 characters.'
+				});
+			}
+			if (errors.length > 0) {
+				res.render('customer/cresetpassword', {
+					errors: errors,
+					password,
+					password2
+				});
+			}
+			else {
+				User.findOne({ where: { id: id, password: password } })
+					.then(Rider => {
+						if (Rider) {
+							res.render('rider/rresetpassword', {
+								error: 'Old passwords cannot be used.',
+								password,
+								password2
+							});
+						} else {
+							bcrypt.genSalt(10, (err, salt) => {
+								bcrypt.hash(password, salt, (err, hash) => {
+									if (err) throw err;
+									let password = hash;
+									User.update({
+										password: password,
+									}, {
+										where: {
+											id: id
+										}
+									}).then(() => {
+										res.render('rider/rpwsuccess')
+									}).catch(err => console.log(err));
+									// validate password and password2 should match 
+								})
+							});
+						}
+					})
+			}
+		} catch (error) {
+			console.log(error.message);
+			res.send(error.message);
+
+		}
+
+	}).catch(err => console.log(err));
+
+});
+
+// logout user 
+router.get('/rlogoutsuccess', (req, res) => {
+	res.render('rider/rsucclogout', { title: "Flash Deals" });
+});
+
+router.get('/rlogout', (req, res) => {
+	req.logout();
+	res.redirect('../rider/rlogoutsuccess');
+});
 module.exports = router;

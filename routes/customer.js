@@ -10,20 +10,30 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const ensureAuthenticated = require('../helpers/auth');
+var nodemailer = require('nodemailer');
+const JWT_SECRET = 'secret super'
+const jwt = require('jsonwebtoken');
+const e = require('connect-flash');
+
 
 // customer: login page 
 // router.get('custlogin', (req, res) => {
 // 	res.render('customer/custlogin', {title: "Login"});
 // });
 
+router.get('/homecust', (req, res) => {
+	const title = 'TailorNow Home';
+	res.render('homecust', { title: title, user: req.user });
+});
+
 router.get('/custlogin', (req, res) => {
 	res.render('customer/custlogin')
 });
 
 router.post('/login', (req, res, next) => {
-	
+
 	passport.authenticate('local', {
-		successRedirect: onSuccess(res),
+		successRedirect: '../customer/homecust',
 		failureRedirect: '../customer/custlogin', // Route to /login URL
 		failureFlash: 'Invalid username or password.',
 		userProperty: res.user
@@ -31,9 +41,9 @@ router.post('/login', (req, res, next) => {
 		(req, res, next);
 });
 
-function onSuccess(response){
-	return '/homecust'
-}
+// router.post('/oauth/facebook', (req, res, next) => {
+// 	passport.authenticate('facebookToken', { session: false }), UserController.facebookOAuth;
+// });
 
 // customer: register
 router.get('/custregister', (req, res) => {
@@ -65,7 +75,7 @@ router.post('/custregister', (req, res) => {
 		req.body.gender,
 		req.body.email,
 		req.body.phoneno,
-		req.body.usertype
+		req.body.usertype='customer'
 	);
 
 	// Checks if both passwords entered are the same
@@ -103,11 +113,11 @@ router.post('/custregister', (req, res) => {
 			usertype
 		});
 	} else {
-		User.findOne({ where: { username: req.body.username } })
+		User.findOne({ where: { username: req.body.username, email: req.body.email, usertype: req.body.usertype} })
 			.then(Customer => {
 				if (Customer) {
 					res.render('customer/custregister', {
-						error: User.username + 'already registered',
+						error: 'User has already registered or email has been used.',
 						firstname,
 						lastname,
 						username,
@@ -151,14 +161,14 @@ router.get('/custaccount/:id', ensureAuthenticated, (req, res) => {
 		raw: true
 	}).then((Customer) => {
 		console.log(Customer);
-		if (req.params.id === Customer.id) {
+		if (req.params.id == Customer.id) {
 			res.render('customer/custacct', {
 				User: Customer
 			});
-		} else {
+		}
+		else {
 			alertMessage(res, 'danger', 'Access Denied', 'fas fa-exclamation-circle', true);
-			res.redirect('/logout');
-			// sth wrong here with the res.redirect 
+			res.redirect('/clogout');
 		}
 	}).catch(err => console.log(err));
 
@@ -205,6 +215,165 @@ router.put('/custaccount/:id', ensureAuthenticated, (req, res) => {
 });
 // req.params is where u pass in the variables into the URL 
 
+router.get('/forgetpassword', (req, res, next) => {
+	res.render('customer/cforgetpassword')
+});
 
+router.post('/forgetpassword', (req, res, next) => {
+	// CHECK IF EMAIL IS REGISTERED IN THE DATABASE 
+	const { email } = req.body;
+	User.findOne({
+		where: {
+			email: email,
+			usertype: 'customer'
+		},
+		raw: true
+	}).then((user) => {
+		console.log(user);
+		if (!user) {
+			res.redirect('../customer/cinvalid');
+			return;
+		}
+		console.log('password-->', user.password);
+		const secret = JWT_SECRET + user.password
+		const payload = {
+			email: user.email,
+			id: user.id
+		}
+		const token = jwt.sign(payload, secret, { expiresIn: '15m' });
+		const link = `http://localhost:5000/customer/resetpassword/${user.id}/${token}`;
+		console.log('\n\n' + link + '\n\n');
+		res.redirect('../customer/creset');
+	}).catch(err => console.log(err));
+});
+
+router.get('/cinvalid', (req, res) => {
+	res.render('customer/cinvalidemail');
+});
+
+router.get('/creset', (req, res, next) => {
+	res.render('customer/cresetlink')
+});
+
+router.get('cpwsuccess', (req, res, next) => {
+	res.render('customer/cpwsuccess')
+});
+
+router.get('/resetpassword/:id/:token', (req, res, next) => {
+	const { id, token } = req.params
+	console.log(id, token)
+
+	User.findOne({
+		where: {
+			id: id
+		},
+		raw: true
+	}).then((user) => {
+		// check if this id exist in database 
+		if (!user) {
+			res.send('Invalid id')
+			return
+		}
+		//valid id, and we have a valid user with this id 
+		console.log('reset password-->', user.password);
+		const secret = JWT_SECRET + user.password
+		try {
+			const payload = jwt.verify(token, secret)
+			console.log('jwt--->', payload);
+			res.render('customer/cresetpassword', { email: user.email })
+		} catch (error) {
+			console.log(error.message);
+			res.send(error.message);
+
+		}
+	}).catch(err => console.log(err));
+
+});
+
+router.post('/resetpassword/:id/:token', (req, res, next) => {
+	const { id, token } = req.params;
+	const { password, password2 } = req.body;
+	User.findOne({
+		where: {
+			id: id
+		},
+		raw: true
+	}).then((user) => {
+		// check if this id exist in database 
+		// if (!user) {
+		// 	res.send('Invalid id')
+		// 	return
+		// }
+		const secret = JWT_SECRET + user.password
+		try {
+			let errors = [];
+			const payload = jwt.verify(token, secret);
+			// Checks if both passwords entered are the same
+			if (password !== password2) {
+				console.log('match')
+				errors.push({
+					msg: 'Passwords do not match.'
+				});
+			}
+			// Checks that password length is more than 8 (upgrade this to include checking for special characters etc)
+			if (req.body.password.length < 8) {
+				console.log('length')
+				errors.push({
+					msg: 'Passwords must at least have 8 characters.'
+				});
+			}
+			if (errors.length > 0) {
+				res.render('customer/cresetpassword', {
+					errors: errors,
+					password,
+					password2
+				});
+			}
+			else {
+				User.findOne({ where: { id: id, password: password } })
+					.then(Customer => {
+						if (Customer) {
+							res.render('customer/cresetpassword', {
+								error: 'Old passwords cannot be used.',
+								password,
+								password2
+							});
+						} else {
+							bcrypt.genSalt(10, (err, salt) => {
+								bcrypt.hash(password, salt, (err, hash) => {
+									if (err) throw err;
+									let password = hash;
+									User.update({
+										password: password,
+									}, {
+										where: {
+											id: id
+										}
+									}).then(() => {
+										res.render('customer/cpwsuccess')
+									}).catch(err => console.log(err));
+									// validate password and password2 should match 
+								})
+							});
+						}
+					})
+			}
+		} catch (error) {
+			console.log(error.message);
+			res.send(error.message);
+
+		}
+
+	}).catch(err => console.log(err));
+
+});
+router.get('/clogoutsuccess', (req, res) => {
+	res.render('customer/csucclogout');
+});
+
+router.get('/clogout', (req, res) => {
+	req.logout();
+	res.redirect('../customer/clogoutsuccess');
+});
 
 module.exports = router;

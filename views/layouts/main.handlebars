@@ -23,36 +23,54 @@
     <link rel="stylesheet" href="/css/style.css">
     <!-- Modernizer JS -->
     <script src="/js/vendor/modernizr-2.8.3.min.js"></script>
-    <!-- Font Awesome Icons -->  
+    <!-- Font Awesome Icons -->
     <script src="https://kit.fontawesome.com/8f1e06b39f.js" crossorigin="anonymous"></script>
     <!-- Socket IO -->
     <script src="/socket.io/socket.io.js"></script>
 </head>
+{{!-- {{#ifIncludes window.location.pathname "rider/" }}
+{{>_rnavbar}}
+{{/ifIncludes}} --}}
+{{!-- {{#ifCond window.location.pathname '==' "tailor/" }}
+{{>_tnavbar}}
+{{/ifCond}} --}}
+
 {{#ifCond path '!=' "landing"}}
-{{>_navbar}}
+    {{#ifCond useracctype '==' "Customer"}}
+        {{>_navbar}}
+    {{/ifCond}}
+    {{#ifCond useracctype '==' "Rider"}}
+        {{>_rnavbar}}
+    {{/ifCond}}
+    {{#ifCond useracctype '==' "Tailor"}}
+        {{>_tnavbar}}
+    {{/ifCond}}
 {{/ifCond}}
+
+
 <body>
     <div style="width: 98%; margin:0 auto; font-size: 16px;">
         {{>_flashmsg}}
         {{>_msg}} {{!-- views/partials/_msg.handlebars --}}
         {{>_errors}} {{!-- views/partials/_errors.handlebars --}}
     </div>
-{{{body}}}
+    {{{body}}}
 
-<!-- All JS is here -->
-<!-- jQuery JS -->
-<script src="/js/vendor/jquery-v3.4.1.min.js"></script>
-<!-- Popper JS -->
-<script src="/js/popper.min.js"></script>
-<!-- Bootstrap JS -->
-<script src="/js/bootstrap.min.js"></script>
-<!-- Plugins JS -->
-<script src="/js/plugins.js"></script>
-<!-- Ajax Mail -->
-<script src="/js/ajax-mail.js"></script>
-<!-- Main JS -->
-<script src="/js/main.js"></script>
+    <!-- All JS is here -->
+    <!-- jQuery JS -->
+    <script src="/js/vendor/jquery-v3.4.1.min.js"></script>
+    <!-- Popper JS -->
+    <script src="/js/popper.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="/js/bootstrap.min.js"></script>
+    <!-- Plugins JS -->
+    <script src="/js/plugins.js"></script>
+    <!-- Ajax Mail -->
+    <script src="/js/ajax-mail.js"></script>
+    <!-- Main JS -->
+    <script src="/js/main.js"></script>
 
 </body>
 {{>_footer}}
+
 </html>

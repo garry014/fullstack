@@ -29,22 +29,33 @@
                                             required>
                                         <input type="password" name="password" placeholder="Password"
                                             class="form-control" required>
-                                        <input type="hidden" name="usertype" placeholder="Usertype"
-                                            class="form-control" value="customer" >
+                                        <input type="hidden" name="usertype" placeholder="Usertype" class="form-control"
+                                            value="customer">
                                         <div class="button-box">
                                             <div class="login-toggle-btn">
                                                 <input type="checkbox">
                                                 <label>Remember me</label>
-                                                <a href="#">Forgot Password?</a>
+                                                <a href="../customer/forgetpassword">Forgot Password?</a>
                                                 <div class="contact-social text-center">
-                                                    <h3>Or Sign In With: </h3>
-                                                    <ul>
-                                                        <li><a href="#"><i class="fa fa-facebook"></i></a></li>
-                                                        <li><a href="#"><i class="fa fa-google"></i></a></li>
-                                                        <li><a href="#"><i class="fa fa-instagram"></i></a></li>
-                                                        <li><a href="#"><i class="fa fa-tumblr"></i></a></li>
-                                                        <li><a href="#"><i class="fa fa-twitter"></i></a></li>
-                                                    </ul>
+                                                    {{!-- <h3>Or Sign In With: </h3>
+                                                    <div class="card social-block">
+                                                        <div class="card-body">
+                                                            <a class="btn btn-block btn-social btn-google"
+                                                                href="/auth/google" role="button">
+                                                                <i class="fab fa-google"></i>
+                                                                Sign Up with Google
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card social-block">
+                                                        <div class="card-body">
+                                                            <a class="btn btn-block btn-social btn-facebook"
+                                                                href="/auth/facebook" role="button">
+                                                                <i class="fab fa-facebook"></i>
+                                                                Sign Up with Facebook
+                                                            </a>
+                                                        </div>
+                                                    </div> --}}
                                                 </div>
                                             </div>
                                             <button type="submit"><span>Login</span></button>
@@ -61,3 +72,25 @@
         </div>
     </div>
 </div>
+
+<script>
+    window.fbAsyncInit = function () {
+        FB.init({
+            appId: '{your-app-id}',
+            cookie: true,
+            xfbml: true,
+            version: '{api-version}'
+        });
+
+        FB.AppEvents.logPageView();
+
+    };
+
+    (function (d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) { return; }
+        js = d.createElement(s); js.id = id;
+        js.src = "https://connect.facebook.net/en_US/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+</script>

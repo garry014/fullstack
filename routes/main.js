@@ -91,10 +91,7 @@ router.get('/', (req, res) => {
 	res.render('mainselection', { title: title, path: "landing" })
 });
 
-router.get('/homecust', (req, res) => {
-	const title = 'TailorNow Home';
-	res.render('homecust', { title: title, user: req.user });
-});
+
 
 
 // Customer Notifications
@@ -485,11 +482,6 @@ router.get('/educationplatformcontent', (req, res) => {
 	res.render('customer/educationplatformcontent', { title: "Education Platform Content" });
 });
 
-
-// riders: home page 
-router.get('/homerider', (req, res) => {
-	res.render('rider/homerider');
-});
 // riders: main orders page 
 router.get('/rordersmain', (req, res) => {
 	res.render('rider/rordersmain');
@@ -521,11 +513,6 @@ router.get('/rwalletransfer', (req, res) => {
 		'You have insufficient funds to transfer. Please try again later.', 'fas fa-exclamation-circle', false);
 	res.render('rider/rwalletransfer',
 		{ success_msg: success_msg });
-});
-
-// tailor: home page 
-router.get('/hometailor', (req, res) => {
-	res.render('tailor/hometailor');
 });
 
 // tailor: view vouchers
@@ -579,10 +566,13 @@ router.get('/flashdeals', (req, res) => {
 });
 
 // logout user 
-router.get('/logout', (req, res) => {
-	req.logout();
-	alertMessage(res, 'info', 'Bye-bye!', 'fas fa-power-off', true);
-	res.redirect('/homecust');
-});
+// router.get('/logout', (req, res) => {
+// 	req.logout();
+// 	alertMessage(res, 'info', 'Bye-bye!', 'fas fa-power-off', true);
+// 	user: req.user
+// 	if (user == 'customer'){
+// 		res.render('homecust', { title: title, user: req.user });
+// 	}
+// });
 
 module.exports = router;

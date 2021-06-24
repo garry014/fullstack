@@ -12,6 +12,9 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 const passport = require('passport');
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const FacebookStrategy = require("passport-facebook").Strategy;
+// const jwt = require('jsonwebtoken')
 
 const flash = require('connect-flash');
 const FlashMessenger = require('flash-messenger');
@@ -43,26 +46,26 @@ var users = [];
 const Chat = require('./models/Chat');
 const Message = require('./models/Message');
 
-function getToday(){
+function getToday() {
 	// Get Date
-	var currentdate = new Date(); 
-	const monthNames = ["January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December"];
+	var currentdate = new Date();
+	const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 	var datetime = currentdate.getDate() + " "
-			+ monthNames[currentdate.getMonth()]  + " " 
-			+ currentdate.getFullYear() + " "  
-			+ currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+		+ monthNames[currentdate.getMonth()] + " "
+		+ currentdate.getFullYear() + " "
+		+ currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
 	return datetime;
 }
 
 // add listener for new connection
-io.on("connection", function(socket){
+io.on("connection", function (socket) {
 	console.log("'\x1b[36m%s\x1b[0m'", "user connected: ", socket.id);
 
 	socket.on('disconnect', () => {
 		console.log('user disconnected: ', socket.id);
 	});
 
-	socket.on("user_connected", function(username){
+	socket.on("user_connected", function (username) {
 		users[username] = socket.id;
 
 		// socket id will be used to send msg to individual person
@@ -71,7 +74,7 @@ io.on("connection", function(socket){
 		io.emit("user_connected", username);
 	});
 
-	socket.on("send_message", function(data){
+	socket.on("send_message", function (data) {
 		// send event to receiver
 		var socketId = users[data.receiver];
 
@@ -91,7 +94,7 @@ io.on("connection", function(socket){
 		});
 	});
 
-	socket.on("send_upload", function(data){
+	socket.on("send_upload", function (data) {
 		// send event to receiver
 		var socketId = users[data.receiver];
 
@@ -150,7 +153,7 @@ Handlebars.registerHelper('money2dp', function (distance) {
 	return distance.toFixed(2);
 });
 
-Handlebars.registerHelper("calculatedisc", function(price, discount) {
+Handlebars.registerHelper("calculatedisc", function (price, discount) {
 	var a = price * (1 - (discount / 100));
 	return a.toFixed(2);
 });
@@ -159,6 +162,13 @@ Handlebars.registerHelper('getToday', function () {
 	return getToday();
 });
 
+// Handlebars.registerHelper('ifIncludes', function (location,path) {
+// 	debugger
+// 	console.log(location);
+// 	if (location.includes(path))
+// 		return true;
+// 	return false
+// });
 
 app.use(upload());
 
@@ -192,9 +202,9 @@ app.use(session({
 		checkExpirationInterval: 900000,
 		// The maximum age of a valid session; milliseconds:
 		expiration: 900000,
-		}),
-		resave: false,
-		saveUninitialized: false,
+	}),
+	resave: false,
+	saveUninitialized: false,
 }));
 
 app.use(passport.initialize());
@@ -208,13 +218,25 @@ app.use(function (req, res, next) {
 	res.locals.success_msg = req.flash('success_msg');
 	res.locals.error_msg = req.flash('error_msg');
 	res.locals.error = req.flash('error');
-	if(typeof req.user != "undefined"){
+	if (typeof req.user != "undefined") {
 		res.locals.user = req.user.dataValues || null;
+	}
+	if (req.path.includes('/customer')){
+		res.locals.useracctype = 'Customer';
+	}
+	else if (req.path.includes('/rider')){
+		res.locals.useracctype = 'Rider';
+	}
+	else if (req.path.includes('/tailor')){
+		res.locals.useracctype = 'Tailor';
 	}
 	next();
 });
 
 app.use(methodOverride('_method'));
+app.use(express.json())
+// app.use(express.urlencoded({ extended: false }))
+// app.set('view engine', 'ejs')
 
 // Bring in database connection
 const tailornowDB = require('./config/DBConnection');
@@ -223,6 +245,8 @@ const { getDefaultSettings } = require('http2');
 tailornowDB.setUpDB(false); // To set up database with new tables set (true)
 
 const authenticate = require('./config/passport');
+const User = require('./models/User');
+// const { profile } = require('console');
 authenticate.localStrategy(passport);
 // Use Routes
 /*
@@ -234,15 +258,76 @@ app.use('/tailor', tailorRoute);
 app.use('/customer', custRoute);
 app.use('/rider', riderRoute);
 
+// fix google redirect page problem & must display login name 
+passport.use(new GoogleStrategy({
+	clientID: '601670228405-m3un3mco0q1q9faa22ho21e1g5abtd1j.apps.googleusercontent.com',
+	clientSecret: 'LB_jS4hb3y_jYxTWnKAhr0P8',
+	callbackURL: "http://localhost:5000/customer/homecust",
+	userProfileURL: 'https://googleapis.com/oauth2/v3/userinfo'
+},
+	function (accessToken, refreshToken, profile, cb) {
+		User.findOrCreate({ googleId: profile.id }, function (err, user) {
+			return cb(err, user);
+		});
+	}
+));
+
+app.get("/auth/google", passport.authenticate("google", { scope: ["profile"] })
+);
+app.get("auth/google/homecust", passport.authenticate("google", { failureRedirect: "/customer/custlogin" }),
+	function (req, res) {
+		res.redirect('customer/homecust');
+	}
+)
+passport.use(new FacebookStrategy({
+	clientID: '3000022716989207',
+	clientSecret: 'e3883b73cf1392784301194f05963827',
+	callbackURL: "http://localhost:5000/customer/homecust"
+},
+	 function(accessToken, refreshToken, profile, done) {
+		User.findOrCreate({ facebookId: profile.id }, function (err, user) {
+			if (err) { return done(err); }
+			done(null, user);
+		});
+	}
+));
+
+// sth wrong with the facebook authentication
+app.get('/auth/facebook', passport.authenticate('facebook'));
+app.get('/auth/facebook/homecust',
+	passport.authenticate('facebook', {
+		successRedirect: '/homecust',
+		failureRedirect: '/customer/custlogin'
+	}));
+
+
+// // reset password
+// app.get('/forgetpassword', (req, res, next) => {
+
+// })
+
+// app.post('/forgetpassword', (req, res, next) => {
+
+// })
+
+// app.get('/resetpassword', (req, res, next) => {
+
+// })
+
+// app.post('/resetpassword', (req, res, next) => {
+
+// })
+
+
 app.get('/test', (req, res) => {
 	res.render('testchat', { title: "Test Chat" });
 });
 // This route maps the root URL to any path defined in main.js
 
 // Handle 404 error page - Keep this as a last route
-app.use(function(req, res, next) {
-    res.status(404);
-    res.render('404');
+app.use(function (req, res, next) {
+	res.status(404);
+	res.render('404');
 });
 // No routes below this, otherwise it will get overwritten.
 

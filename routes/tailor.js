@@ -13,13 +13,18 @@ const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const ensureAuthenticated = require('../helpers/auth');
-
+const JWT_SECRET = 'secret super'
+const jwt = require('jsonwebtoken');
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 function isNumeric(value) {
 	return /^\d+$/.test(value);
 }
+
+router.get('/hometailor', (req, res) => {
+	res.render('tailor/hometailor');
+});
 
 router.get('/addproduct', ensureAuthenticated, (req, res) => {
 	res.render('tailor/addproduct', { title: "Add product" });
@@ -399,7 +404,7 @@ router.post('/login', (req, res, next) => {
 });
 
 function onSuccess(response){
-	return '/hometailor'
+	return '../tailor/hometailor'
 }
 
 // tailor: registration complete page 
@@ -427,7 +432,7 @@ router.post('/tailoregister', (req, res) => {
 		req.body.postalcode,
 		req.body.email,
 		req.body.phoneno,
-		req.body.usertype
+		req.body.usertype='tailor'
 		);
 
 	// Checks if both passwords entered are the same
@@ -447,6 +452,7 @@ router.post('/tailoregister', (req, res) => {
 	 more than one error message in the errors array, hence its length must be more than one.
 	 In that case, render register.handlebars with error messages.
 	 */
+	// same email + same username + within the same usertype cannot register
 	if (errors.length > 0) {
 		res.render('tailor/tailoregister', {
 			errors: errors,
@@ -463,11 +469,11 @@ router.post('/tailoregister', (req, res) => {
 			usertype
 		});
 	} else {
-		User.findOne({ where: { username: req.body.username } })
+		User.findOne({ where: { username: req.body.username, email: req.body.email, usertype: req.body.usertype } })
 			.then(Tailor => {
 				if (Tailor) {
 					res.render('tailor/tailoregister', {
-						error: User.username + 'already registered',
+						error: 'User has already registered or email has been used.',
 						username,
 						password,
 						password2,
@@ -515,7 +521,7 @@ router.get('/tailoraccount/:id', ensureAuthenticated,(req, res) => {
 			});
 		} else {
 			alertMessage(res, 'danger', 'Access Denied', 'fas fa-exclamation-circle', true);
-			res.redirect('/logout');
+			res.redirect('/tlogout');
 			// sth wrong here with the res.redirect 
 		}
 	}).catch(err => console.log(err));
@@ -549,4 +555,167 @@ router.put('/tailoraccount/:id', ensureAuthenticated, (req, res) => {
 		res.redirect('/tailor/tailoraccount/'+req.params.id);
 	}).catch(err => console.log(err));
 });
+
+router.get('/forgetpassword', (req, res, next) => {
+	res.render('tailor/tforgetpassword')
+});
+
+router.post('/forgetpassword', (req, res, next) => {
+	// CHECK IF EMAIL IS REGISTERED IN THE DATABASE 
+	const { email } = req.body;
+	User.findOne({
+		where: {
+			email: email,
+			usertype: 'tailor'
+		},
+		raw: true
+	}).then((user) => {
+		console.log(user);
+		if (!user) {
+			res.redirect('../tailor/tinvalid');
+			return;
+		}
+		console.log('password-->', user.password);
+		const secret = JWT_SECRET + user.password
+		const payload = {
+			email: user.email,
+			id: user.id
+		}
+		const token = jwt.sign(payload, secret, { expiresIn: '15m' });
+		const link = `http://localhost:5000/tailor/resetpassword/${user.id}/${token}`;
+		console.log('\n\n' + link + '\n\n');
+		res.redirect('../tailor/treset');
+	}).catch(err => console.log(err));
+});
+
+router.get('/tinvalid', (req, res) => {
+	res.render('tailor/tinvalidemail');
+});
+
+router.get('/treset', (req, res, next) => {
+	res.render('tailor/tresetlink')
+});
+
+router.get('tpwsuccess', (req, res, next) => {
+	res.render('tailor/tpwsuccess')
+});
+
+router.get('/resetpassword/:id/:token', (req, res, next) => {
+	const { id, token } = req.params
+	console.log(id, token)
+
+	User.findOne({
+		where: {
+			id: id
+		},
+		raw: true
+	}).then((user) => {
+		// check if this id exist in database 
+		if (!user) {
+			res.send('Invalid id')
+			return
+		}
+		//valid id, and we have a valid user with this id 
+		console.log('reset password-->', user.password);
+		const secret = JWT_SECRET + user.password
+		try {
+			const payload = jwt.verify(token, secret)
+			console.log('jwt--->', payload);
+			res.render('tailor/tresetpassword', { email: user.email })
+		} catch (error) {
+			console.log(error.message);
+			res.send(error.message);
+
+		}
+	}).catch(err => console.log(err));
+
+});
+
+router.post('/resetpassword/:id/:token', (req, res, next) => {
+	const { id, token } = req.params;
+	const { password, password2 } = req.body;
+	User.findOne({
+		where: {
+			id: id
+		},
+		raw: true
+	}).then((user) => {
+		// check if this id exist in database 
+		// if (!user) {
+		// 	res.send('Invalid id')
+		// 	return
+		// }
+		const secret = JWT_SECRET + user.password
+		try {
+			let errors = [];
+			const payload = jwt.verify(token, secret);
+			// Checks if both passwords entered are the same
+			if (password !== password2) {
+				console.log('match')
+				errors.push({
+					msg: 'Passwords do not match.'
+				});
+			}
+			// Checks that password length is more than 8 (upgrade this to include checking for special characters etc)
+			if (req.body.password.length < 8) {
+				console.log('length')
+				errors.push({
+					msg: 'Passwords must at least have 8 characters.'
+				});
+			}
+			if (errors.length > 0) {
+				res.render('tailor/tresetpassword', {
+					errors: errors,
+					password,
+					password2
+				});
+			}
+			else {
+				User.findOne({ where: { id: id, password: password } })
+					.then(Tailor => {
+						if (Tailor) {
+							res.render('tailor/tresetpassword', {
+								error: 'Old passwords cannot be used.',
+								password,
+								password2
+							});
+						} else {
+							bcrypt.genSalt(10, (err, salt) => {
+								bcrypt.hash(password, salt, (err, hash) => {
+									if (err) throw err;
+									let password = hash;
+									User.update({
+										password: password,
+									}, {
+										where: {
+											id: id
+										}
+									}).then(() => {
+										res.render('tailor/tpwsuccess')
+									}).catch(err => console.log(err));
+									// validate password and password2 should match 
+								})
+							});
+						}
+					})
+			}
+		} catch (error) {
+			console.log(error.message);
+			res.send(error.message);
+
+		}
+
+	}).catch(err => console.log(err));
+
+});
+
+router.get('/tlogoutsuccess', (req, res) => {
+	res.render('tailor/tsucclogout');
+});
+
+router.get('/tlogout', (req, res) => {
+	req.logout();
+	res.redirect('../tailor/tlogoutsuccess');
+});
+
 module.exports = router;

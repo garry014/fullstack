@@ -1,0 +1,148 @@
+<header class="header-area header-padding-1 sticky-bar header-res-padding clearfix">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-2 col-lg-2 col-md-6 col-4">
+                <div class="logo">
+                    <a href="../rider/homerider">
+                        <img alt="" src="/img/logo/logo.png">
+                    </a>
+                </div>
+            </div>
+            <div class="col-xl-8 col-lg-8 d-none d-lg-block">
+                <div class="main-menu">
+                    <nav>
+                        <ul>
+                            <li><a href="">View Orders </a></li>
+                            <li><a href="">My Orders </a></li>
+
+                            <li><a href="">Help </a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            <div class="col-xl-2 col-lg-2 col-md-6 col-8">
+                <div class="header-right-wrap">
+                    <div class="same-style header-search">
+                        <button type="button" onclick="clear_new()" class="search-active"
+                            style="border:none; background: none;">
+
+                            <i class="fa fa-bell-o" style="font-size:20px"></i>
+                            {{!-- New notification --}}
+                            <span id="new_noti"
+                                style="position: absolute; top: -9px; right: -5px; background-color: #000; color: #fff; display: inline-block; width: 21px;height: 21px;border-radius: 100%;line-height: 21px;font-size: 12px; text-align: center;">01</span>
+
+
+                        </button>
+                        <div class="search-content">
+                            <!-- Unread Notifications -->
+                            <div onclick="location.href='/manage_ads';"
+                                style="background: #ebebeb; border-radius: 3px; padding: 5px 10px 5px 12px; border-bottom: 1px solid black; cursor: pointer;">
+
+                                <div style="position: relative; float: right;">
+                                    <a href="/noti/delete/75"><i class="fa fa-times"
+                                            title="Delete this notification"></i></a>
+                                </div>
+                                Your order has been picked up by the rider, and its on your way!
+                                <div style="font-size:10px">
+                                    <i class="fa fa-rss"></i>
+                                    13 May 11:15AM
+                                </div>
+                            </div>
+
+                            <!-- Read Notifications -->
+                            <div onclick="location.href='/manage_ads';"
+                                style="border-radius: 3px; padding: 5px 10px 5px 12px; border-bottom: 1px solid black; cursor: pointer;">
+                                <div style="position: relative; float: right;">
+                                    <a href="/noti/delete/72"><i class="fa fa-times"
+                                            title="Delete this notification"></i></a>
+                                </div>
+                                Your order has been completed by the tailor, we are assigning a rider now.
+                                <div style="font-size:10px">
+                                    <i class="fa fa-rss"></i>
+                                    13 May 11:13AM
+                                </div>
+                            </div>
+
+                            <!-- Rubbish data -->
+                            <div onclick="location.href='/my_orders';" style="border-radius: 3px; padding: 5px 10px 5px 12px; border-bottom: 1px solid black; cursor: pointer;">
+                                            <div style="position: relative; float: right;">
+                                                <a href="/noti/delete/71"><i class="fa fa-times" title="Delete this notification"></i></a>
+                                            </div>
+                                            Your payment of $210.0 has been received, and your order will be processed.
+                                            <div style="font-size:10px">
+                                                <i class="fa fa-rss"></i>
+                                                10 May 03:05PM
+                                            </div>
+                                        </div>
+                            <!-- end of rubbish -->
+
+                            <center><a href="/notification">See All</a></center>
+                        </div>
+                    </div>
+                    <div class="same-style account-satting">
+                        <a class="account-satting-active" href="#"><i class="pe-7s-user-female"></i></a>
+                        <div class="account-dropdown">
+                            <ul>
+                                {{#if user}}
+                                <li>{{user.username}}</li>
+                                {{!-- user id problem --}}
+                                <li><a href="../rider/rideraccount/{user.id}">Edit Profile</a></li>
+                                <li><a href="../rider/rlogout">Log Out</a></li>
+                                {{else}}
+                                <li><a href="../rider/riderlogin">Login</a></li>
+                                <li><a href="../rider/rideregister">Register</a></li>
+                                 {{/if}}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="same-style header-wishlist">
+                        <a href="/inbox"><i class="pe-7s-chat"></i></a>
+                    </div>
+                    <div class="same-style cart-wrap">
+                        <button class="icon-cart">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="count-style">02</span>
+                        </button>
+                        <div class="shopping-cart-content">
+                            <ul>
+                                <li><a href="">Orders Cart</a></li>
+                                <li><a href="">Course Cart</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mobile-menu-area">
+            <div class="mobile-menu">
+                <nav id="mobile-menu-active">
+                    <ul class="menu-overflow">
+                        <li><a href="/viewshops">View Shops</a></li>
+                        <li><a href="">Courses</a>
+                            <ul>
+                                <li><a href="">View Courses Available</a></li>
+                                <li><a href="">My Courses</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="">Help </a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    {{!--
+    <script>
+        var action = 0;
+
+        function clear_new() {
+            if (action == 1) {
+                action = 2;
+                location.href = "{{ url_for('update_notification', action="readall", id=0) }}";
+            } else {
+                action = 1;
+                document.getElementById("new_noti").style.display = 'none';
+            }
+        }
+    </script> --}}
+</header>

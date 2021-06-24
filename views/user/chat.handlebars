@@ -66,7 +66,7 @@
                 <b>
                     {{#each chats}}
                         {{#ifCond id '==' ../id}}
-                            {{#ifCond sender '==' ../currentuser}}
+                            {{#ifCond sender '==' ../user}}
                                 {{recipient}}
                             {{else}}
                                 {{sender}}
