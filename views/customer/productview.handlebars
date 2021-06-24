@@ -58,9 +58,13 @@
                     <div class="pro-details-list">
                         {{ pdetails.description }}
                     </div>
-
-                    <form class="contact-form-style" id="my_form" action="" method="post">
+                        <form class="contact-form-style" id="my_form" action="/view/{{pdetails.id}}" method="post">
                         <div class="pro-details-size-color  ">
+                            <div class="pro-details-color-wrap">
+                                <input type="text" name="itemname" value="{{pdetails.name}}" hidden>
+                                <input type="text" name="price" value="{{money2dp discprice}}" hidden>
+                                <input type="text" name="storename" value="{{pdetails.storename}}" hidden>
+                                <input type="text" id="customqn" name="customqn" value="{{pdetails.customqn}}" hidden>
                             <div class="pro-details-color-wrap">
                             {{#ifCond pdetails.customqn '!=' ""}}
                             <span>{{pdetails.customqn}}</span>
