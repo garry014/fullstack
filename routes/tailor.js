@@ -22,6 +22,8 @@ const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const JWT_SECRET = 'secret super'
 const jwt = require('jsonwebtoken');
+const Voucher = require('../models/Voucher');
+const Deal = require('../models/Deal');
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
