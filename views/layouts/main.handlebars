@@ -36,24 +36,19 @@
 {{/ifCond}} --}}
 
 {{#ifCond path '!=' "landing"}}
-    {{!-- {{#ifCond useracctype '==' "Customer"}}
-        {{>_navbar}}
-    {{/ifCond}}
-    {{#ifCond useracctype '==' "Rider"}}
-        {{>_rnavbar}}
-    {{/ifCond}}
-    {{#ifCond useracctype '==' "Tailor"}}
-        {{>_tnavbar}}
-    {{/ifCond}} --}}
-
     {{#if (eq useracctype "Rider")}}
         {{>_rnavbar}}
     {{else if (eq useracctype "Tailor")}}
         {{>_tnavbar}}
     {{else}}
+        {{#if (eq user.usertype "tailor")}}
+        {{>_tnavbar}}
+        {{else if (eq user.usertype "customer")}}
+        {{>_rnavbar}}
+        {{else}}
         {{>_navbar}}
+        {{/if}}
     {{/if}}
-
 {{/ifCond}}
 
 
