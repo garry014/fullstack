@@ -22,6 +22,8 @@ const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const JWT_SECRET = 'secret super'
 const jwt = require('jsonwebtoken');
+const Voucher = require('../models/Voucher');
+const Deal = require('../models/Deal');
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
@@ -1003,6 +1005,234 @@ router.get('/tlogoutsuccess', (req, res) => {
 router.get('/tlogout', (req, res) => {
 	req.logout();
 	res.redirect('../tailor/tlogoutsuccess');
+});
+
+//kaijie
+// tailor: view vouchers
+router.get('/vouchers', (req, res) => {
+    Voucher.findAll({
+        where: {
+        },
+        order: [
+            ['code', 'ASC']
+        ],
+        raw: true,
+    })
+        .then((vouchers) => {
+            res.render('tailor/vouchers', {
+				title: "Voucher List",
+                vouchers : vouchers
+            });
+        })
+        .catch(err => console.log(err));
+});
+
+// tailor: add voucher
+router.get('/addVoucher', (req, res) => {
+	res.render('tailor/addvoucher', { title: "Add Voucher" });
+});
+
+router.post('/addVoucher', (req, res) => {
+    let code = req.body.code;
+    let description = req.body.description;
+    let discount = req.body.discount;
+    let minpurchase = req.body.minpurchase;
+    let quantity = req.body.quantity;
+	let vstartdate =  req.body.vstartdate;
+    let vexpirydate =  req.body.vexpirydate;
+
+    Voucher.create({
+        code,
+        description,
+        discount,
+        minpurchase,
+        quantity,
+        vstartdate,
+		vexpirydate,
+
+    }).then((vouchers) => {
+        res.redirect('/tailor/vouchers');
+    }).catch(err => console.log(err))
+});
+
+// tailor: update voucher
+router.get('/updateVoucher/:id', (req, res) => {
+    Voucher.findOne({
+        where: {
+            id: req.params.id
+        },
+		raw:true
+    }).then((vouchers) => {
+        res.render('tailor/updatevoucher', {
+			title: "Update voucher",
+            vouchers : vouchers
+        });
+    }).catch(err => console.log(err));
+});
+
+router.put('/updateVoucher/:id', (req, res) => {
+    let code = req.body.code;
+    let description = req.body.description;
+    let discount = req.body.discount;
+    let minpurchase = req.body.minpurchase;
+    let quantity = req.body.quantity;
+	let vstartdate =  req.body.vstartdate;
+    let vexpirydate =  req.body.vexpirydate;
+   
+    Voucher.update({
+        code,
+        description,
+        discount,
+        minpurchase,
+        quantity,
+        vstartdate,
+		vexpirydate,
+    }, {
+        where: {
+            id: req.params.id
+        }
+    }).then(() => {
+        res.redirect('/tailor/vouchers');
+    }).catch(err => console.log(err));
+});
+
+// tailor: delete voucher
+router.get('/deleteVoucher/:id', (req, res) => {
+    let voucherID = req.params.id;
+    Voucher.findOne({
+        where: {
+            id: voucherID,
+        }
+    }).then((vouchers) => {
+        if (vouchers != null) {
+            Voucher.destroy({
+                where: {
+                    id: voucherID
+                }
+            }).then((vouchers) => {
+                alertMessage(res, 'info', 'Voucher deleted successfully.', 'far fa-trash-alt', true);
+                res.redirect('/tailor/vouchers');
+            })
+        } else {
+            alertMessage(res, 'danger', 'Unauthorised access to voucher', 'fas fa-exclamation-circle', true);
+            res.redirect('/logout');
+        }
+    }).catch(err => console.log(err)); 
+});
+
+// tailor: view deals
+router.get('/tailordeals', (req, res) => {
+	Deal.findAll({
+        where: {
+        },
+        order: [
+            ['pname', 'ASC']
+        ],
+        raw: true,
+    })
+        .then((deals) => {
+            res.render('tailor/tailordeals', {
+				title: "Flash Deals",
+                deals : deals
+            });
+        })
+        .catch(err => console.log(err));
+});
+
+// tailor: add deal
+router.get('/adddeal', (req, res) => {
+	res.render('tailor/adddeal', { title: "Add Flash Deal" });
+});
+
+router.post('/adddeal', (req, res) => {
+    let pname = req.body.pname;
+    let discountp = req.body.discountp;
+	let dstartdate =  req.body.dstartdate;
+    let dexpirydate =  req.body.dexpirydate;
+
+    Deal.create({
+        pname,
+        discountp,
+        dstartdate,
+        dexpirydate,
+
+    }).then((deals) => {
+        res.redirect('/tailor/tailordeals');
+    }).catch(err => console.log(err))
+});
+
+// tailor: update deal
+router.get('/updatedeal/:id', (req, res) => {
+	Deal.findOne({
+        where: {
+            id: req.params.id
+        },
+		raw:true
+    }).then((deals) => {
+        res.render('tailor/updatedeal', {
+			title: "Update deal",
+            deals : deals
+        });
+    }).catch(err => console.log(err));
+});
+
+router.put('/updatedeal/:id', (req, res) => {
+    let pname = req.body.pname;
+    let discountp = req.body.discountp;
+	let dstartdate =  req.body.dstartdate;
+    let dexpirydate =  req.body.dexpirydate;
+   
+    Deal.update({
+        pname,
+        discountp,
+        dstartdate,
+        dexpirydate,
+    }, {
+        where: {
+            id: req.params.id
+        }
+    }).then(() => {
+        res.redirect('/tailor/tailordeals');
+    }).catch(err => console.log(err));
+});
+
+// tailor: delete deal
+router.get('/deletedeal/:id', (req, res) => {
+    let dealID = req.params.id;
+    Deal.findOne({
+        where: {
+            id: dealID,
+        }
+    }).then((deals) => {
+        if (deals != null) {
+            Deal.destroy({
+                where: {
+                    id: dealID
+                }
+            }).then((deals) => {
+                alertMessage(res, 'info', 'Deal deleted successfully.', 'far fa-trash-alt', true);
+                res.redirect('/tailor/tailordeals');
+            })
+        } else {
+            alertMessage(res, 'danger', 'Unauthorised access to deal', 'fas fa-exclamation-circle', true);
+            res.redirect('/logout');
+        }
+    }).catch(err => console.log(err)); 
+});
+
+// tailor: view sales
+router.get('/sales', (req, res) => {
+	res.render('tailor/sales', { title: "Sales Chart" });
+});
+
+// tailor: change target
+router.get('/target', (req, res) => {
+	res.render('tailor/target', { title: "Change Target" });
+});
+
+// tailor: view orders
+router.get('/orders', (req, res) => {
+	res.render('tailor/orders', { title: "Order List" });
 });
 
 module.exports = router;
