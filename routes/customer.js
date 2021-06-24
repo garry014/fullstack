@@ -89,7 +89,7 @@ router.post('/custregister', (req, res) => {
 		req.body.gender,
 		req.body.email,
 		req.body.phoneno,
-		req.body.usertype='customer'
+		req.body.usertype = 'customer'
 	);
 
 	// Checks if both passwords entered are the same
@@ -127,7 +127,7 @@ router.post('/custregister', (req, res) => {
 			usertype
 		});
 	} else {
-		User.findOne({ where: { username: req.body.username, email: req.body.email, usertype: req.body.usertype} })
+		User.findOne({ where: { username: req.body.username, email: req.body.email, usertype: req.body.usertype } })
 			.then(Customer => {
 				if (Customer) {
 					res.render('customer/custregister', {
@@ -170,29 +170,37 @@ router.post('/custregister', (req, res) => {
 router.get('/custaccount/:id', ensureAuthenticated, (req, res) => {
 	User.findOne({
 		where: {
-			id: req.params.id
+			// Compare using passport authentications instead of the usual id.params
+			id:  res.locals.user.id
 		},
 		raw: true
 	}).then((Customer) => {
-		console.log(Customer);
-		if (req.params.id == Customer.id) {
-			res.render('customer/custacct', {
-				User: Customer
-			});
+		// console.log(Customer);
+		// customerLength = Object.keys(Customer).length;
+		// const newObj = customerLength || undefined;
+		// newObj = Object.keys(Customer).length;
+		// console.log(Customer);
+		if (!Customer) {
+			alertMessage(res, 'danger', 'Access Denied', 'fas fa-exclamation-circle', true);
+			req.logout();
+			res.redirect('/customer/homecust');
+
 		}
 		else {
-			alertMessage(res, 'danger', 'Access Denied', 'fas fa-exclamation-circle', true);
-			res.redirect('/clogout');
+			if (req.params.id == Customer.id) {
+				res.render('customer/custacct', {
+					User: Customer,
+				});
+			}
+			else {
+				alertMessage(res, 'danger', 'Access Denied', 'fas fa-exclamation-circle', true);
+				req.logout();
+				res.redirect('/customer/homecust');
+			}
 		}
+
 	}).catch(err => console.log(err));
 
-	// alertMessage(res, 'success',
-	// 	'You have updated your account details successfully!', 'fas fa-sign-in-alt', true);
-	// alertMessage(res, 'danger',
-	// 	'Something went wrong. Please try again! ', 'fas fa-exclamation-circle', false);
-	// alertMessage(res, 'success',
-	// 	'You have updated your password successfully!', 'fas fa-sign-in-alt', true);
-	// let error_msg = 'Your passwords do not match please try again later!';
 });
 
 router.put('/custaccount/:id', ensureAuthenticated, (req, res) => {
@@ -457,11 +465,11 @@ router.post('/review/:id', ensureAuthenticated, (req, res) => {
 			timestamp: getToday(),
 			productid: req.params.id
 		}).then(() => {
-			res.redirect('/view/'+req.params.id);
+			res.redirect('/view/' + req.params.id);
 		})
-		.catch(err => {
-			console.error('Unable to connect to the database:', err);
-		});
+			.catch(err => {
+				console.error('Unable to connect to the database:', err);
+			});
 	}
 
 });
@@ -481,20 +489,20 @@ router.get('/updatereview/:itemid/:id', ensureAuthenticated, (req, res) => {
 				},
 				raw: true
 			})
-			.then((review) =>{
-				if (review) {
-					res.render('customer/editreview', {
-						title: "Update review",
-						itemid: req.params.itemid,
-						id: req.params.id,
-						pdetails: pdetails,
-						review: review
-					});
-				}
-				else {
-					res.redirect('/404');
-				}
-			})
+				.then((review) => {
+					if (review) {
+						res.render('customer/editreview', {
+							title: "Update review",
+							itemid: req.params.itemid,
+							id: req.params.id,
+							pdetails: pdetails,
+							review: review
+						});
+					}
+					else {
+						res.redirect('/404');
+					}
+				})
 		})
 });
 
@@ -516,51 +524,51 @@ router.put('/updatereview/:itemid/:id', ensureAuthenticated, (req, res) => {
 			},
 			raw: true
 		})
-		.then((reviews) =>{
-			var imageLink = reviews.photo;
-			if (req.files) {
-				fs.unlink("./public/uploads/review/" + imageLink, (err) => {
-					if (err) {
-						console.log("failed to delete local image:" + err);
-					} else {
-						console.log('successfully deleted local image');
-					}
-				});
+			.then((reviews) => {
+				var imageLink = reviews.photo;
+				if (req.files) {
+					fs.unlink("./public/uploads/review/" + imageLink, (err) => {
+						if (err) {
+							console.log("failed to delete local image:" + err);
+						} else {
+							console.log('successfully deleted local image');
+						}
+					});
 
-				var file = req.files.file;
-				var filename = file.name;
-				var filetype = file.mimetype.substring(6);
-				const newid = uuidv4(); // Generate unique file id
-	
-				imageLink = newid + '.' + filetype;
-				if (fs.existsSync(imageLink)) {
-					fs.unlinkSync(imageLink);
+					var file = req.files.file;
+					var filename = file.name;
+					var filetype = file.mimetype.substring(6);
+					const newid = uuidv4(); // Generate unique file id
+
+					imageLink = newid + '.' + filetype;
+					if (fs.existsSync(imageLink)) {
+						fs.unlinkSync(imageLink);
+					}
+
+					file.mv('./public/uploads/review/' + filename, function (err) {
+						if (err) {
+							res.send(err);
+						}
+						else {
+							fs.rename('./public/uploads/review/' + filename, './public/uploads/review/' + imageLink, function (err) {
+								if (err) console.log('ERROR: ' + err);
+							});
+						}
+					});
 				}
-	
-				file.mv('./public/uploads/review/' + filename, function (err) {
-					if (err) {
-						res.send(err);
-					}
-					else {
-						fs.rename('./public/uploads/review/' + filename, './public/uploads/review/' + imageLink, function (err) {
-							if (err) console.log('ERROR: ' + err);
-						});
-					}
-				});
-			}
-	
-			Review.update({
-				photo: imageLink,
-				review: review,
-				stars: stars,
-				timestamp: getToday()
-			}, {
-				where: { id: req.params.id }
+
+				Review.update({
+					photo: imageLink,
+					review: review,
+					stars: stars,
+					timestamp: getToday()
+				}, {
+					where: { id: req.params.id }
+				})
+					.catch(err => console.log(err));
+				alertMessage(res, 'info', 'Successfully updated review.', 'far fa-laugh-wink', true);
+				res.redirect('/view/' + req.params.itemid);
 			})
-			.catch(err => console.log(err));
-			alertMessage(res, 'info', 'Successfully updated review.', 'far fa-laugh-wink', true);
-			res.redirect('/view/'+req.params.itemid);
-		})
 	}
 });
 
@@ -572,31 +580,31 @@ router.get('/deletereview/:itemid/:id', ensureAuthenticated, (req, res) => {
 		},
 		raw: true
 	})
-	.then((reviews) =>{
-		if(reviews){
-			fs.unlink("./public/uploads/review/" + reviews.photo, (err) => {
-				if (err) {
-					console.log("failed to delete local image:" + err);
-				} else {
-					console.log('successfully deleted local image');
-				}
-			});
+		.then((reviews) => {
+			if (reviews) {
+				fs.unlink("./public/uploads/review/" + reviews.photo, (err) => {
+					if (err) {
+						console.log("failed to delete local image:" + err);
+					} else {
+						console.log('successfully deleted local image');
+					}
+				});
 
-			Review.destroy({
-				where: {
-					id: req.params.id
-				}
-			})
-				.then(() => {
-					alertMessage(res, 'info', 'Successfully deleted review.', 'far fa-trash-alt', true);
-					res.redirect('/view/' + req.params.itemid);
+				Review.destroy({
+					where: {
+						id: req.params.id
+					}
 				})
-		}
-		else {
-			res.redirect('/404');
-		}
-		
-	})
+					.then(() => {
+						alertMessage(res, 'info', 'Successfully deleted review.', 'far fa-trash-alt', true);
+						res.redirect('/view/' + req.params.itemid);
+					})
+			}
+			else {
+				res.redirect('/404');
+			}
+
+		})
 })
 
 module.exports = router;
