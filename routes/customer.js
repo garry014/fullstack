@@ -1,12 +1,17 @@
 // /customer/___________
 
+// DB Table Connections
+const Catalouge = require('../models/Catalouge');
+const Review = require('../models/Review');
+const User = require('../models/User');
+
+// Handlebars Helpers
+const alertMessage = require('../helpers/messenger');
+const ensureAuthenticated = require('../helpers/auth');
+
+// Other Requires
 const express = require('express');
 const router = express.Router();
-var validator = require('validator');
-const alertMessage = require('../helpers/messenger');
-const db = require('../config/DBConfig.js');
-const { username, password } = require('../config/db');
-const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const ensureAuthenticated = require('../helpers/auth');
@@ -21,7 +26,19 @@ const e = require('connect-flash');
 // 	res.render('customer/custlogin', {title: "Login"});
 // });
 
-router.get('/homecust', (req, res) => {
+function getToday() {
+	// Get Date
+	var currentdate = new Date();
+	const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+	var datetime = currentdate.getDate() + " "
+		+ monthNames[currentdate.getMonth()] + " "
+		+ currentdate.getFullYear() + " "
+		+ currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+	return datetime;
+}
+
+// Customer Home Page
+router.get('/', (req, res) => {
 	const title = 'TailorNow Home';
 	res.render('homecust', { title: title, user: req.user });
 });
@@ -41,9 +58,6 @@ router.post('/login', (req, res, next) => {
 		(req, res, next);
 });
 
-// router.post('/oauth/facebook', (req, res, next) => {
-// 	passport.authenticate('facebookToken', { session: false }), UserController.facebookOAuth;
-// });
 
 // customer: register
 router.get('/custregister', (req, res) => {

@@ -209,7 +209,24 @@
                                     <li>Total</li>
                                 </ul>
                             </div>
-                            <div class="your-order-middle">
+                             <div class="your-order-middle">
+                                {{#each sess.myCart}}
+                                <ul>
+                                    {{!-- <span>{{this.itemId}}</span> --}}
+                                    <li><span class="order-middle-left">{{this.itemname}}
+                                        {{link text="   Remove" url="/deleteSessItem/" id=this.itemId}}
+                                        {{!-- <a href="/deleteSessItem/{{this.itemId}}"><i class="fa fa-times"></i></a> --}}
+                                        </span>
+                                        <span class="order-price">{{this.subtotal}}</span>
+                                    </li>
+                                    <li style="margin-left:10px;">{{this.customqn}}</li>
+                                    <li style="margin-left:15px;">{{this.custom}}</li>
+                                </ul>
+                                {{else}}
+                                <ul>
+                                    <li>Cart is empty!</li>
+                                </ul>
+                                {{/each}}
                                 <ul>
                                     <li><span class="order-middle-left"><a href=><i class="fa fa-times"></i></a></span>
                                         <span class="order-price"></span>
@@ -219,7 +236,7 @@
                                 <div class="your-order-total">
                                     <ul>
                                         <li class="order-total">Total</li>
-                                        <li></li>
+                                        <li>{{this.total}}</li>
                                     </ul>
                                 </div>
                                 <!--                                 <p>Note: Self Collection is available only from 9am-6pm from monday to friday.</p>-->

@@ -27,7 +27,9 @@
                             <button style="border: 0; padding: 0; display: inline; background: none; text-decoration: underline;"><i class="pe-7s-chat"></i> Seek help from {{storename}}</button>
                         </form>
                         {{else}}
-                        <a href="/tailor/addproduct" class="btn btn-light"><i class="fas fa-plus-square"></i> Add Product</a>
+                            {{#ifCond storename '==' user.shopname}}
+                            <a href="/tailor/addproduct" class="btn btn-light"><i class="fas fa-plus-square"></i> Add Product</a>
+                            {{/ifCond}}
                         {{/ifCond}}
                     </div>
                 </div>
@@ -35,25 +37,28 @@
                 <div class="shop-bottom-area">
                     <div class="row">
                         <!--Start of Product List -->
+                        {{#ifCond shopprod.length '>=' 1}}
                         {{#each shopprod}}
                         <div class="col-xl-4 col-md-6 col-lg-4 col-sm-6">
                             <div class="product-wrap mb-25 scroll-zoom">
                                 <div class="product-img">
                                     <a href="/view/{{id}}">
                                         <img class="default-img" src="/uploads/products/{{image}}" alt="">
-                                        <img class="hover-img" src="/uploads/products/1.jpg" alt="">
+                                        <img class="hover-img" src="/uploads/products/{{image}}" alt="">
                                     </a>
                                     {{#ifCond discount '!=' 0}}
                                         <span class="pink">-{{discount}}%</span>
                                     {{/ifCond}}
                                     <div class="product-action">
                                         {{#ifCond ../user_status '==' "tailor"}}
+                                            {{#ifCond storename '==' ../user.shopname}}
                                             <div class="pro-same-action pro-quickview" style="width:50%;">
                                                 <a href="/tailor/editproduct/{{id}}"><i class="fa fa-pencil"></i> Edit Item</a>
                                             </div>
                                             <div class="pro-same-action pro-wishlist" style="width:50%;">
                                                 <a href="#myModal_{{id}}" data-toggle="modal" data-target="#myModal_{{id}}"><i class="fa fa-trash-o"></i> Delete</a>
                                             </div>
+                                            {{/ifCond}}
                                         {{/ifCond}}
                                         <div class="pro-same-action pro-cart" style="width:100%;">
                                             <a href="/view/{{id}}"><i class="fa fa-info"></i> View Item</a>
@@ -64,8 +69,11 @@
                                 <div class="product-content text-center">
                                     <h3><a href="/view/{{id}}">{{name}}</a></h3>
                                     <div class="product-rating">
-                                        <span class="fa fa-star" style="color: orange;"></span><span class="fa fa-star" style="color: orange;"></span><span class="fa fa-star" style="color: orange;"></span><span class="fa fa-star"></span><span class="fa fa-star"></span>
-                                        3 stars
+                                        {{#each ../review}}
+                                            {{#ifCond productid '==' ../id}}
+                                                    {{#times avgRating}}<span class="fa fa-star" style="color: orange;"></span>{{/times}}{{#minusStars avgRating}}<span class="fa fa-star"></span>{{/minusStars}}{{avgRating}} stars
+                                            {{/ifCond}} 
+                                        {{/each}}
                                     </div>
                                     <div class="product-price">
                                         {{#ifCond discount '!=' 0}}
@@ -79,6 +87,9 @@
                             </div>
                         </div>
                         {{/each}}
+                        {{else}}
+                        This store currently does not have any product/services listed.
+                        {{/ifCond}}
                     </div>
 
 

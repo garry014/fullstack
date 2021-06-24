@@ -3,7 +3,6 @@
 * in this JS file.
 * */
 const express = require('express');
-const session = require('express-session');
 const upload = require('express-fileupload');
 const path = require('path');
 const exphbs = require('express-handlebars');
@@ -22,6 +21,26 @@ const FlashMessenger = require('flash-messenger');
 const MySQLStore = require('express-mysql-session');
 const db = require('./config/db'); // db.js config file
 
+const session = require('express-session')({
+	key: 'tailornow_session',
+	secret: 'tojiv',
+	store: new MySQLStore({
+		host: db.host,
+		port: 3306,
+		user: db.username,
+		password: db.password,
+		database: db.database,
+		clearExpired: true,
+		// How frequently expired sessions will be cleared; milliseconds:
+		checkExpirationInterval: 9000000,
+		// The maximum age of a valid session; milliseconds:
+		expiration: 9000000,
+	}),
+	resave: false,
+	saveUninitialized: false,
+});
+const sharedsession = require("express-socket.io-session");
+
 /*
 * Loads routes file main.js in routes directory. The main.js determines which function
 * will be called based on the HTTP request and URL.
@@ -38,71 +57,6 @@ const riderRoute = require('./routes/rider');
 */
 const app = express();
 const http = require("http").createServer(app);
-
-// Create socket instance
-const io = require('socket.io')(http);
-var users = [];
-
-const Chat = require('./models/Chat');
-const Message = require('./models/Message');
-
-function getToday() {
-	// Get Date
-	var currentdate = new Date();
-	const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-	var datetime = currentdate.getDate() + " "
-		+ monthNames[currentdate.getMonth()] + " "
-		+ currentdate.getFullYear() + " "
-		+ currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
-	return datetime;
-}
-
-// add listener for new connection
-io.on("connection", function (socket) {
-	console.log("'\x1b[36m%s\x1b[0m'", "user connected: ", socket.id);
-
-	socket.on('disconnect', () => {
-		console.log('user disconnected: ', socket.id);
-	});
-
-	socket.on("user_connected", function (username) {
-		users[username] = socket.id;
-
-		// socket id will be used to send msg to individual person
-
-		//notify all connect clients
-		io.emit("user_connected", username);
-	});
-
-	socket.on("send_message", function (data) {
-		// send event to receiver
-		var socketId = users[data.receiver];
-
-		var datetime = getToday();
-		data["timestamp"] = datetime;
-		io.to(socketId).emit("new_message", data);
-		console.log(data);
-
-		// Save in db
-		Message.create({
-			sentby: data.sender,
-			timestamp: datetime,
-			message: data.message,
-			chatId: data.chatid
-		}).catch(err => {
-			console.error('Unable to connect to the database:', err);
-		});
-	});
-
-	socket.on("send_upload", function (data) {
-		// send event to receiver
-		var socketId = users[data.receiver];
-
-		io.to(socketId).emit("new_upload", data);
-	});
-});
-
-
 
 // Handlebars Middleware
 /*
@@ -149,6 +103,21 @@ Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
 	}
 });
 
+// For loop
+Handlebars.registerHelper('times', function(n, block) {
+    var accum = '';
+    for(var i = 0; i < n; ++i)
+        accum += block.fn(i);
+    return accum;
+});
+
+Handlebars.registerHelper('minusStars', function (n, block) {
+	var accum = '';
+    for(var i = 0; i < 5-n; ++i)
+        accum += block.fn(i);
+    return accum;
+});
+
 Handlebars.registerHelper('money2dp', function (distance) {
 	return distance.toFixed(2);
 });
@@ -156,6 +125,12 @@ Handlebars.registerHelper('money2dp', function (distance) {
 Handlebars.registerHelper("calculatedisc", function (price, discount) {
 	var a = price * (1 - (discount / 100));
 	return a.toFixed(2);
+});
+
+Handlebars.registerHelper("link", function(data) {
+	console.log(data)
+		
+   return new Handlebars.SafeString("<a href='" + data.hash.url + data.hash.id + "'>" + data.hash.text +"</a>");
 });
 
 Handlebars.registerHelper('getToday', function () {
@@ -187,25 +162,10 @@ app.use(methodOverride('_method'));
 // Enables session to be stored using browser's Cookie ID
 app.use(cookieParser());
 
+
+
 // To store session information. By default it is stored as a cookie on browser
-app.use(session({
-	key: 'tailornow_session',
-	secret: 'tojiv',
-	store: new MySQLStore({
-		host: db.host,
-		port: 3306,
-		user: db.username,
-		password: db.password,
-		database: db.database,
-		clearExpired: true,
-		// How frequently expired sessions will be cleared; milliseconds:
-		checkExpirationInterval: 900000,
-		// The maximum age of a valid session; milliseconds:
-		expiration: 900000,
-	}),
-	resave: false,
-	saveUninitialized: false,
-}));
+app.use(session);
 
 app.use(passport.initialize());
 app.use(passport.session());

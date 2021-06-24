@@ -4,7 +4,7 @@ const ensureAuthenticated = (req, res, next) => {
         return next(); // Calling next() to proceed to the next statement
     }
     // If not authenticated, show alert message and redirect to ‘/’
-    alertMessage(res, 'danger', 'Access Denied', 'fas fa-exclamation-circle', true);
+    alertMessage(res, 'danger', 'Access Denied, please login to proceed.', 'fas fa-exclamation-circle', true);
     res.redirect('/');
 };
 module.exports = ensureAuthenticated;

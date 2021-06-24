@@ -1,19 +1,30 @@
-const express = require('express');
-var bodyParser = require('body-parser');
-const router = express.Router();
-const db = require('../config/DBConfig.js');
-const { username, password } = require('../config/db');
-const alertMessage = require('../helpers/messenger');
+// DB Table Connections
 const Catalouge = require('../models/Catalouge');
 const Productchoices = require('../models/Productchoices');
 const Chat = require('../models/Chat');
 const Message = require('../models/Message');
 const Notification = require('../models/Notifications');
+const User = require('../models/User.js');
+const Review = require('../models/Review.js');
+const Cart = require('../models/Cart');
+
+// Handlebars Helpers
+const alertMessage = require('../helpers/messenger');
+const ensureAuthenticated = require('../helpers/auth.js');
+
+// Other Requires
+const express = require('express');
+var bodyParser = require('body-parser');
+const router = express.Router();
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
+const Course = require('../models/Course');
+const Video = require('../models/Video');
+const { request } = require('http');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 var io = require('socket.io')();
+var sess;
 
 ////// Flash Error Message for easy referrence ///////
 // alertMessage(res, 'success',
@@ -63,35 +74,17 @@ var jsonParser = bodyParser.json();
 // create application/x-www-form-urlencoded parser
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
-router.get('/testupload', (req, res) => {
-	const title = 'Test upload';
-	res.render('testupload', { title: title })
-});
-
-router.post('/testupload', (req, res) => {
-	if (req.files) {
-		console.log(req.files);
-		var file = req.files.file;
-		var filename = file.name;
-		console.log("this one ", file);
-
-		file.mv('./public/uploads/products/' + filename, function (err) {
-			if (err) {
-				res.send(err);
-			}
-			else {
-				res.send("File Uploaded");
-			}
-		});
-	}
-});
-
 router.get('/', (req, res) => {
 	const title = 'TailorNow Home';
-	res.render('mainselection', { title: title, path: "landing" })
+	sess = req.session;
+	if (!("myCart" in sess)) {
+		// if dont have key, add key and initialize with empty array to fill in items to cart
+		sess["myCart"] = []
+	}
+
+	sess["cartSize"] = sess["myCart"].length;
+	res.render('mainselection', { title: title, path: "landing" });
 });
-
-
 
 
 // Customer Notifications
@@ -99,22 +92,246 @@ router.get('/notification', (req, res) => {
 	res.render('user/allnotifications', { title: "View all notifications" })
 });
 
-// Customer: Review
-router.get('/review', (req, res) => {
-	res.render('customer/review', { title: "Leave a review" });
-});
 // Customer : reward page
 router.get('/rewardpage', (req, res) => {
 	res.render('customer/rewardpage', { title: "Rewards" })
 })
 // Customer : checkout page
 router.get('/customers_checkout', (req, res) => {
-	res.render('customer/customers_checkout', { title: "customers_checkout" })
+	sess = req.session;
+
+	console.log(sess["myCart"]);
+	res.render('customer/customers_checkout', { title: "customers_checkout", sess: sess })
 })
 // Customer : after transaction page
 router.get('/transaction_complete', (req, res) => {
+	sess = req.session;
+	//send into sql
+	console.log("cart", sess["mycart"])
+	let cartId = Date.now()/1000;
+
+	sess["myCart"].forEach(cartItem => {
+		let insertData = {
+			name: cartItem.itemname,
+			price: cartItem.price,
+			quantity: cartItem.qty,
+			customqn: cartItem.customqn,
+			custom: cartItem.custom,
+			userid: 0,
+			timestamp: cartId
+		}
+		console.log("insertData==>", insertData);
+		Cart.create(insertData).then(success =>{
+			console.log("Receipt created==>", success)
+			sess["myCart"] = []
+		}).catch(err => {
+			console.error('Unable to connect to the database:', err);
+		});
+		
+	});
+
+
 	res.render('customer/transaction_complete', { title: "transaction_complete" })
 })
+
+router.post('/transaction_complete', (req, res) => {
+	sess = req.session;
+	//send into sql
+	//change sql table from cart to billing details
+	console.log("Billing Details", sess["mycart"])
+	sess["myCart"].forEach(cartItem => {
+		Cart.create({
+			name: cartItem.itemname,
+			price: cartItem.price,
+			quantity: cartItem.qty,
+			customqn: cartItem.customqn,
+			custom: cartItem.custom
+		}).catch(err => {
+			console.error('Unable to connect to the database:', err);
+		});
+		sess["myCart"] = []
+	});
+
+
+	res.render('customer/transaction_complete', { title: "transaction_complete" })
+})
+
+//delete
+deleteCartItem = (inItemId, sess) => {
+	console.log("delete myCart==>",  sess["myCart"])
+	let itemId = parseInt(inItemId)
+	if (itemId < sess["myCart"].length) {
+		sess["myCart"].splice(itemId, 1);
+	}
+	console.log("delete after myCart==>",  sess["myCart"])
+	let i = 0;
+	for (let item of sess["myCart"]) {
+		item.itemId = i;
+		++i;
+	}
+
+}
+
+router.get('/deleteSessItem/:id', (req, res) => {
+	sess = req.session;
+	console.log(sess["myCart"]);
+	console.log("req.param==>", req.params);
+	deleteCartItem(req.params.id, sess);
+	// You create a new array (A)
+	// var newArray = []
+
+	// for (var item in sess["myCart"]) {
+	// 	newArray.push(sess["myCart"][item]);
+	// }
+
+	// ///
+	// for (var item in newArray) {
+	// 	if (newArray[item].itemId == req.params.id) {
+	// 		newArray[item].splice("");
+
+	// 		// You give the array A the values of sess["mycart"]
+	// 		// For loop to check if itemId == id
+	// 		// Pass back values to session
+	// 		console.log(newArray);
+	// 	}
+	// }
+
+
+	res.redirect('/customers_checkout');
+});
+// retrieving the data from amelia ( test ) 
+router.post("/transaction_complete", (req, res) => {
+	let { fname, lname, addressline1, addressline2, City, PostalCode, Email, phone_number } = req.body
+
+	console.log("test", fname)
+
+	if (!("cdetails" in acct)) {
+		acct["cdetails"] = []
+	}
+	acct["cdetails"].push({
+		"fname": fname,
+		"lname": lname,
+		"addressline1": addressline1,
+		"addressline2": addressline2,
+		"city": City,
+		"PostalCode": PostalCode,
+		"Email": Email,
+		"phone_number": phone_number,
+
+	})
+});
+
+router.post("/view/:id", (req, res) => {
+	// let backURL = req.header('Referer') ||'/'
+	let { itemname, price, storename, qty, customqn, custom } = req.body;
+
+	console.log("form: ", itemname)
+	sess = req.session;
+	// to clear cart
+	//sess["myCart"] = [] 
+	if (!("myCart" in sess)) {
+		// if dont have key, add key and initialize with empty array to fill in items to cart
+		sess["myCart"] = []
+	}
+	sess["myCart"].push({
+		"itemId": 0,
+		"itemname": itemname,
+		"price": price,
+		"storename": storename,
+		"qty": qty,
+		"subtotal": qty * price,
+		"customqn": (customqn) ? customqn : "Nil",
+		"custom": custom
+	})
+	// update card item ID
+	let i = 0;
+	for (let item of sess["myCart"]) {
+		item.itemId = i;
+		++i;
+	}
+
+	// console.log(sess["myCart"]);	
+	// // res.redirect(sess["lastViewStore"]["url"]);
+	// res.redirect(backURL);
+	res.redirect('/viewshops/' + storename);
+});
+
+//customer purchase history
+router.get('/purchasehistory', (req, res) => {
+	sess = req.session;
+	let that = this;
+	userId = sess["loginId"]
+	sess["purchases"] = []
+	Cart.findAll({
+		where: { userid: 0 },
+		raw: true
+		// Get all DB values
+		// run a for loop to extract only the distinct storename, max discount
+		// attributes: [
+		// 	[Sequelize.fn('DISTINCT', Sequelize.col('storename')) ,'storename'],
+	})
+	.then((purchases) => {
+		console.log("/purchase_history body data===> ", purchases);
+		if(purchases){
+
+		
+		let purchaseDict = {}
+		for (let data of purchases){
+			if(!(data.timestamp in purchaseDict)){
+				purchaseDict[data.timestamp] = []
+			}
+			purchaseDict[data.timestamp].push(data)
+		}
+
+		// sess["purchases"] = [];
+		// let cartNum = 1;
+
+		// Iterating individual cart purchases so far
+		for(let purchaseKey in purchaseDict){
+			let purchaseData = purchaseDict[purchaseKey]
+			let purchasedCart = {
+				cartId:purchaseData[0].timestamp,
+				items: [], 
+				total: 0
+			}
+			let itemId = 1
+
+			// Populating items inside one cart purchase
+			for(let cartItem of purchaseData){
+				let cartInfo = {
+
+				}	
+				cartInfo["itemId"] = itemId;
+				cartInfo["itemname"] = cartItem.name;
+				cartInfo["qty"] = cartItem.quantity;
+				cartInfo["price"] = cartItem.price;
+				cartInfo["subtotal"] = cartItem.quantity * cartItem.price;
+				purchasedCart["total"] += cartInfo["subtotal"];
+				cartInfo["subtotalStr"] = cartInfo["subtotal"].toFixed(2);
+				purchasedCart["items"].push(cartInfo);
+				itemId += 1;
+			}
+			purchasedCart["totalStr"] = purchasedCart["total"].toFixed(2);
+			sess["purchases"].push(purchasedCart)
+		}
+
+		
+	}
+	else{
+		sess["purchases"] = [];
+	}
+	console.log("sess purchases==>", sess["purchases"])
+	// console.log("sess purchases items==>", sess["purchases"][0].items)
+	res.render('customer/purchasehistory', {
+		title: "Purchase History",
+		purchases: sess["purchases"],
+	});
+	// res.render('customer/purchasehistory', { title: "Purchase History" });
+}).catch((err)=>{
+//error codes
+})
+});
+
 
 // FOR DESIGNING PURPOSES ONLY
 router.get('/design', (req, res) => {
@@ -122,9 +339,16 @@ router.get('/design', (req, res) => {
 });
 
 // Post Route to start chat
-router.post('/chatwith/:name', (req, res) => {
-	const currentuser = "Gary"; //temp var
-	console.log(req.params.name);
+router.post('/chatwith/:name', ensureAuthenticated, (req, res) => {
+	if (typeof req.user != "undefined") {
+		var currentuser;
+		if(req.user.dataValues.usertype == "tailor"){
+			currentuser = req.user.dataValues.shopname;
+		}
+		else {
+			currentuser = req.user.dataValues.username;
+		}
+	}
 
 	Chat.findAll({
 		where: {
@@ -133,7 +357,6 @@ router.post('/chatwith/:name', (req, res) => {
 		raw: true
 	})
 	.then((chats) => {
-		cNotification("recipient", "category", "message", "hyperlink")
 		if(chats.length>0){
 			res.redirect('/inbox/'+chats[0].id);
 		}
@@ -143,7 +366,11 @@ router.post('/chatwith/:name', (req, res) => {
 				recipient: req.params.name,
 				senderstatus: "Read",
 				recipientstatus: "Unread"
-			}).catch(err => {
+			})
+			.then((chat) =>{
+				res.redirect('/inbox/'+chat.id);
+			})
+			.catch(err => {
 				console.error('Unable to connect to the database:', err);
 			});
 		}
@@ -153,8 +380,18 @@ router.post('/chatwith/:name', (req, res) => {
 	});
 });
 
-router.get('/inbox/:id', (req, res) => {
-	const currentuser = "Gary"; //temp var
+router.get('/inbox/:id', ensureAuthenticated, (req, res) => {
+	io.sockets.emit('send_notification', "data");
+	if (typeof req.user != "undefined") {
+		var currentuser;
+		if(req.user.dataValues.usertype == "tailor"){
+			currentuser = req.user.dataValues.shopname;
+		}
+		else {
+			currentuser = req.user.dataValues.username;
+		}
+		req.session.username = currentuser;
+	}
 	var recipient = "";
 	const chatMsgs = [];
 	const chatids = [];
@@ -167,15 +404,30 @@ router.get('/inbox/:id', (req, res) => {
 		.then((chats) => {
 			// Error: something wrong when chatid > 1
 			if (chats) {
+				chatIdExist = false;
 				// Need to extract ONLY one section of each chats object
 				// & check if current webpage ID exists
-				for (c = 0; c < chats.length; c++) {
+				for (var c = chats.length-1; c >= 0; c--) {
+					console.log(chats[c].id, req.params.id);
 					if (chats[c].id == req.params.id) { // 1 is static data
 						chatIdExist = true;
-						recipient = chats[c].recipient;
+						if(currentuser == chats[c].recipient){
+							recipient = chats[c].sender;
+						}
+						else{
+							recipient = chats[c].recipient;
+						}
 					}
-					chatids.push(chats[c].id);
 
+					if (chats[c].sender ==currentuser && chats[c].senderstatus == "deleted"){
+						chats.splice(c,1);
+					}
+					else if (chats[c].recipient ==currentuser && chats[c].recipientstatus == "deleted"){
+						chats.splice(c,1);
+					}
+					else {
+						chatids.push(chats[c].id);
+					}
 				};
 
 				Message.findAll({
@@ -209,14 +461,14 @@ router.get('/inbox/:id', (req, res) => {
 							});
 						}
 
-						console.log(idcheck);
+						// console.log(idcheck);
 						// console.log(chats);
 					})
 					.catch(err => {
 						console.error('Unable to connect to the database:', err);
 					});
 
-				if (chatIdExist == true) {
+				if (chatIdExist == true || req.params.id == "0") {
 					Message.findAll({
 						where: { chatId: req.params.id, }, // static data 
 						raw: true
@@ -244,7 +496,14 @@ router.get('/inbox/:id', (req, res) => {
 						});
 				}
 				else {
-					res.render('user/chat', { title: "Chat" });
+					alertMessage(res, 'danger', 'Access Denied, you do not have permission to view message that is not yours.', 'fas fa-exclamation-triangle', true);
+					res.render('user/chat', {
+						title: "Chat",
+						chats: chats,
+						currentuser: currentuser,
+						recipient: recipient,
+						id: req.params.id
+					});
 				}
 			}
 			else {
@@ -259,8 +518,8 @@ router.get('/inbox/:id', (req, res) => {
 });
 
 // Chat - Upload Image
-router.post('/inbox/uploadimg', (req, res) => {
-	const currentuser = "Gary"; //temp var
+router.post('/inbox/uploadimg/:id', (req, res) => {
+	const currentuser = req.session.username; //temp var
 
 	var file = req.files.fileUpload;
 	var filename = file.name;
@@ -284,11 +543,11 @@ router.post('/inbox/uploadimg', (req, res) => {
 						sentby: currentuser,
 						timestamp: datetime,
 						upload: newFileName,
-						chatId: 1
+						chatId: req.params.id
 					}).catch(err => {
 						console.error('Unable to connect to the database:', err);
 					});
-					return res.redirect('../inbox/1');
+					return res.redirect('../../inbox/'+req.params.id);
 				}
 			});
 		}
@@ -301,39 +560,97 @@ router.post('/inbox/uploadaud', (req, res) => {
 	console.log(req.file);
 });
 
+router.post('/inbox/delete/:id', ensureAuthenticated, (req, res) => {
+	// not working
+	Chat.findOne({
+		where: { id: req.params.id },
+		raw: true
+	})
+	.then((chat) => {
+		console.log(chat)
+		if(chat.sender == req.session.username){
+			console.log("changing recipientstatus")
+			Chat.update({
+				senderstatus: "deleted" 
+			}, {
+				where: { id: req.params.id }
+			})
+			.catch(err => console.log(err));
+		}
+		else{
+			Chat.update({
+				recipientstatus: "deleted" 
+			}, {
+				where: { id: req.params.id }
+			})
+			.catch(err => console.log(err));
+		}
+	})
+	.catch(err => console.log(err));
+	alertMessage(res, 'success', 'Deleted message successfully!', 'fas fa-check-circle', true);
+	res.redirect('../../inbox/'+req.params.id);
+});
+
 // Customer View Shops
 router.get('/viewshops', (req, res) => {
-	Catalouge.findAll({
-		// Get all DB values
-		// run a for loop to extract only the distinct storename, max discount
-		// attributes: [
-		// 	[Sequelize.fn('DISTINCT', Sequelize.col('storename')) ,'storename'],
-		// ]
+	User.findAll({
+		where: { usertype: "tailor" },
+		attributes: ['address1', 'address2', 'city', 'postalcode', 'shopname'],
+		raw: true
 	})
-		.then((shops) => {
-			if (shops) {
-				const shop = [];
-				for (var s in shops) {
-					shop.push(shops[s].dataValues);
-				};
-
-				shop.forEach(shopItem => {
-					console.log(shopItem);
-
-				});
-				res.render('customer/viewshops', {
-					title: "View Shops",
-					shop: shop
-				});
-			}
-			else {
-				res.render('customer/viewshops', { title: "View Shops" });
-			}
+	.then((shopdetails) => {
+		Catalouge.findAll({
+			// Get all DB values
+			// run a for loop to extract only the distinct storename, max discount
+			// attributes: [
+			// 	[Sequelize.fn('DISTINCT', Sequelize.col('storename')) ,'storename'],
+			// ]
 		})
-		.catch(err => {
-			console.error('Unable to connect to the database:', err);
-		});
+			.then((shops) => {
+				if (shops) {
+					// Review average.
+
+					const shop = [];
+					for (var s in shops) {
+						shop.push(shops[s].dataValues);
+					};
+	
+					// shop.forEach(shopItem => {
+					// 	console.log(shopItem);
+					// });
+					
+					// Review Ratings Calculation
+					Review.findAll({
+						attributes: ['storename', [Sequelize.fn('AVG', Sequelize.col('stars')), 'avgRating']],
+						group: 'storename',
+						raw: true
+					})
+					.then((review) => {
+						for(var i=0; i<review.length; i++){
+							review[i].avgRating = parseFloat(review[i].avgRating);
+						}
+
+						console.log(review);
+						console.log(shopdetails);
+						res.render('customer/viewshops', {
+							title: "View Shops",
+							shopdetails: shopdetails,
+							shop: shop,
+							review: review
+						});
+					})
+
+				}
+				else {
+					res.render('customer/viewshops', { title: "View Shops" });
+				}
+			})
+			.catch(err => {
+				console.error('Unable to connect to the database:', err);
+			});
+	});
 });
+
 
 // Customer View Shop Items
 router.get('/viewshops/:storename', (req, res) => {
@@ -342,24 +659,42 @@ router.get('/viewshops/:storename', (req, res) => {
 		raw: true
 	})
 		.then(shopprod => {
-			if (shopprod.length > 0) {
-				title = 'View Items - ' + req.params.storename;
-				user_status = "cust";
-				res.render('customer/viewstore', {
-					title: title,
-					shopprod: shopprod,
-					user_status: user_status,
-					storename: req.params.storename
+			if(shopprod.length > 0){
+				var itemsId = [];
+				shopprod.forEach(e => {
+					itemsId.push(e.id);
 				});
-			}
-			else {
-				return res.redirect('/404');
+				
+				Review.findAll({
+					where: { productid: itemsId },
+					attributes: ['productid', [Sequelize.fn('AVG', Sequelize.col('stars')), 'avgRating']],
+   					group: 'productid',
+					raw: true
+				})
+				.then((review) => {
+					for(var i=0; i<review.length; i++){
+						review[i].avgRating = parseFloat(review[i].avgRating);
+					}
+					title = 'View Items - ' + req.params.storename;
+					user_status = "cust";
+					if (typeof req.user != "undefined") {
+						user_status = res.locals.user.usertype;
+					}
+					res.render('customer/viewstore', {
+						title: title,
+						shopprod: shopprod,
+						user_status: user_status,
+						review: review,
+						storename: req.params.storename
+					});
+				})
 			}
 		})
 		.catch(err => {
 			console.error('Unable to connect to the database:', err);
 		});
 });
+
 
 router.get("/view/:id", (req, res) => {
 	// http://localhost:5000/view/1
@@ -393,11 +728,30 @@ router.get("/view/:id", (req, res) => {
 						});
 				}
 
-				res.render('customer/productview', {
-					title: pdetails.name + ' - ' + pdetails.storename,
-					pdetails: getDetails,
-					choicesArray: choicesArray,
-					discprice: discprice
+				Review.findAll({
+					where: { productid: req.params.id },
+					raw: true
+				})
+				.then((reviews) => {
+					var avgRating = 0;
+					if(reviews.length > 0){
+						reviews.forEach(r => {
+							avgRating = avgRating + r.stars;
+						});
+						avgRating = avgRating / reviews.length;
+					}
+					
+					res.render('customer/productview', {
+						title: pdetails.name + ' - ' + pdetails.storename,
+						pdetails: getDetails,
+						choicesArray: choicesArray,
+						discprice: discprice,
+						avgRating: avgRating,
+						reviews:reviews
+					});
+				})
+				.catch(err => {
+					console.error('Unable to connect to the database:', err);
 				});
 			}
 			else {
@@ -410,30 +764,6 @@ router.get("/view/:id", (req, res) => {
 		});
 });
 
-// tailor: create course
-router.get('/createcourse', (req, res) => {
-	res.render('tailor/createcourse', { title: "Create Course" });
-});
-
-// tailor: view courses
-router.get('/viewcourse', (req, res) => {
-	res.render('tailor/viewcourse', { title: "View Course" });
-});
-
-// tailor: update course
-router.get('/updatecourse', (req, res) => {
-	res.render('tailor/updatecourse', { title: "Update Course" });
-});
-
-// tailor: add/delete/update course content
-router.get('/addcontent', (req, res) => {
-	res.render('tailor/addcontent', { title: "Course Content" });
-});
-
-// tailor: calendar schedule
-router.get('/tailorschedule', (req, res) => {
-	res.render('tailor/tailorschedule', { title: "Education Platform Content" });
-});
 // tailor : manage advertisement
 router.get('/manageads', (req, res) => {
 	res.render('tailor/manageads', { title: "manageads" })
@@ -444,43 +774,6 @@ router.get('/advertise', (req, res) => {
 })
 
 
-// customer: course catalogue
-router.get('/coursecatalogue', (req, res) => {
-	res.render('customer/coursecatalogue', { title: "View Shops - Course" });
-});
-
-// customer: course catalogue details
-router.get('/course', (req, res) => {
-	res.render('customer/course', { title: "Course Details" });
-});
-
-// customer: course cart payment
-router.get('/coursepayment', (req, res) => {
-	res.render('customer/coursepayment', { title: "Course Payment" });
-});
-
-// customer: course payment successful
-router.get('/coursepaymentsuccessful', (req, res) => {
-	res.render('customer/coursepaymentsuccessful', { title: "Course Payment Successful" });
-});
-
-// customer: education platform
-router.get('/educationplatform', (req, res) => {
-	res.render('customer/educationplatform', { title: "Education Platform" });
-});
-
-// customer: education platform content
-router.get('/educationplatformcontent', (req, res) => {
-	res.render('customer/educationplatformcontent', { title: "Education Platform Content" });
-});
-
-router.get('/educationplatform', (req, res) => {
-	res.render('customer/educationplatform', { title: "Education Platform" });
-});
-
-router.get('/educationplatformcontent', (req, res) => {
-	res.render('customer/educationplatformcontent', { title: "Education Platform Content" });
-});
 
 // riders: main orders page 
 router.get('/rordersmain', (req, res) => {

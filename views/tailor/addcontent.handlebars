@@ -12,8 +12,9 @@
     </div>
 </div>
 <div class="contact-area pt-100 pb-100" >
+    
     <div class="container" >
-
+        
         <div class="custom-row-2" >
 
             <div class="col-lg-4 col-md-5" >
@@ -27,7 +28,9 @@
 
                         <br>
                         <ol>
-                            <li style="margin:1.5px;"><a href="#">How to use a sewing machine</a> &nbsp;&nbsp; <a href=""> <i class="fa fa-times" style="color: red; margin-top: 4px; float: right;"></i></a></li>
+                        {{#each videos}}
+                            <li style="margin:1.5px;"><a href="/uploads/video/{{video}}">{{topic}}</a> &nbsp;&nbsp; <a href="/tailor/deletecontent/{{courseid}}/{{id}}"> <i class="fa fa-times" style="color: red; margin-top: 4px; float: right;"></i></a></li>  <!--id: topic-->
+                        {{/each}}
                         </ol>
                     </div>
 
@@ -41,17 +44,17 @@
                         <h4>Video</h4>
                     </div>
 
-                    <form class="contact-form-style" action="" method="post" enctype="multipart/form-data">
+                    <form class="contact-form-style" id="addcontent" action="/tailor/addcontent/{{id}}" method="post" enctype="multipart/form-data"> <!--//id: course -->
                         <div class="row">
 
                             <div class="col-lg-12">
                                 Topic
-                                <input name="coursetitle" placeholder="Topic*" type="text" class="form-control" value="" required>
+                                <input name="topic" placeholder="Topic*" type="text" class="form-control" value="{{name}}" required>
                             </div>
 
                             <div class="col-lg-12">
                                 Video
-                                <input name="subject" placeholder="Subject*" type="file">
+                                <input name="video" placeholder="Subject*" type="file">
                             </div>
 
                             <div class="button-box">

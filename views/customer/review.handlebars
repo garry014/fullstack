@@ -7,10 +7,10 @@
             <div class="col-lg-12 col-md-12">
                 <div class="contact-form" style="background-color: transparent; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
                     <div class="contact-title mb-30">
-                        <h2>Leaving Review for Customised Suit</h2>
+                        <h2>Leaving Review for {{pdetails.name}}</h2>
                         *Required Field
                     </div>
-                    <form class="contact-form-style" action="" method="post" enctype=multipart/form-data>
+                    <form class="contact-form-style" action="/customer/review/{{id}}" method="post" enctype="multipart/form-data">
                         <div class="row">
                             <div class="col-lg-12"><label>Ratings<span style="color:red;">*</span></label></div>
                             <div class="wrapper">
@@ -26,12 +26,13 @@
                               <label for="r5">&#9733;</label>
                             </div>
                                 <input class="form-control" id="stars" name="stars" type="hidden" value="">
+                                <input class="form-control" id="storename" name="storename" type="hidden" value="{{pdetails.storename}}">
                             <div class="col-lg-12">
                                 <label for="review">Leave a Review</label>
                                 <textarea id="review" name="review"></textarea>
                             </div>
                             <div class="uploader">
-                                <input id="file-upload" type="file" id="fileUpload" name="fileUpload" accept="image/*" />
+                                <input id="file-upload" type="file" name="file" accept="image/*" />
 
                                 <label for="file-upload" id="file-drag">
                                     <img id="file-image" src="#" alt="Preview" class="hidden">

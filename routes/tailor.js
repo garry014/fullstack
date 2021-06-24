@@ -1,15 +1,23 @@
 // Redirections/Form submit/hyperlink links /tailor/___________
 // But the links here, put /________ directly
-const express = require('express');
-const router = express.Router();
-var validator = require('validator');
-const alertMessage = require('../helpers/messenger');
-var bodyParser = require('body-parser');
+
+// DB Table Connections
 const Catalouge = require('../models/Catalouge');
 const Productchoices = require('../models/Productchoices');
 const User = require('../models/User');
+
+// Handlebars Helpers
+const alertMessage = require('../helpers/messenger');
+const ensureAuthenticated = require('../helpers/auth');
+
+// Other Requires
+const express = require('express');
+const router = express.Router();
+var bodyParser = require('body-parser');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
+const Course = require('../models/Course');
+const Video = require('../models/Video');
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const ensureAuthenticated = require('../helpers/auth');
@@ -27,11 +35,26 @@ router.get('/hometailor', (req, res) => {
 });
 
 router.get('/addproduct', ensureAuthenticated, (req, res) => {
-	res.render('tailor/addproduct', { title: "Add product" });
+	var user_status = "customer";
+	if (typeof req.user != "undefined") {
+		user_status = res.locals.user.usertype;
+	}
+
+	if (user_status == "tailor") {
+		res.render('tailor/addproduct', { title: "Add product" });
+	}
+	else {
+		alertMessage(res, 'danger', 'Unauthorised access! Register as a tailor to add product.', 'fas fa-exclamation-triangle', true);
+		res.redirect('../hometailor');
+	}
 });
 
 // Add Product - POST
 router.post('/addproduct', ensureAuthenticated, urlencodedParser, (req, res) => {
+	if (typeof req.user != "undefined") {
+		var shopname = res.locals.user.shopname;
+	}
+
 	let errors = [];
 	let { name, price, discount, description, question, q1category } = req.body;
 
@@ -93,7 +116,7 @@ router.post('/addproduct', ensureAuthenticated, urlencodedParser, (req, res) => 
 
 		Catalouge
 			.create({
-				storename: 'Ah Tong Tailor',
+				storename: shopname,
 				name: name,
 				price: price,
 				image: newid + '.' + filetype,
@@ -155,41 +178,51 @@ router.post('/addproduct', ensureAuthenticated, urlencodedParser, (req, res) => 
 });
 
 // Update Product - GET
-router.get('/editproduct/:id', (req, res) => {
+router.get('/editproduct/:id', ensureAuthenticated, (req, res) => {
+	if (typeof req.user != "undefined") {
+		var shopname = res.locals.user.shopname;
+	}
+
 	Catalouge.findOne({
 		where: { id: req.params.id },
 		raw: true
 	})
 		.then(pdetails => {
-			console.log(pdetails);
-			if (pdetails) {
-				if (pdetails.customcat == "radiobtn") {
-					Productchoices.findAll({
-						where: { catalougeId: req.params.id },
-						raw: true
-					})
-						.then(pchoices => {
-							res.render('tailor/editproduct', {
-								title: "Update product",
-								pdetails: pdetails,
-								pchoices: pchoices
-							});
-						})
-						.catch(err => {
-							console.error('Unable to connect to the database:', err);
-						});
-
-				}
-				else {
-					res.render('tailor/editproduct', {
-						title: "Update product",
-						pdetails: pdetails
-					});
-				}
+			if (pdetails.storename != shopname) {
+				alertMessage(res, 'danger', 'You shall not pass!', 'fas fa-exclamation-triangle', true);
+				res.redirect('/viewshops');
 			}
 			else {
-				return res.redirect('/404');
+				if (pdetails) {
+					if (pdetails.customcat == "radiobtn") {
+						Productchoices.findAll({
+							where: { catalougeId: req.params.id },
+							raw: true
+						})
+							.then(pchoices => {
+								res.render('tailor/editproduct', {
+									title: "Update product",
+									pdetails: pdetails,
+									pchoices: pchoices
+								});
+							})
+							.catch(err => {
+								console.error('Unable to connect to the database:', err);
+							});
+
+					}
+					else {
+						res.render('tailor/editproduct', {
+							title: "Update product",
+							pdetails: pdetails
+						});
+					}
+				}
+				else {
+					return res.redirect('/404');
+				}
 			}
+
 		})
 		.catch(err => {
 			console.error('Unable to connect to the database:', err);
@@ -197,9 +230,13 @@ router.get('/editproduct/:id', (req, res) => {
 });
 
 // Update Product - PUT
-router.put('/editproduct/:id', urlencodedParser, (req, res) => {
+router.put('/editproduct/:id', ensureAuthenticated, urlencodedParser, (req, res) => {
 	let errors = [];
 	let { name, price, discount, description, question, q1category, imageLink } = req.body;
+
+	if (typeof req.user != "undefined") {
+		var shopname = res.locals.user.shopname;
+	}
 
 	// Validation
 	if (isNumeric(price) == false) {
@@ -300,19 +337,19 @@ router.put('/editproduct/:id', urlencodedParser, (req, res) => {
 
 			// Image Upload
 			var newFileName = newid;
-			console.log("./public/uploads/products/"+imageLink);
-			fs.unlink("./public/uploads/products/"+imageLink, (err) => {
+			console.log("./public/uploads/products/" + imageLink);
+			fs.unlink("./public/uploads/products/" + imageLink, (err) => {
 				if (err) {
-					console.log("failed to delete local image:"+err);
+					console.log("failed to delete local image:" + err);
 				} else {
-					console.log('successfully deleted local image');                                
+					console.log('successfully deleted local image');
 				}
 			});
 			file.mv('./public/uploads/products/' + filename, function (err) {
 				if (err) {
 					res.send(err);
 				}
-				else{
+				else {
 					fs.rename('./public/uploads/products/' + filename, './public/uploads/products/' + newFileName, function (err) {
 						if (err) console.log('ERROR: ' + err);
 					});
@@ -321,7 +358,7 @@ router.put('/editproduct/:id', urlencodedParser, (req, res) => {
 		}
 
 		Catalouge.update({
-			storename: 'Ah Tong Tailor',
+			storename: shopname,
 			name: name,
 			price: price,
 			image: newid,
@@ -331,12 +368,12 @@ router.put('/editproduct/:id', urlencodedParser, (req, res) => {
 			customcat: q1category
 		}, {
 			where: {
-				id: req.params.id
+				[Op.and]: [{id: req.params.id}, {storename: shopname}]
 			}
 		}).then(() => {
 
 			if (req.files) {
-				
+
 				// Page gets changed overly fast, such that page is loaded before img changes are made
 			}
 			alertMessage(res, 'success', 'Updated product successfully!', 'fas fa-check-circle', true);
@@ -355,13 +392,16 @@ router.put('/editproduct/:id', urlencodedParser, (req, res) => {
 	}
 });
 
-router.get('/deleteProduct/:id', (req, res) => {
+router.get('/deleteProduct/:id', ensureAuthenticated, (req, res) => {
+	if (typeof req.user != "undefined") {
+		var shopname = res.locals.user.shopname;
+	}
 	Catalouge.findOne({
 		where: {
 			id: req.params.id
 		}
 	}).then((pdetails) => {
-		if (pdetails != null) {
+		if (pdetails != null && pdetails.storename == shopname) {
 			if (pdetails.customcat == "radiobtn") {
 				Productchoices.destroy({
 					where: {
@@ -369,11 +409,11 @@ router.get('/deleteProduct/:id', (req, res) => {
 					}
 				});
 			}
-			fs.unlink("./public/uploads/products/"+pdetails.image, (err) => {
+			fs.unlink("./public/uploads/products/" + pdetails.image, (err) => {
 				if (err) {
-					console.log("failed to delete local image:"+err);
+					console.log("failed to delete local image:" + err);
 				} else {
-					console.log('successfully deleted local image');                                
+					console.log('successfully deleted local image');
 				}
 			});
 			Catalouge.destroy({
@@ -385,9 +425,257 @@ router.get('/deleteProduct/:id', (req, res) => {
 					alertMessage(res, 'info', 'Successfully deleted item.', 'far fa-trash-alt', true);
 					res.redirect('/viewshops/' + pdetails.storename);
 				})
-		};
+		}
+		else {
+			alertMessage(res, 'danger', 'Do you have a badge????', 'fas fa-exclamation-triangle', true);
+			res.redirect('/viewshops/' + pdetails.storename);
+		}
 	})
-})
+});
+
+
+// stacey
+
+// tailor: create course
+router.get('/createcourse', (req, res) => {
+	res.render('tailor/createcourse', { title: "Create Course" });
+});
+
+router.post('/createcourse', (req, res) => {
+	let title = req.body.title;
+	let language = req.body.language;
+	let day = req.body.day;
+	let material = req.body.material;
+	let description = req.body.description;
+	let price = req.body.price;
+	let thumbnail = req.body.thumbnail;
+	
+	
+	console.log(title, language);
+
+	if(req.files){
+		
+		console.log(req.files);
+		var file = req.files.thumbnail;
+		var filename = file.name;
+		console.log(filename);
+
+		file.mv('./public/uploads/courseimg/'+ filename, function(err){
+			if (err){
+				res.send(err);
+			}
+		});
+	}
+
+	// Multi-value components return array of strings or undefined
+	Course.create({
+		title: title,
+		language: language,
+		day: day,
+		material: material,
+		description: description,
+		price:price,
+		thumbnail : filename,
+		user : 1
+	}).then((course) => {
+		res.redirect('/tailor/viewcourse/:user'); // redirect to call router.get(/listVideos...) to retrieve all updated
+		// videos
+	}).catch(err => console.log(err))
+});
+
+
+
+router.get('/viewcourse/:id', (req, res) => {
+	Course.findAll({
+		where: {
+			user: 1 //ummmmmmmmmmmmmm
+		},
+		raw: true
+	}).then((course) => {
+		//console.log(course);
+		res.render('tailor/viewcourse', { title: "View Course", course:course });
+	}).catch(err => console.log(err));
+});
+
+//delete c
+router.post('/deletecourse/:id', (req, res) => {
+	//let courseId = req.params.id;
+	//let userId = 1;
+	//console.log(courseId) // Select * from videos where videos.id=videoID and videos.userId=userID
+	Course.findOne({
+		where: {
+			id: req.params.id,
+			user: 1
+		},
+		raw:true
+		// attributes: ['id']
+	}).then((course) => { // if record is found, user is owner of video
+		if (course) {
+			Course.destroy({
+				where: {
+					id: req.params.id
+				}
+			}).then(() => {
+				alertMessage(res, 'info', 'course deleted', 'far fa-trash-alt', true);
+				res.redirect('/tailor/viewcourse/1'); // To retrieve all videos again
+			}).catch(err => console.log(err));
+		} else {
+			alertMessage(res, 'danger', 'Unauthorised access to course', 'fas fa-exclamation-circle', true);
+			res.redirect('/tailor/viewcourse/1');
+		}
+	});
+});
+
+// tailor: update course
+router.get('/updatecourse/:id', (req, res) => {
+	Course.findOne({
+		where: {
+			id: req.params.id //ummmmmmmmmmmmmm
+		},
+		raw:true
+	}).then((course) => {
+		//console.log(course);
+		res.render('tailor/updatecourse', { title: "Update Course", course:course });
+	}).catch(err => console.log(err));
+});
+
+
+router.put('/updatecourse/:id', (req, res) => {   // id is course id
+	let title = req.body.title;
+	let language = req.body.language;
+	let day = req.body.day;
+	let material = req.body.material;
+	let description = req.body.description;
+	let price = req.body.price;
+	let thumbnail = req.body.thumbnail;
+	console.log(title);
+
+	Course.update({
+		title: title,
+		language: language,
+		day: day,
+		material: material,
+		description: description,
+		price:price,
+		thumbnail : thumbnail,
+		user : 1
+	}, {
+		where: {
+			id: req.params.id
+		}
+	}).then(() => {
+		res.redirect('/tailor/viewcourse/1'); 
+			// videos
+	}).catch(err => console.log(err));
+});
+
+
+
+
+// tailor: add/delete/update course content
+
+//display the title after adding NOT IT LOL. 
+//somewhere, the ID is working correctly i suppose bc i tried to enter 10 and the page loads forever (theres no course id 10)
+//view topics addded
+router.get('/addcontent/:id', (req, res) => {
+	Course.findOne({
+		where: {
+			id: req.params.id, //ummmmmmmmmmmmmm
+			user: 1
+		},
+		raw: true
+	}).then((course) => {
+		//console.log(course.id); ////ok well these r the same unless it's in string or wtv,
+		//console.log(req.params.id); // it's not going in the if and idk if that's rly needed
+		Video.findAll({
+			where: {
+				courseid: req.params.id
+			},
+			raw: true
+		})
+			.then((videos) => {
+				res.render('tailor/addcontent', { 
+					title: "Course Content", 
+					course:course, 
+					videos: videos,
+					id:req.params.id 
+				});
+			}) 
+				//.then((videos)
+				
+				//);
+
+	}).catch(err => console.log(err));
+	//is delete supp to be here too???
+
+
+});
+
+//create topic
+router.post('/addcontent/:id', (req, res) => {
+	let topic = req.body.topic;
+	let video = req.body.video;
+	//let courseid = req.course.id //?????????? cannot
+	//video not showing in sql but is storing??  whats ur prob.
+	console.log(topic,video); 
+	
+	if(req.files){
+		console.log(req.files);
+		var file = req.files.video;
+		var filename = file.name;
+		console.log(filename);
+
+		file.mv('./public/uploads/video/'+ filename, function(err){
+			if (err){
+				res.send(err);
+			}
+		});
+	}
+
+	// Multi-value components return array of strings or undefined
+	Video.create({
+		topic: topic,
+		video: filename,
+		courseid: req.params.id
+	}).then((videocontent) => {
+		res.redirect('/tailor/addcontent/' + req.params.id); // redirect to call router.get(/listVideos...) to retrieve all updated
+		// videos
+	}).catch(err => console.log(err))
+});
+
+//delete topic, is it even going in here.
+//put? post? not get? what?
+router.get('/deletecontent/:courseid/:id', (req, res) => {
+	Video.findOne({
+		where: {
+			id: req.params.id //id
+			//user: 1
+		}
+		//raw:true 
+	}).then((videos) => { 
+		
+		console.log(videos)
+		if (videos) {
+			Video.destroy({
+				where: {
+					id: req.params.id
+				}
+			}).then(() => {
+				alertMessage(res, 'info', 'topic deleted', 'far fa-trash-alt', true);
+				res.redirect('/tailor/addcontent/' + req.params.courseid ); // To retrieve all videos again
+			}).catch(err => console.log(err));
+		} else {
+			alertMessage(res, 'danger', 'Unauthorised access to topic', 'fas fa-exclamation-circle', true);
+			res.redirect('/tailor/addcontent/' + req.params.id);
+		}
+	});
+});
+
+
+// tailor: calendar schedule
+router.get('/tailorschedule', (req, res) => {
+	res.render('tailor/tailorschedule', { title: "Education Platform Content" });
+});
 
 router.get('/tailorlogin', (req, res) => {
 	res.render('tailor/tailorlogin')
@@ -400,7 +688,7 @@ router.post('/login', (req, res, next) => {
 		failureFlash: 'Invalid username or password.',
 		userProperty: res.user
 	})
-	(req, res, next);
+		(req, res, next);
 });
 
 function onSuccess(response){
@@ -491,7 +779,7 @@ router.post('/tailoregister', (req, res) => {
 						bcrypt.hash(password, salt, (err, hash) => {
 							if (err) throw err;
 							password = hash;
-							User.create({ shopname, username, password, address1, address2, city, postalcode, email, phoneno,usertype:'tailor' })
+							User.create({ shopname, username, password, address1, address2, city, postalcode, email, phoneno, usertype: 'tailor' })
 								.then(user => {
 									alertMessage(res, 'success', user.username + ' Please proceed to login', 'fas fa-sign-in-alt', true);
 									res.redirect('tailoregcomplete');
@@ -507,7 +795,7 @@ router.post('/tailoregister', (req, res) => {
 });
 
 // tailor: account page 
-router.get('/tailoraccount/:id', ensureAuthenticated,(req, res) => {
+router.get('/tailoraccount/:id', ensureAuthenticated, (req, res) => {
 	User.findOne({
 		where: {
 			id: req.params.id
@@ -516,7 +804,7 @@ router.get('/tailoraccount/:id', ensureAuthenticated,(req, res) => {
 	}).then((Tailor) => {
 		console.log(Tailor);
 		if (req.params.id === Tailor.id) {
-			res.render('tailor/tailoracct', { 
+			res.render('tailor/tailoracct', {
 				User: Tailor
 			});
 		} else {
@@ -551,8 +839,8 @@ router.put('/tailoraccount/:id', ensureAuthenticated, (req, res) => {
 			id: req.params.id
 		}
 	}).then(() => {
-		alertMessage(res, 'success','Account has been updated successfully!', 'fas fa-sign-in-alt', true);
-		res.redirect('/tailor/tailoraccount/'+req.params.id);
+		alertMessage(res, 'success', 'Account has been updated successfully!', 'fas fa-sign-in-alt', true);
+		res.redirect('/tailor/tailoraccount/' + req.params.id);
 	}).catch(err => console.log(err));
 });
 

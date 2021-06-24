@@ -1,14 +1,18 @@
 // /rider/___________
 
+// DB Table Connections
+const User = require('../models/User');
+
+// Handlebars Helpers
+const alertMessage = require('../helpers/messenger');
+const ensureAuthenticated = require('../helpers/auth');
+
+// Other Requires
 const express = require('express');
 const router = express.Router();
-var validator = require('validator');
-const alertMessage = require('../helpers/messenger');
-const db = require('../config/DBConfig.js');
-const { username, password } = require('../config/db');
-const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
+<<<<<<< HEAD
 const ensureAuthenticated = require('../helpers/auth');
 const JWT_SECRET = 'secret super'
 const jwt = require('jsonwebtoken');
@@ -18,6 +22,9 @@ const jwt = require('jsonwebtoken');
 router.get('/homerider', (req, res) => {
 	res.render('rider/homerider', {path:"rider" });
 });
+=======
+
+>>>>>>> 1d0d2df5b00463c9ae28ea60421a19b06afe8ca0
 
 // riders: login page 
 router.get('/riderlogin', (req, res) => {

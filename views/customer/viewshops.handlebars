@@ -25,55 +25,34 @@
                         <div id="shop-1" class="tab-pane active">
                             <div class="row">
                                 <!-- Start of Product List -->
-                                {{#each shop}}
+                                {{#each shopdetails}}
                                 <div class="col-xl-6 col-md-6 col-lg-6 col-sm-6">
                                     <div class="product-wrap mb-25 scroll-zoom">
                                         <div class="product-img">
-                                            <a href="/viewshops/Ah Tong Tailor">
-                                                <img class="default-img" src="/img/tailorstore_front/Ah Tong Tailor.jpg" alt="">
+                                            <a href="/viewshops/{{shopname}}">
+                                                <img class="default-img" src="/img/tailorstore_front/{{shopname}}.jpg" alt="">
                                             </a>
                                             <span class="pink">-30%</span>
                                             <div class="product-action">
                                                 <div class="pro-same-action pro-quickview" style="width:100%;">
-                                                    <a title="Shop here" href="/viewshops/Ah Tong Tailor"><i class="fa fa-eye"></i> Shop here</a>
+                                                    <a title="Shop here" href="/viewshops/{{shopname}}"><i class="fa fa-eye"></i> Shop here</a>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="product-content text-center">
-                                            <span style="font-weight: bold; font-size: 18px;"><a href="/view/storename">Ah Tong Tailor</a></span><br>
-                                            713 Ang Mo Kio Ave 6 #01-4054<br>
-                                            Singapore 560713<br>
+                                            <span style="font-weight: bold; font-size: 18px;"><a href="/viewshops/{{shopname}}">{{shopname}}</a></span><br>
+                                            {{address1}} {{address2}}<br>
+                                            {{city}} {{postalcode}}<br>
                                             <!-- if else loop -->
-                                            <span class="fa fa-star" style="color: orange;"></span><span class="fa fa-star" style="color: orange;"></span><span class="fa fa-star" style="color: orange;"></span><span class="fa fa-star"></span><span class="fa fa-star"></span>
-                                            3 stars
+                                            {{#each ../review}}
+                                            {{#ifCond storename '==' ../shopname}}
+                                                    {{#times avgRating}}<span class="fa fa-star" style="color: orange;"></span>{{/times}}{{#minusStars avgRating}}<span class="fa fa-star"></span>{{/minusStars}}{{avgRating}} stars
+                                            {{/ifCond}} 
+                                            {{/each}}
                                         </div>
                                     </div>
                                 </div>
                                 {{/each}}
-                                <!-- rubbish display for ui only -->
-                                <div class="col-xl-6 col-md-6 col-lg-6 col-sm-6">
-                                    <div class="product-wrap mb-25 scroll-zoom">
-                                        <div class="product-img">
-                                            <a href="/view/Yi%20Kah%20Tailor%20Centre%260">
-                                                <img class="default-img" src="/img/tailorstore_front/Yi Kah Tailor Centre.jpg" alt="">
-                                                <!--  <img class="hover-img" src="/static/uploads/Ah%20Tiong%20Tailor1.jpg" alt=""> -->
-                                            </a>
-                                            
-                                            <div class="product-action">
-                                                <div class="pro-same-action pro-quickview" style="width:100%;">
-                                                    <a title="Shop here" href="/view/Yi%20Kah%20Tailor%20Centre%260"><i class="fa fa-eye"></i> Shop here</a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="product-content text-center">
-                                            <span style="font-weight: bold; font-size: 18px;"><a href="/view/Yi%20Kah%20Tailor%20Centre%260">Yi Kah Tailor Centre</a></span><br>
-                                            59 New Upper Changi Rd #01-1254<br>
-                                            Singapore 461059<br>
-                                            No reviews yet.
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- end of rubbish -->
                             </div>
                         </div>
                     </div>

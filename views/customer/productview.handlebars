@@ -43,15 +43,28 @@
                         
                     </div>
                     <div class="pro-details-rating-wrap">
-                        3.0 stars <span class="fa fa-star" style="color: orange;"></span><span class="fa fa-star" style="color: orange;"></span><span class="fa fa-star" style="color: orange;"></span><span class="fa fa-star"></span><span class="fa fa-star"></span>
-                        
+                        {{#ifCond avgRating '>' 0}}
+                        {{avgRating}} stars  {{#times avgRating}}
+                                                <span class="fa fa-star" style="color: orange;"></span>
+                                            {{/times}}
+                                            <!-- minusStars not working -->
+                                            {{#minusStars avgRating}}
+                                                <span class="fa fa-star"></span>
+                                            {{/minusStars}}
+                        {{else}}
+                        <i>This item currently has no reviews.</i>
+                        {{/ifCond}}
                     </div>
                     <div class="pro-details-list">
                         {{ pdetails.description }}
                     </div>
-
-                    <form class="contact-form-style" id="my_form" action="" method="post">
+                        <form class="contact-form-style" id="my_form" action="/view/{{pdetails.id}}" method="post">
                         <div class="pro-details-size-color  ">
+                            <div class="pro-details-color-wrap">
+                                <input type="text" name="itemname" value="{{pdetails.name}}" hidden>
+                                <input type="text" name="price" value="{{money2dp discprice}}" hidden>
+                                <input type="text" name="storename" value="{{pdetails.storename}}" hidden>
+                                <input type="text" id="customqn" name="customqn" value="{{pdetails.customqn}}" hidden>
                             <div class="pro-details-color-wrap">
                             {{#ifCond pdetails.customqn '!=' ""}}
                             <span>{{pdetails.customqn}}</span>
@@ -118,41 +131,45 @@
                     <div class="row">
                         <div class="col-lg-8" style="margin: 0 auto;">
                             <div class="review-wrapper">
-                                <a href="/review">Click here to leave a review</a>
+                                <a href="/customer/review/{{pdetails.id}}">Click here to leave a review</a>
                                 <br><br>
+                                {{#each reviews}}
                                 <div class="single-review">
                                     <div class="review-content">
                                         <div class="review-top-wrap">
                                             <div class="review-left">
                                                 <div class="review-name">
-                                                    <h4>ImASnack</h4>
+                                                    <h4>{{username}}</h4>
                                                 </div>
                                                 <div class="review-rating">
-                                                    
+                                                    {{#times stars}}
                                                         <span class="fa fa-star" style="color: orange;"></span>
-                                                        <span class="fa fa-star" style="color: orange;"></span>
-                                                        <span class="fa fa-star" style="color: orange;"></span>
+                                                    {{/times}}
+                                                    <!-- minusStars not working -->
+                                                    {{#minusStars stars}}
                                                         <span class="fa fa-star"></span>
-                                                        <span class="fa fa-star"></span>
+                                                    {{/minusStars}}
                                                     
                                                 </div>
-                                                <a href=""><i class="fa fa-pencil" title="Update this Review"></i></a>
+                                                <a href="/customer/updatereview/{{../pdetails.id}}/{{id}}"><i class="fa fa-pencil" title="Update this Review"></i></a>
                                             </div>
                                             <div class="review-left">
-                                                <a href="/deleteReview/Ah%20Tong%20Tailor/0/1"><i class="fa fa-times" title="Delete this Review"></i></a>
+                                                <a href="/customer/deletereview/{{../pdetails.id}}/{{id}}"><i class="fa fa-times" title="Delete this Review"></i></a>
                                             </div>
                                         </div>
                                         <div class="review-bottom">
-                                            test 123 45678 this product swee chai butterfly. Best in the world lah. you know no one can compare.
-                                            <a href=""><img src="/uploads/products/1.jpg" width="auto" height="120"></a>
-                                            
+                                            {{review}}
+                                            <br>
+                                            {{#if photo}}
+                                            <a href="/uploads/review/{{photo}}"><img src="/uploads/review/{{photo}}" width="auto" height="120"></a>
+                                            {{/if}}
                                         </div>
                                         <div class="review-bottom" style="font-size:10px">
-                                            17 May 07:22PM
+                                            {{timestamp}}
                                         </div>
                                     </div>
                                 </div>
-                                
+                                {{/each}}
                             </div>
                         </div>
 
