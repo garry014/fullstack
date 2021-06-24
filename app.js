@@ -3,7 +3,6 @@
 * in this JS file.
 * */
 const express = require('express');
-const session = require('express-session');
 const upload = require('express-fileupload');
 const path = require('path');
 const exphbs = require('express-handlebars');
@@ -11,13 +10,33 @@ const methodOverride = require('method-override');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
-
+const passport = require('passport');
 
 const flash = require('connect-flash');
 const FlashMessenger = require('flash-messenger');
 
 const MySQLStore = require('express-mysql-session');
 const db = require('./config/db'); // db.js config file
+
+const session = require('express-session')({
+	key: 'tailornow_session',
+	secret: 'tojiv',
+	store: new MySQLStore({
+		host: db.host,
+		port: 3306,
+		user: db.username,
+		password: db.password,
+		database: db.database,
+		clearExpired: true,
+		// How frequently expired sessions will be cleared; milliseconds:
+		checkExpirationInterval: 9000000,
+		// The maximum age of a valid session; milliseconds:
+		expiration: 9000000,
+	}),
+	resave: false,
+	saveUninitialized: false,
+});
+const sharedsession = require("express-socket.io-session");
 
 /*
 * Loads routes file main.js in routes directory. The main.js determines which function
@@ -35,58 +54,6 @@ const riderRoute = require('./routes/rider');
 */
 const app = express();
 const http = require("http").createServer(app);
-
-// Create socket instance
-const io = require('socket.io')(http);
-var users = [];
-
-const Chat = require('./models/Chat');
-const Message = require('./models/Message');
-
-// add listener for new connection
-io.on("connection", function(socket){
-	// this is socket for each user
-	console.log("'\x1b[36m%s\x1b[0m'", "user connected: ", socket.id);
-
-	socket.on('disconnect', () => {
-		console.log('user disconnected: ', socket.id);
-	});
-
-	socket.on("user_connected", function(username){
-		users[username] = socket.id;
-
-		// socket id will be used to send msg to individual person
-
-		//notify all connect clients
-		io.emit("user_connected", username);
-	});
-
-	socket.on("send_message", function(data){
-		// send event to receiver
-		var socketId = users[data.receiver];
-
-		io.to(socketId).emit("new_message", data);
-
-		// Get Date
-		var currentdate = new Date(); 
-		const monthNames = ["January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December"];
-		var datetime = currentdate.getDate() + " "
-                + monthNames[currentdate.getMonth()]  + " " 
-                + currentdate.getFullYear() + " "  
-                + currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
-
-		// Save in db
-		Message.create({
-			sentby: data.sender,
-			timestamp: datetime,
-			message: data.message
-		}).catch(err => {
-			console.error('Unable to connect to the database:', err);
-		});
-	});
-});
-
-
 
 // Handlebars Middleware
 /*
@@ -133,6 +100,21 @@ Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
 	}
 });
 
+// For loop
+Handlebars.registerHelper('times', function(n, block) {
+    var accum = '';
+    for(var i = 0; i < n; ++i)
+        accum += block.fn(i);
+    return accum;
+});
+
+Handlebars.registerHelper('minusStars', function (n, block) {
+	var accum = '';
+    for(var i = 0; i < 5-n; ++i)
+        accum += block.fn(i);
+    return accum;
+});
+
 Handlebars.registerHelper('money2dp', function (distance) {
 	return distance.toFixed(2);
 });
@@ -140,6 +122,10 @@ Handlebars.registerHelper('money2dp', function (distance) {
 Handlebars.registerHelper("calculatedisc", function(price, discount) {
 	var a = price * (1 - (discount / 100));
 	return a.toFixed(2);
+});
+
+Handlebars.registerHelper('getToday', function () {
+	return getToday();
 });
 
 
@@ -160,40 +146,38 @@ app.use(methodOverride('_method'));
 // Enables session to be stored using browser's Cookie ID
 app.use(cookieParser());
 
+
+
 // To store session information. By default it is stored as a cookie on browser
-app.use(session({
-	key: 'tailornow_session',
-	secret: 'tojiv',
-	store: new MySQLStore({
-		host: db.host,
-		port: 3306,
-		user: db.username,
-		password: db.password,
-		database: db.database,
-		clearExpired: true,
-		// How frequently expired sessions will be cleared; milliseconds:
-		checkExpirationInterval: 900000,
-		// The maximum age of a valid session; milliseconds:
-		expiration: 900000,
-		}),
-		resave: false,
-		saveUninitialized: false,
-}));
+app.use(session);
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(flash());
 app.use(FlashMessenger.middleware);
 
 // Place to define global variables - not used in practical 1
 app.use(function (req, res, next) {
+	res.locals.success_msg = req.flash('success_msg');
+	res.locals.error_msg = req.flash('error_msg');
+	res.locals.error = req.flash('error');
+	if(typeof req.user != "undefined"){
+		res.locals.user = req.user.dataValues || null;
+	}
 	next();
 });
 
+app.use(methodOverride('_method'));
+
 // Bring in database connection
 const tailornowDB = require('./config/DBConnection');
+const { getDefaultSettings } = require('http2');
 // Connects to MySQL database
 tailornowDB.setUpDB(false); // To set up database with new tables set (true)
 
-
+const authenticate = require('./config/passport');
+authenticate.localStrategy(passport);
 // Use Routes
 /*
 * Defines that any root URL with '/' that Node JS receives request from, for eg. http://localhost:5000/, will be handled by
@@ -204,8 +188,74 @@ app.use('/tailor', tailorRoute);
 app.use('/customer', custRoute);
 app.use('/rider', riderRoute);
 
-app.get('/test', (req, res) => {
-	res.render('testchat', { title: "Test Chat" });
+// Create socket instance
+const io = require('socket.io')(http);
+var users = [];
+
+const Chat = require('./models/Chat');
+const Message = require('./models/Message');
+const User = require('./models/User');
+
+function getToday(){
+	// Get Date
+	var currentdate = new Date(); 
+	const monthNames = ["January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December"];
+	var datetime = currentdate.getDate() + " "
+			+ monthNames[currentdate.getMonth()]  + " " 
+			+ currentdate.getFullYear() + " "  
+			+ currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+	return datetime;
+}
+
+io.use(sharedsession(session));
+// add listener for new connection
+io.on("connection", function(socket){
+	console.log("'\x1b[36m%s\x1b[0m'", "user connected: ", socket.id);
+	var currentuser = socket.handshake.session.username;
+	users[currentuser] = socket.id;
+	
+
+	socket.on('disconnect', () => {
+		console.log('user disconnected: ', socket.id);
+	});
+
+	// socket.on("user_connected", function(username){
+	// 	users[username] = socket.id;
+
+	// 	// socket id will be used to send msg to individual person
+
+	// 	//notify all connect clients
+	// 	io.emit("user_connected", username);
+	// });
+
+	socket.on("send_message", function(data){
+		// send event to receiver
+		var socketId = users[data.receiver];
+
+		var datetime = getToday();
+		data["timestamp"] = datetime;
+		data["sender"] = currentuser;
+		io.to(socketId).emit("new_message", data);
+		console.log(data);
+
+		// Save in db
+		Message.create({
+			sentby: currentuser,
+			timestamp: datetime,
+			message: data.message,
+			chatId: data.chatid
+		}).catch(err => {
+			console.error('Unable to connect to the database:', err);
+		});
+	});
+
+	socket.on("send_upload", function(data){
+		// send event to receiver
+		data["sender"] = currentuser;
+		var socketId = users[data.receiver];
+
+		io.to(socketId).emit("new_upload", data);
+	});
 });
 // This route maps the root URL to any path defined in main.js
 
@@ -222,11 +272,6 @@ app.use(function(req, res, next) {
 * */
 const port = 5000;
 
-// Starts the server and listen to port 5000
-// app.listen(port, () => {
-// 	console.log('\x1b[36m%s\x1b[0m', `JIAYOUS, IT WILL ALL WORK OUT SOME DAY! Server started on port ${port}.`);
-// });
-
 http.listen(port, () => {
-	console.log("listening to port " + port);
+	console.log('\x1b[36m%s\x1b[0m', `JIAYOUS, IT WILL ALL WORK OUT SOME DAY! Server started on port ${port}.`);
 })

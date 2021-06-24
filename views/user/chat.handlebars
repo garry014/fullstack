@@ -1,7 +1,6 @@
 <style type="text/css">
     @import url("/css/chat.css");
 </style>
-<script src="/socket.io/socket.io.js"></script>
 
 <div class="messaging">
     <div class="inbox_msg">
@@ -26,38 +25,69 @@
                 </div>
             </div>
             <div class="inbox_chat">
-
-
-                <div class="chat_list active_chat">
-                    <div class="chat_people">
-                        <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil">
-                        </div>
-                        <div class="chat_ib">
-                            <h5>Merlion Tailor <span class="chat_date">18 Feb 2021 11:41</span></h5>
-                            <p>
-
-                                Hi how may we assist you today?
-
-                            </p>
+                {{#if chats}}
+                {{#each chats}}
+                    {{#ifCond id '==' ../id}}
+                    <div class="chat_list active_chat">
+                        <div class="chat_people">
+                            <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil">
+                            </div>
+                            <div class="chat_ib">
+                                <h5>{{#ifCond ../currentuser "==" recipient}}{{sender}}{{else}}{{recipient}}{{/ifCond}}</h5>
+                                <p id="messagePreview">
+                                    {{#ifCond message "!=" null}}
+                                        {{#ifCond message "==" 0}}
+                                            <i>This chat is currently empty.</i>
+                                        {{else}}
+                                            {{message}}
+                                        {{/ifCond}}
+                                    {{else}}
+                                        <i>Sent an attachment</i>
+                                    {{/ifCond}}
+                                </p>
+                            </div>
                         </div>
                     </div>
-                </div>
+                    {{else}}
+                    <a href="/inbox/{{id}}">
+                        <div class="chat_list">
+                            <div class="chat_people">
+                                <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil">
+                                </div>
+                                <div class="chat_ib">
+                                    <h5>{{#ifCond currentuser "==" recipient}}{{sender}}{{else}}{{recipient}}{{/ifCond}}</h5>
+                                    <p>{{#ifCond message "!=" null}}
+                                            {{#ifCond message "==" 0}}
+                                                <i>This chat is currently empty.</i>
+                                            {{else}}
+                                                {{message}}
+                                            {{/ifCond}}
+                                        {{else}}
+                                            <i>Sent an attachment</i>
+                                        {{/ifCond}}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    {{/ifCond}}
+                {{/each}}
+                {{/if}}
 
 
             </div>
         </div>
+        {{#ifCond id '!=' 0}}
         <div class="mesgs">
             <div class="heading_msg">
-                <b>Merlion Tailor</b>
-
-
+                <b>{{recipient}}</b>
 
                 <a href="/chat/archive/2" title="Mark as archive" style="float: right;"><i class="fa fa-archive"></i>
                     Archive</a>
 
 
 
-                <form action="/chat/delete/2" method="POST" style="display: inline-block; float: right;">
+                <form action="/inbox/delete/{{id}}" method="POST" style="display: inline-block; float: right;">
                     <button type="button" style="border:none; background: none; display: inline-block;"
                         data-toggle="modal" data-target="#myModal_2"><i class="fa fa-trash-o" style="font-size: 18px;"
                             title="Delete this chat"></i></button>
@@ -74,7 +104,7 @@
 
                                 <!-- Modal body -->
                                 <div class="modal-body">
-                                    Are you sure you want to delete the chat with Merlion Tailor?
+                                    Are you sure you want to delete the chat with {{recipient}}?
                                 </div>
 
                                 <!-- Modal footer -->
@@ -98,18 +128,20 @@
                             alt="sunil"> </div>
                     <div class="received_msg">
                         <div class="received_withd_msg">
-                            <p><b>System Notice:</b> Please note that this tailor is able to speak english, mandarin, hokkien, able to read and write in mandarin only.</p>
+                            <p><b>System Notice:</b> Please note that this tailor is able to speak english, mandarin,
+                                hokkien, able to read and write in mandarin only.</p>
                             <span class="time_date"> 18 May 2021 11:41 | Merlion Tailor</span>
                         </div>
                     </div>
                 </div>
-                {{#each chat}}
-                {{#ifCond sender '==' ../currentuser}} 
+                {{#each messages}}
+                {{#if message}}
+                {{#ifCond sentby '==' ../currentuser}}
                 <!-- Left/Recieved msg if recipient == current user -->
                 <div class="outgoing_msg">
                     <div class="sent_msg">
                         <p>{{message}}</p>
-                        <span class="time_date"> 18 May 2021 11:41 | me</span>
+                        <span class="time_date">{{timestamp}} | me</span>
                     </div>
                 </div>
                 {{else}}
@@ -118,28 +150,46 @@
                     <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png"
                             alt="sunil"> </div>
                     <div class="received_msg">
-                        <div class="received_withd_msg">  
+                        <div class="received_withd_msg">
                             <p>{{message}}</p>
-                            <span class="time_date">18 May 2021 11:41 | {{sender}}</span>
+                            <span class="time_date">{{timestamp}} | {{sentby}}</span>
                         </div>
                     </div>
                 </div>
                 {{/ifCond}}
-                {{/each}}
-                
-
+                {{else}}
+                {{#ifCond sentby '==' ../currentuser}}
                 <div class="outgoing_msg">
                     <div class="sent_msg">
-                        {{!-- id needs to be unique / js part need repicate also --}}
-                        <p><img id="myImg" src="https://remake.world/wp-content/uploads/2020/04/Hem-7.jpg" width="200px"
-                                height="auto" alt="Screenshot" title="Click to enlarge"></p>
-                        <span class="time_date"> 18 May 2021 12:11 | me</span>
+                        <p><img id="myImg" src="/uploads/chat/{{upload}}" width="200px" height="auto" alt="{{upload}}"
+                                title="Click to enlarge"
+                                onclick="document.getElementById('enlargeImg{{id}}').style.display='block'"></p>
+                        <span class="time_date">{{timestamp}} | me</span>
                     </div>
                 </div>
+                {{else}}
+                <div class="incoming_msg">
+                    <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png"
+                            alt="sunil"> </div>
+                    <div class="received_msg">
+                        <div class="received_withd_msg">
+                            <p><img id="myImg" src="/uploads/chat/{{upload}}" width="200px" height="auto"
+                                    alt="{{upload}}" title="Click to enlarge"
+                                    onclick="document.getElementById('enlargeImg{{id}}').style.display='block'"></p>
+                            <span class="time_date">{{timestamp}} | {{sentby}}</span>
+                        </div>
+                    </div>
+                </div>
+                {{/ifCond}}
+                {{/if}}
+                {{/each}}
+
+
 
                 <div class="outgoing_msg">
                     <div class="sent_msg">
-                        <p><audio controls="" id="audioPlayer" src="/testdata.oga" type="audio/oga">Your browser does not support the audio element.</audio></p>
+                        <p><audio controls="" id="audioPlayer" src="/testdata.oga" type="audio/oga">Your browser does
+                                not support the audio element.</audio></p>
                         <span class="time_date"> 18 May 2021 12:11 | me</span>
                     </div>
                 </div>
@@ -149,7 +199,8 @@
                     <!-- Send Text -->
                     <form onsubmit="return sendMessage();" class="contact-form-style">
                         <input autocomplete="off" class="write_msg" id="message" name="message"
-                            placeholder="Type a message" type="text" value="send help" style="padding-right: 120px;" required>
+                            placeholder="Type a message" type="text" style="padding-right: 120px;"
+                            required>
                         <button class="msg_send_btn" type="submit"><i class="fa fa-paper-plane-o"
                                 aria-hidden="true"></i></button>
 
@@ -169,10 +220,10 @@
                                 </div>
                                 <div class="modal-body">
                                     <!-- Form -->
-                                    <form method='post' action='' enctype="multipart/form-data">
+                                    <form id='uploadimg' method='post' action='/inbox/uploadimg/{{id}}'
+                                        enctype="multipart/form-data">
                                         <div class="uploader">
-                                            <input id="file-upload" type="file" id="fileUpload" name="fileUpload"
-                                                accept="image/*" />
+                                            <input id="file-upload" type="file" name="fileUpload" accept="image/*" />
 
                                             <label for="file-upload" id="file-drag">
                                                 <img id="file-image" src="#" alt="Preview" class="hidden">
@@ -194,7 +245,8 @@
                                                 </div>
                                             </label>
                                         </div>
-                                        <input type='button' class='btn btn-info' value='Send' id='btn_upload'>
+                                        <input onclick='return sendUpload();' type='button' class='btn btn-info'
+                                            value='Submit' id='btn_upload'>
                                     </form>
 
                                     <!-- Preview-->
@@ -211,8 +263,8 @@
                         <input type="radio" name="media" value="video" id='mediaVideo'>
                         <input type="radio" name="media" value="audio" checked>
                     </div>
-                    <button id='gUMbtn' class="msg_sendaudio_btn" data-toggle="modal"
-                        data-target="#audioModal"><i class="fa fa-microphone" aria-hidden="true"></i></button>
+                    <button id='gUMbtn' class="msg_sendaudio_btn" data-toggle="modal" data-target="#audioModal"><i
+                            class="fa fa-microphone" aria-hidden="true"></i></button>
                     <div id="audioModal" class="modal fade" role="dialog">
                         <div class="modal-dialog">
                             <!-- Modal content-->
@@ -224,22 +276,36 @@
                                 <div class="modal-body">
                                     <!-- Form -->
                                     <center>
-                                    <form method='post' action='' enctype="multipart/form-data">
-                                        <span id="recordWarning"><h3>Your browsers do not support the audio feature.</h3>Please use browser like <a href="https://www.google.com/intl/en_sg/chrome/">Google Chrome</a>, or ensure your browser is updated.</span>
+
+                                        <span id="recordWarning">
+                                            <h3>Your browsers do not support the audio feature.</h3>Please use browser
+                                            like <a href="https://www.google.com/intl/en_sg/chrome/">Google Chrome</a>,
+                                            or ensure your browser is updated.
+                                        </span>
                                         <div id='btns' style="display:none;">
                                             <h4><span id="recordmsg">Press start button to start recording.</span></h4>
                                             <h2><label id="minutes">00</label>:<label id="seconds">00</label></h2>
-                                            <button class="btn btn-default" id='startaudio' type="button" title="Start Recording" style="font-size: 26px;"><i class="fa fa-play" aria-hidden="true"></i></button>
-                                            <button class="btn btn-default" id='stop' type="button" title="Stop Recording" style="display:none;"><i class="fa fa-stop-circle-o" style="font-size: 26px;"></i></button>
+                                            <button class="btn btn-default" id='startaudio' type="button"
+                                                title="Start Recording" style="font-size: 26px;"><i class="fa fa-play"
+                                                    aria-hidden="true"></i></button>
+                                            <button class="btn btn-default" id='stop' type="button"
+                                                title="Stop Recording" style="display:none;"><i
+                                                    class="fa fa-stop-circle-o" style="font-size: 26px;"></i></button>
                                         </div>
                                         <div id='submitSect' style="display:none;">
-                                            <h4><span id="recordmsg">Replay recording</span></h4>
-                                            <ul class="list-unstyled" id='ul'></ul>
-                                            <button class="btn btn-warning" type="button" onclick="restartRec()"><i class="fa fa-repeat"></i> Retake</button>
-                                            <button class="btn btn-success" type="submit"><i class="fa fa-paper-plane-o"></i> Send</button>
+                                            <form method='post' action='/inbox/uploadaud'>
+                                                <h4><span id="recordmsg">Replay recording</span></h4>
+                                                <ul class="list-unstyled" id='ul'></ul>
+                                                <input type="text" name="audiourl" id="audiourl">
+                                                <button class="btn btn-warning" type="button" onclick="restartRec()"><i
+                                                        class="fa fa-repeat"></i> Retake</button>
+                                                <button class="btn btn-success" type="submit" value="Submit"
+                                                    onclick="sendAud();"><i class="fa fa-paper-plane-o"></i>
+                                                    Send</button>
+                                            </form>
                                         </div>
                                         <script src="/js/chatscript.js"></script>
-                                    </form>
+
                                     </center>
                                 </div>
                             </div>
@@ -249,30 +315,33 @@
                 </div>
             </div>
         </div>
+        {{/ifCond}}
     </div>
 
 </div>
 
 <!-- UI to show when screen size is small -->
-<form onsubmit="return enterName();">
-    <input id="name" placeholder="Enter Name" value="Gary">
-    <input type="submit">
-</form>
+
+<!-- not done lol -->
 
 <ul id="users"></ul>
 
 <ul id="messages1"></ul>
 
-<!-- Image Modal -->
-<div id="modal_img" class="modalImg">
+<!-- Enlarge Image Modal -->
+{{#each messages}}
+{{#if upload}}
+<div id="enlargeImg{{id}}" class="modalImg" onclick="this.style.display='none'">
     <span id="closeImg" class="close">&times;</span>
-    <img class="modalImg-content" id="img01">
-    <div id="caption"></div>
+    <img src="/uploads/chat/{{upload}}" style="height: 80vh; width: 100%; object-fit: contain;">
 </div>
+</div>
+{{/if}}
+{{/each}}
 
 <script>
-    function autoScrollDown(){
-        $(".msg_history").stop().animate({ scrollTop: $(".msg_history")[0].scrollHeight }, 500);
+    function autoScrollDown() {
+        $('.msg_history').scrollTop($('.msg_history')[0].scrollHeight);
     }
 
     window.onload = function () {
@@ -283,44 +352,9 @@
         window.history.replaceState(null, null, window.location.href);
     }
 
-    // Get the modal
-    var modal = document.getElementById("modal_img");
-
-    // Get the image and insert it inside the modal - use its "alt" text as a caption
-    var img = document.getElementById("myImg");
-    var modalImg = document.getElementById("img01");
-    var captionText = document.getElementById("caption");
-    img.onclick = function () {
-        modal.style.display = "block";
-        modalImg.src = this.src;
-        captionText.innerHTML = this.alt;
-    }
-
-    // Get the <span> element that closes the modal
-    var closeBtn = document.getElementById("closeImg");
-
-    // When the user clicks on <span> (x), close the modal
-    closeBtn.onclick = function () {
-        modal.style.display = "none";
-    }
 
     //////////////////////// Socket IO ////////////////////////////////
     var io = io();
-
-    var receiver = "";
-    var sender = "";
-
-    function enterName() {
-        var name = document.getElementById("name").value;
-
-        // Send it to server
-        io.emit("user_connected", name);
-
-        // save my name in global variable
-        sender = name;
-
-        return false;
-    }
 
     io.on("user_connected", function (username) {
         var html = "";
@@ -339,9 +373,9 @@
 
         // Send message to server
         io.emit("send_message", {
-            sender: sender,
-            receiver: receiver,
-            message: message
+            receiver: '{{recipient}}',
+            message: message,
+            chatid: {{id}}
         });
 
         //append sender msg
@@ -349,10 +383,12 @@
         const idiv = document.createElement('div'); // Internal div
         div.className = 'outgoing_msg';
         idiv.className = 'sent_msg';
-        idiv.innerHTML = `<p>${message}</p><span class="time_date"> 18 May 2021 11:41 | me</span>`;
+        idiv.innerHTML = `<p>${message}</p><span class="time_date"> {{getToday}} | me</span>`;
         div.appendChild(idiv);
 
         document.getElementById('msg_history').appendChild(div);
+        document.getElementById("messagePreview").innerHTML = message;
+        document.getElementById("message").value = '';
         autoScrollDown();
 
         return false;
@@ -360,17 +396,43 @@
 
     // listen from server
     io.on("new_message", function (data) {
-        const div = document.createElement('div');
-        div.className = 'incoming_msg';
-        div.innerHTML = `<div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-                        <div class="received_msg">
-                            <div class="received_withd_msg">
-                                <p>${data.message}</p>
-                                <span class="time_date"> 18 May 2021 11:41 | Merlion Tailor</span>
-                            </div>
-                        </div>`;
+        console.log(data.chatid, {{id}});
+        if(data.chatid == {{id}}){
+            console.log("new_message is working");
+            const div = document.createElement('div');
+            div.className = 'incoming_msg';
+            div.innerHTML = `<div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
+                            <div class="received_msg">
+                                <div class="received_withd_msg">
+                                    <p>${data.message}</p>
+                                    <span class="time_date"> ${data.timestamp} | ${data.sender}</span>
+                                </div>
+                            </div>`;
 
-        document.getElementById('msg_history').appendChild(div);
-        autoScrollDown();
+            document.getElementById('msg_history').appendChild(div);
+            document.getElementById("messagePreview").innerHTML = data.message;
+            autoScrollDown();
+        }
+    });
+
+    function sendUpload() {
+        io.emit("send_upload", {
+            receiver: '{{recipient}}',
+            upload: "Yolo"
+        });
+
+        document.getElementById('uploadimg').submit();
+    }
+
+    io.on("new_upload", function (data) {
+        setTimeout(function () {
+            window.location.reload(true);
+        }, 1000);
+
+    });
+    
+    io.on("send_notification", function (data) {
+        console.log("send_notification recieved");
+
     });
 </script>

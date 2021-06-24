@@ -10,6 +10,9 @@ const Message = db.define('message',{
     },
     message:{
         type: Sequelize.STRING
+    },
+    upload:{
+        type: Sequelize.STRING
     }
 })
 

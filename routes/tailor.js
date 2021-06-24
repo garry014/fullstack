@@ -1,16 +1,28 @@
 // Redirections/Form submit/hyperlink links /tailor/___________
 // But the links here, put /________ directly
-const express = require('express');
-const router = express.Router();
-var validator = require('validator');
-const alertMessage = require('../helpers/messenger');
-var bodyParser = require('body-parser');
+
+// DB Table Connections
 const Catalouge = require('../models/Catalouge');
 const Productchoices = require('../models/Productchoices');
+const User = require('../models/User');
+
+// Handlebars Helpers
+const alertMessage = require('../helpers/messenger');
+const ensureAuthenticated = require('../helpers/auth');
+
+// Other Requires
+const express = require('express');
+const router = express.Router();
+var bodyParser = require('body-parser');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const Course = require('../models/Course');
 const Video = require('../models/Video');
+const bcrypt = require('bcryptjs');
+const passport = require('passport');
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
+
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
@@ -18,12 +30,27 @@ function isNumeric(value) {
 	return /^\d+$/.test(value);
 }
 
-router.get('/addproduct', (req, res) => {
-	res.render('tailor/addproduct', { title: "Add product" });
+router.get('/addproduct', ensureAuthenticated, (req, res) => {
+	var user_status = "customer";
+	if (typeof req.user != "undefined") {
+		user_status = res.locals.user.usertype;
+	}
+
+	if (user_status == "tailor") {
+		res.render('tailor/addproduct', { title: "Add product" });
+	}
+	else {
+		alertMessage(res, 'danger', 'Unauthorised access! Register as a tailor to add product.', 'fas fa-exclamation-triangle', true);
+		res.redirect('../hometailor');
+	}
 });
 
 // Add Product - POST
-router.post('/addproduct', urlencodedParser, (req, res) => {
+router.post('/addproduct', ensureAuthenticated, urlencodedParser, (req, res) => {
+	if (typeof req.user != "undefined") {
+		var shopname = res.locals.user.shopname;
+	}
+
 	let errors = [];
 	let { name, price, discount, description, question, q1category } = req.body;
 
@@ -82,10 +109,10 @@ router.post('/addproduct', urlencodedParser, (req, res) => {
 		var filename = file.name;
 		var filetype = file.mimetype.substring(6);
 		const newid = uuidv4(); // Generate unique file id
-		
+
 		Catalouge
 			.create({
-				storename: 'Ah Tong Tailor',
+				storename: shopname,
 				name: name,
 				price: price,
 				image: newid + '.' + filetype,
@@ -147,53 +174,51 @@ router.post('/addproduct', urlencodedParser, (req, res) => {
 });
 
 // Update Product - GET
-router.get('/editproduct/:id', (req, res) => {
+router.get('/editproduct/:id', ensureAuthenticated, (req, res) => {
+	if (typeof req.user != "undefined") {
+		var shopname = res.locals.user.shopname;
+	}
+
 	Catalouge.findOne({
 		where: { id: req.params.id },
 		raw: true
 	})
 		.then(pdetails => {
-			console.log(pdetails);
-			if (pdetails) {
-				if (pdetails.customcat == "radiobtn") {
-					Productchoices.findAll({
-						where: { catalougeId: req.params.id },
-						raw: true
-					})
-						.then(pchoices => {
-							res.render('tailor/editproduct', {
-								title: "Update product",
-								id: req.params.id,
-								name: pdetails.name,
-								price: pdetails.price,
-								discount: pdetails.discount,
-								description: pdetails.description,
-								question: pdetails.customqn,
-								q1category: pdetails.customcat,
-								pchoices: pchoices
-							});
-						})
-						.catch(err => {
-							console.error('Unable to connect to the database:', err);
-						});
-
-				}
-				else {
-					res.render('tailor/editproduct', {
-						title: "Update product",
-						id: req.params.id,
-						name: pdetails.name,
-						price: pdetails.price,
-						discount: pdetails.discount,
-						description: pdetails.description,
-						question: pdetails.customqn,
-						q1category: pdetails.customcat
-					});
-				}
+			if (pdetails.storename != shopname) {
+				alertMessage(res, 'danger', 'You shall not pass!', 'fas fa-exclamation-triangle', true);
+				res.redirect('/viewshops');
 			}
 			else {
-				return res.redirect('/404');
+				if (pdetails) {
+					if (pdetails.customcat == "radiobtn") {
+						Productchoices.findAll({
+							where: { catalougeId: req.params.id },
+							raw: true
+						})
+							.then(pchoices => {
+								res.render('tailor/editproduct', {
+									title: "Update product",
+									pdetails: pdetails,
+									pchoices: pchoices
+								});
+							})
+							.catch(err => {
+								console.error('Unable to connect to the database:', err);
+							});
+
+					}
+					else {
+						res.render('tailor/editproduct', {
+							title: "Update product",
+							pdetails: pdetails
+						});
+					}
+				}
+				else {
+					return res.redirect('/404');
+				}
 			}
+
 		})
 		.catch(err => {
 			console.error('Unable to connect to the database:', err);
@@ -201,14 +226,15 @@ router.get('/editproduct/:id', (req, res) => {
 });
 
 // Update Product - PUT
-router.put('/editproduct/:id', urlencodedParser, (req, res) => {
+router.put('/editproduct/:id', ensureAuthenticated, urlencodedParser, (req, res) => {
 	let errors = [];
-	let { name, price, discount, description, question, q1category } = req.body;
+	let { name, price, discount, description, question, q1category, imageLink } = req.body;
+
+	if (typeof req.user != "undefined") {
+		var shopname = res.locals.user.shopname;
+	}
 
 	// Validation
-	if (name.length < 3) {
-		errors.push({ msg: 'Name should be at least 3 character.' });
-	}
 	if (isNumeric(price) == false) {
 		errors.push({ msg: 'Please enter a valid number between 0 to 2000.' });
 	}
@@ -297,36 +323,59 @@ router.put('/editproduct/:id', urlencodedParser, (req, res) => {
 	}
 
 	if (errors.length == 0) {
-		// Catalouge.findOne({
-		// 	where: { id: req.params.id },
-		// 	raw: true
-		// })
-		// .then(pdetails => {
-		// 	if(pdetails.customcat == "radiobtn"){
+		// Image Upload
+		var newid = imageLink;
+		if (req.files) {
+			var file = req.files.file;
+			var filename = file.name;
+			var filetype = file.mimetype.substring(6);
+			newid = uuidv4().concat(".").concat(filetype); // Generate unique file id
 
-		// 	}
-		// })
-		// .catch(err => {
-		// 	console.error('Unable to connect to the database:', err);
-		// });
+			// Image Upload
+			var newFileName = newid;
+			console.log("./public/uploads/products/" + imageLink);
+			fs.unlink("./public/uploads/products/" + imageLink, (err) => {
+				if (err) {
+					console.log("failed to delete local image:" + err);
+				} else {
+					console.log('successfully deleted local image');
+				}
+			});
+			file.mv('./public/uploads/products/' + filename, function (err) {
+				if (err) {
+					res.send(err);
+				}
+				else {
+					fs.rename('./public/uploads/products/' + filename, './public/uploads/products/' + newFileName, function (err) {
+						if (err) console.log('ERROR: ' + err);
+					});
+				}
+			});
+		}
 
 		Catalouge.update({
-			storename: 'Ah Tong Tailor',
+			storename: shopname,
 			name: name,
 			price: price,
-			image: '1.png',
+			image: newid,
 			description: description,
 			discount: discount,
 			customqn: question,
 			customcat: q1category
 		}, {
 			where: {
-				id: req.params.id
+				[Op.and]: [{id: req.params.id}, {storename: shopname}]
 			}
 		}).then(() => {
+
+			if (req.files) {
+
+				// Page gets changed overly fast, such that page is loaded before img changes are made
+			}
 			alertMessage(res, 'success', 'Updated product successfully!', 'fas fa-check-circle', true);
 			res.redirect('/view/' + req.params.id);
-		}).catch(err => console.log(err));
+		})
+			.catch(err => console.log(err));
 
 
 	}
@@ -339,13 +388,16 @@ router.put('/editproduct/:id', urlencodedParser, (req, res) => {
 	}
 });
 
-router.get('/deleteProduct/:id', (req, res) => {
+router.get('/deleteProduct/:id', ensureAuthenticated, (req, res) => {
+	if (typeof req.user != "undefined") {
+		var shopname = res.locals.user.shopname;
+	}
 	Catalouge.findOne({
 		where: {
 			id: req.params.id
 		}
 	}).then((pdetails) => {
-		if (pdetails != null) {
+		if (pdetails != null && pdetails.storename == shopname) {
 			if (pdetails.customcat == "radiobtn") {
 				Productchoices.destroy({
 					where: {
@@ -353,6 +405,13 @@ router.get('/deleteProduct/:id', (req, res) => {
 					}
 				});
 			}
+			fs.unlink("./public/uploads/products/" + pdetails.image, (err) => {
+				if (err) {
+					console.log("failed to delete local image:" + err);
+				} else {
+					console.log('successfully deleted local image');
+				}
+			});
 			Catalouge.destroy({
 				where: {
 					id: req.params.id
@@ -362,7 +421,11 @@ router.get('/deleteProduct/:id', (req, res) => {
 					alertMessage(res, 'info', 'Successfully deleted item.', 'far fa-trash-alt', true);
 					res.redirect('/viewshops/' + pdetails.storename);
 				})
-		};
+		}
+		else {
+			alertMessage(res, 'danger', 'Do you have a badge????', 'fas fa-exclamation-triangle', true);
+			res.redirect('/viewshops/' + pdetails.storename);
+		}
 	})
 });
 
@@ -610,4 +673,169 @@ router.get('/tailorschedule', (req, res) => {
 	res.render('tailor/tailorschedule', { title: "Education Platform Content" });
 });
 
+router.get('/tailorlogin', (req, res) => {
+	res.render('tailor/tailorlogin')
+});
+
+router.post('/login', (req, res, next) => {
+	passport.authenticate('local', {
+		successRedirect: onSuccess(res),
+		failureRedirect: '../tailor/tailorlogin', // Route to /login URL
+		failureFlash: 'Invalid username or password.',
+		userProperty: res.user
+	})
+		(req, res, next);
+});
+
+function onSuccess(response) {
+	return '/hometailor'
+}
+
+// tailor: registration complete page 
+router.get('/tailoregcomplete', (req, res) => {
+	res.render('tailor/tailoregcomplete');
+});
+
+// tailor: register page 
+router.get('/tailoregister', (req, res) => {
+	res.render('tailor/tailoregister');
+});
+
+router.post('/tailoregister', (req, res) => {
+	let errors = [];
+	let { shopname, username, password, password2, address1, address2, city, postalcode, email, phoneno, usertype } = req.body;
+
+	// All this are your variables
+	console.log(req.body.shopname,
+		req.body.username,
+		req.body.password,
+		req.body.password2,
+		req.body.address1,
+		req.body.address2,
+		req.body.city,
+		req.body.postalcode,
+		req.body.email,
+		req.body.phoneno,
+		req.body.usertype
+	);
+
+	// Checks if both passwords entered are the same
+	if (req.body.password !== req.body.password2) {
+		errors.push({
+			msg: 'Passwords do not match'
+		});
+	}
+	// Checks that password length is more than 8 (upgrade this to include checking for special characters etc)
+	if (req.body.password.length < 8) {
+		errors.push({
+			msg: 'Password must be at least 8 characters'
+		});
+	}
+	/*
+	 If there is any error with password mismatch or size, then there must be
+	 more than one error message in the errors array, hence its length must be more than one.
+	 In that case, render register.handlebars with error messages.
+	 */
+	if (errors.length > 0) {
+		res.render('tailor/tailoregister', {
+			errors: errors,
+			shopname,
+			username,
+			password,
+			password2,
+			address1,
+			address2,
+			city,
+			postalcode,
+			email,
+			phoneno,
+			usertype
+		});
+	} else {
+		User.findOne({ where: { username: req.body.username } })
+			.then(Tailor => {
+				if (Tailor) {
+					res.render('tailor/tailoregister', {
+						error: User.username + 'already registered',
+						username,
+						password,
+						password2,
+						shopname,
+						address1,
+						address2,
+						city,
+						postalcode,
+						email,
+						phoneno,
+						usertype
+					});
+				} else {
+					bcrypt.genSalt(10, (err, salt) => {
+						bcrypt.hash(password, salt, (err, hash) => {
+							if (err) throw err;
+							password = hash;
+							User.create({ shopname, username, password, address1, address2, city, postalcode, email, phoneno, usertype: 'tailor' })
+								.then(user => {
+									alertMessage(res, 'success', user.username + ' Please proceed to login', 'fas fa-sign-in-alt', true);
+									res.redirect('tailoregcomplete');
+								})
+								.catch(err => console.log(err));
+						})
+					});
+				}
+			});
+		// alertMessage(res, 'success', `${req.body.email} registered successfully`, 'fas fa-check-circle', true);
+		// rnodes.redirect('/customer/custregcomplete');
+	}
+});
+
+// tailor: account page 
+router.get('/tailoraccount/:id', ensureAuthenticated, (req, res) => {
+	User.findOne({
+		where: {
+			id: req.params.id
+		},
+		raw: true
+	}).then((Tailor) => {
+		console.log(Tailor);
+		if (req.params.id === Tailor.id) {
+			res.render('tailor/tailoracct', {
+				User: Tailor
+			});
+		} else {
+			alertMessage(res, 'danger', 'Access Denied', 'fas fa-exclamation-circle', true);
+			res.redirect('/logout');
+			// sth wrong here with the res.redirect 
+		}
+	}).catch(err => console.log(err));
+});
+
+router.put('/tailoraccount/:id', ensureAuthenticated, (req, res) => {
+	let address1 = req.body.address1;
+	let address2 = req.body.address2;
+	let city = req.body.city;
+	let postalcode = req.body.postalcode;
+	let shopname = req.body.shopname;
+	let password = req.body.password;
+	let email = req.body.email;
+	let phoneno = req.body.phoneno;
+
+	User.update({
+		address1,
+		address2,
+		city,
+		postalcode,
+		shopname,
+		password,
+		email,
+		phoneno
+	}, {
+		where: {
+			id: req.params.id
+		}
+	}).then(() => {
+		alertMessage(res, 'success', 'Account has been updated successfully!', 'fas fa-sign-in-alt', true);
+		res.redirect('/tailor/tailoraccount/' + req.params.id);
+	}).catch(err => console.log(err));
+});
 module.exports = router;

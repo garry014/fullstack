@@ -8,40 +8,40 @@
                         <h2>Update Product/Service</h2>
                     </div>
                     *Required fields.
-                    <form class="contact-form-style" id="file-upload-form" action="/tailor/editproduct/{{id}}?_method=PUT" method="post">
-                     {{!-- enctype=multipart/form-data --}}
+                    <form class="contact-form-style" id="file-upload-form" action="/tailor/editproduct/{{pdetails.id}}?_method=PUT" method="post"  enctype="multipart/form-data">
                     <input type="hidden" name="_method" value="PUT">
                         <div class="row">
                             <div class="col-lg-6">
                                 <label for="name">Name<span style="color:red;">*</span></label>
-                                <input id="name" name="name" class="form-control" type="text" value="{{name}}" required>
+                                <input id="name" name="name" class="form-control" type="text" value="{{pdetails.name}}" required>
                             </div>
                             <div class="col-lg-3">
                                 <label for="price">Price<span style="color:red;">*</span> </label>
                                 <div class="input-box">
-                                    <input id="price" name="price" type="text" value="{{price}}">
+                                    <input id="price" name="price" type="text" value="{{pdetails.price}}">
                                     <span class="price">$</span>
                                 </div>
                             </div>
                             <div class="col-lg-3">
                                 <label for="discount">Discounts<span style="color:red;">*</span></label>
                                 <div class="input-box">
-                                    <input id="discount" name="discount" type="text" value="{{discount}}" title="Enter 0 for no discounts.">
+                                    <input id="discount" name="discount" type="text" value="{{pdetails.discount}}" title="Enter 0 for no discounts.">
                                     <span class="percentage">%</span>
                                 </div>
                             </div>
-                            {{!-- <div class="col-lg-12">
-                                <label for="image">Image:*</label>
-                                <input id="image" name="image" type="file">
-                            </div> --}}
-                            <!-- <div class="uploader">
-                                <input id="file-upload" type="file" name="file-upload" accept="image/*" />
+                            <div class="col-lg-12">
+                                <center><b>Current Product Image:</b><br>
+                                <img src="/uploads/products/{{pdetails.image}}" width="200px" height="auto" alt="We apogolise that the current image is not showing up."></center><br>
+                                <input id="imageLink" name="imageLink" type="text" value="{{pdetails.image}}" hidden>
+                            </div>
+                            <div class="uploader">
+                                <input id="file-upload" type="file" name="file" accept="image/*" />
 
                                 <label for="file-upload" id="file-drag">
                                     <img id="file-image" src="#" alt="Preview" class="hidden">
                                     <div id="start">
                                     <i class="fa fa-download" aria-hidden="true"></i>
-                                    <div>Select an image file or drag here<span style="color:red;">*</span></div>
+                                    <div>Select an image file or drag here to change</div>
                                     <div id="notimage" class="hidden"><p style="color:red;">Invalid file type, please select an image</p></div>
                                     <span id="file-upload-btn" class="btn btn-primary">Select a file</span>
                                     </div>
@@ -52,10 +52,10 @@
                                     </progress>
                                     </div>
                                 </label>
-                            </div> -->
+                            </div>
                             <div class="col-lg-12">
                                 <label for="description">Description</label>
-                                <textarea id="description" name="description">{{description}}</textarea>
+                                <textarea id="description" name="description">{{pdetails.description}}</textarea>
                                 <br>
                             </div>
                             
@@ -73,20 +73,20 @@
                                 </div>
                                 <div class="col-lg-12">
                                     <label for="q1">Question<span style="color:red;">*</span></label>
-                                    <input id="question" name="question" type="text" value="{{question}}">
+                                    <input id="question" name="question" type="text" value="{{pdetails.customqn}}">
                                 </div>
                                 <div class="col-lg-12">
                                     <label for="q1category">Category<span style="color:red;">*</span></label>
                                     <ul class="category-select-list" id="q1category" onclick="checkValue()">
-                                        {{#ifCond question '!=' ""}}
+                                        {{#ifCond pdetails.customqn '!=' ""}}
                                         <li><input id="q1category-0" name="q1category" type="radio" value=""> <label for="q1category-0"></label></li>
-                                            {{#ifCond q1category '==' "textbox"}}
+                                            {{#ifCond pdetails.customcat '==' "textbox"}}
                                             <li><input id="q1category-1" name="q1category" type="radio" value="textbox" checked> <label for="q1category-1">Textbox - Open-ended question</label></li>
                                             {{else}}
                                             <li><input id="q1category-1" name="q1category" type="radio" value="textbox"> <label for="q1category-1">Textbox - Open-ended question</label></li>
                                             {{/ifCond}}
 
-                                            {{#ifCond q1category '==' "radiobtn"}}
+                                            {{#ifCond pdetails.customcat '==' "radiobtn"}}
                                             <li><input id="q1category-2" name="q1category" type="radio" value="radiobtn" checked> <label for="q1category-2">Dropdown Menu - Show a list of selections the user can choose from</label></li>
                                             {{else}}
                                             <li><input id="q1category-2" name="q1category" type="radio" value="radiobtn"> <label for="q1category-2">Dropdown Menu - Show a list of selections the user can choose from</label></li>
