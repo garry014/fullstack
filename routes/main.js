@@ -591,70 +591,69 @@ router.post('/inbox/delete/:id', ensureAuthenticated, (req, res) => {
 	res.redirect('../../inbox/'+req.params.id);
 });
 
-// Customer View Shop Items
-router.get('/viewshops/:storename', (req, res) => {
-	var title = 'View Shop - ' + req.params.storename;
-	var user_status = "customer";
-	if (typeof req.user != "undefined") {
-		user_status = req.user.dataValues.usertype;
-	}
-
-	Catalouge.findAll({
-		where: { storename: req.params.storename },
+// Customer View Shops
+router.get('/viewshops', (req, res) => {
+	User.findAll({
+		where: { usertype: "tailor" },
+		attributes: ['address1', 'address2', 'city', 'postalcode', 'shopname'],
 		raw: true
 	})
-		.then(shopprod => {
-			if(shopprod.length > 0){
-				var itemsId = [];
-				shopprod.forEach(e => {
-					itemsId.push(e.id);
-				});
-				
-				Review.findAll({
-					where: { productid: itemsId },
-					attributes: ['productid', [Sequelize.fn('AVG', Sequelize.col('stars')), 'avgRating']],
-   					group: 'productid',
-					raw: true
-				})
-				.then((review) => {
-					for(var i=0; i<review.length; i++){
-						review[i].avgRating = parseFloat(review[i].avgRating);
-					}
-					title = 'View Items - ' + req.params.storename;
-					user_status = "cust";
-					if (typeof req.user != "undefined") {
-						user_status = res.locals.user.usertype;
-					}
-					res.render('customer/viewstore', {
-						title: title,
-						shopprod: shopprod,
-						user_status: user_status,
-						review: review,
-						storename: req.params.storename
-					});
-				})
-			}
-			else {
-				res.render('customer/viewstore', {
-					title: title,
-					user_status: user_status,
-					storename: req.params.storename
-				});
-			}
+	.then((shopdetails) => {
+		Catalouge.findAll({
+			// Get all DB values
+			// run a for loop to extract only the distinct storename, max discount
+			// attributes: [
+			// 	[Sequelize.fn('DISTINCT', Sequelize.col('storename')) ,'storename'],
+			// ]
 		})
-		.catch(err => {
-			console.error('Unable to connect to the database:', err);
-		});
+			.then((shops) => {
+				if (shops) {
+					// Review average.
+
+					const shop = [];
+					for (var s in shops) {
+						shop.push(shops[s].dataValues);
+					};
+	
+					// shop.forEach(shopItem => {
+					// 	console.log(shopItem);
+					// });
+					
+					// Review Ratings Calculation
+					Review.findAll({
+						attributes: ['storename', [Sequelize.fn('AVG', Sequelize.col('stars')), 'avgRating']],
+						group: 'storename',
+						raw: true
+					})
+					.then((review) => {
+						for(var i=0; i<review.length; i++){
+							review[i].avgRating = parseFloat(review[i].avgRating);
+						}
+
+						console.log(review);
+						console.log(shopdetails);
+						res.render('customer/viewshops', {
+							title: "View Shops",
+							shopdetails: shopdetails,
+							shop: shop,
+							review: review
+						});
+					})
+
+				}
+				else {
+					res.render('customer/viewshops', { title: "View Shops" });
+				}
+			})
+			.catch(err => {
+				console.error('Unable to connect to the database:', err);
+			});
+	});
 });
 
+
 // Customer View Shop Items
 router.get('/viewshops/:storename', (req, res) => {
-	var title = 'View Shop - ' + req.params.storename;
-	var user_status = "customer";
-	if (typeof req.user != "undefined") {
-		req.user.dataValues.usertype;
-	}
-
 	Catalouge.findAll({
 		where: { storename: req.params.storename },
 		raw: true
@@ -689,13 +688,6 @@ router.get('/viewshops/:storename', (req, res) => {
 						storename: req.params.storename
 					});
 				})
-			}
-			else {
-				res.render('customer/viewstore', {
-					title: title,
-					user_status: user_status,
-					storename: req.params.storename
-				});
 			}
 		})
 		.catch(err => {
@@ -816,6 +808,55 @@ router.get('/rwalletransfer', (req, res) => {
 		{ success_msg: success_msg });
 });
 
+// tailor: view vouchers
+router.get('/vouchers', (req, res) => {
+	res.render('tailor/vouchers', { title: "Vouchers" });
+});
+
+// tailor: add voucher
+router.get('/addVoucher', (req, res) => {
+	res.render('tailor/addvoucher', { title: "Add Voucher" });
+});
+
+// tailor: update voucher
+router.get('/updateVoucher', (req, res) => {
+	res.render('tailor/updatevoucher', { title: "Add Voucher" });
+});
+
+// tailor: view orders
+router.get('/orders', (req, res) => {
+	res.render('tailor/orders', { title: "Order List" });
+});
+
+// tailor: view sales
+router.get('/sales', (req, res) => {
+	res.render('tailor/sales', { title: "Sales Chart" });
+});
+
+// tailor: change target
+router.get('/target', (req, res) => {
+	res.render('tailor/target', { title: "Change Target" });
+});
+
+// tailor: view deals
+router.get('/tailordeals', (req, res) => {
+	res.render('tailor/tailordeals', { title: "Flash Deals" });
+});
+
+// tailor: add deal
+router.get('/adddeal', (req, res) => {
+	res.render('tailor/adddeal', { title: "Add Flash Deal" });
+});
+
+// tailor: update deal
+router.get('/updatedeal', (req, res) => {
+	res.render('tailor/updatedeal', { title: "Update Flash Deal" });
+});
+
+// customer: flash deals
+router.get('/flashdeals', (req, res) => {
+	res.render('customer/flashdeals', { title: "Flash Deals" });
+});
 
 // logout user 
 // router.get('/logout', (req, res) => {
