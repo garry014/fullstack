@@ -773,6 +773,10 @@ router.get('/advertise', (req, res) => {
 	res.render('tailor/advertise', { title: "advertise" })
 })
 
+// riders: main orders page 
+router.get('/faq', (req, res) => {
+	res.render('user/faq', {title: "FAQ"});
+});
 
 
 // riders: main orders page 
