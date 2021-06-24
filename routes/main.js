@@ -69,29 +69,6 @@ var jsonParser = bodyParser.json();
 // create application/x-www-form-urlencoded parser
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
-router.get('/testupload', (req, res) => {
-	const title = 'Test upload';
-	res.render('testupload', { title: title })
-});
-
-router.post('/testupload', (req, res) => {
-	if (req.files) {
-		console.log(req.files);
-		var file = req.files.file;
-		var filename = file.name;
-		console.log("this one ", file);
-
-		file.mv('./public/uploads/products/' + filename, function (err) {
-			if (err) {
-				res.send(err);
-			}
-			else {
-				res.send("File Uploaded");
-			}
-		});
-	}
-});
-
 router.get('/', (req, res) => {
 	const title = 'TailorNow Home';
 	res.render('mainselection', { title: title, path: "landing" });
@@ -140,7 +117,6 @@ router.post('/chatwith/:name', ensureAuthenticated, (req, res) => {
 		raw: true
 	})
 	.then((chats) => {
-		cNotification("recipient", "category", "message", "hyperlink")
 		if(chats.length>0){
 			res.redirect('/inbox/'+chats[0].id);
 		}
@@ -165,6 +141,7 @@ router.post('/chatwith/:name', ensureAuthenticated, (req, res) => {
 });
 
 router.get('/inbox/:id', ensureAuthenticated, (req, res) => {
+	io.sockets.emit('send_notification', "data");
 	if (typeof req.user != "undefined") {
 		var currentuser;
 		if(req.user.dataValues.usertype == "tailor"){
@@ -377,9 +354,8 @@ router.post('/inbox/delete/:id', ensureAuthenticated, (req, res) => {
 // Customer View Shops
 router.get('/viewshops', (req, res) => {
 	User.findAll({
-		where: {
-			usertype: "tailor"
-		},
+		where: { usertype: "tailor" },
+		attributes: ['address1', 'address2', 'city', 'postalcode', 'shopname'],
 		raw: true
 	})
 	.then((shopdetails) => {
