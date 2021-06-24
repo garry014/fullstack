@@ -19,7 +19,6 @@ const JWT_SECRET = 'secret super'
 const jwt = require('jsonwebtoken');
 const e = require('connect-flash');
 
-
 // customer: login page 
 // router.get('custlogin', (req, res) => {
 // 	res.render('customer/custlogin', {title: "Login"});
@@ -37,7 +36,7 @@ function getToday() {
 }
 
 // Customer Home Page
-router.get('/', (req, res) => {
+router.get('/homecust', (req, res) => {
 	const title = 'TailorNow Home';
 	res.render('homecust', { title: title, user: req.user });
 });
@@ -223,7 +222,7 @@ router.put('/custaccount/:id', ensureAuthenticated, (req, res) => {
 	}).then(() => {
 		// get value from customeraccount
 		alertMessage(res, 'success', 'Account has been updated successfully!', 'fas fa-sign-in-alt', true);
-		res.redirect('/customer/custaccount/' + req.params.id);
+		res.redirect('../customer/custaccount/' + req.params.id);
 	}).catch(err => console.log(err));
 });
 // req.params is where u pass in the variables into the URL 

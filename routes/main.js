@@ -858,14 +858,4 @@ router.get('/flashdeals', (req, res) => {
 	res.render('customer/flashdeals', { title: "Flash Deals" });
 });
 
-// logout user 
-// router.get('/logout', (req, res) => {
-// 	req.logout();
-// 	alertMessage(res, 'info', 'Bye-bye!', 'fas fa-power-off', true);
-// 	user: req.user
-// 	if (user == 'customer'){
-// 		res.render('homecust', { title: title, user: req.user });
-// 	}
-// });
-
 module.exports = router;
