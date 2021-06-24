@@ -356,6 +356,18 @@
     //////////////////////// Socket IO ////////////////////////////////
     var io = io();
 
+    io.on("user_connected", function (username) {
+        var html = "";
+        html += "<li><button onclick='onUserSelected(this.innerHTML);'>" + username + "</button></li>";
+
+        document.getElementById("users").innerHTML += html;
+    });
+
+    function onUserSelected(username) {
+        // save selected user in global var
+        receiver = username;
+    }
+
     function sendMessage() {
         var message = document.getElementById("message").value;
 
@@ -419,7 +431,5 @@
 
     });
     
-    //io.on("send_notification", function (data) {
-    //    alert(data);
-    //});
+    
 </script>

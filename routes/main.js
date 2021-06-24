@@ -381,7 +381,7 @@ router.post('/chatwith/:name', ensureAuthenticated, (req, res) => {
 });
 
 router.get('/inbox/:id', ensureAuthenticated, (req, res) => {
-	io.sockets.emit('send_notification', "data");
+	fnName();
 	if (typeof req.user != "undefined") {
 		var currentuser;
 		if(req.user.dataValues.usertype == "tailor"){
@@ -588,7 +588,7 @@ router.post('/inbox/delete/:id', ensureAuthenticated, (req, res) => {
 	})
 	.catch(err => console.log(err));
 	alertMessage(res, 'success', 'Deleted message successfully!', 'fas fa-check-circle', true);
-	res.redirect('../../inbox/'+req.params.id);
+	res.redirect('/inbox/0');
 });
 
 // Customer View Shops

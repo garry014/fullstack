@@ -10,10 +10,12 @@
             </div>
             <div class="col-xl-8 col-lg-8 d-none d-lg-block">
                 <div class="main-menu">
+                    {{#if (eq user.usertype "tailor")}}
                     <nav>
                         <ul>
-                            <li><a href="/viewshops">View My Shop <i class="fa fa-angle-down"></i></a>
+                            <li><a href="/viewshops/{{user.shopname}}">View My Shop <i class="fa fa-angle-down"></i></a>
                             <ul class="submenu">
+                                    <li><a href="/tailor/addproduct">Add Products</a></li>
                                     <li><a href="">Change Target</a></li>
                                     <li><a href="">Add Deals</a></li>
                                 </ul>
@@ -33,16 +35,18 @@
                              <li><a href="">Orders</a></li>
                              <li><a href="">Courses <i class="fa fa-angle-down"></i></i></a>
                                 <ul class="submenu">
-                                    <li><a href="">View My Courses</a></li>
                                     <li><a href="">Create Courses</a></li>
+                                    <li><a href="">View My Courses</a></li>
+                                    <li><a href="">Manage my Schedule</a></li>
                                 </ul>
-                            </li>
-                            <li><a href="">Tailor Schedule</a>
                             </li>
 
                             <li><a href="">Help </a></li>
                         </ul>
                     </nav>
+                    {{else}}
+                    <center>Welcome to TailorNow, sign in to continue.</center>
+                    {{/if}}
                 </div>
             </div>
             <div class="col-xl-2 col-lg-2 col-md-6 col-8">
@@ -111,30 +115,19 @@
                                 {{#if user}}
                                 <li>{{user.username}}</li>
                                 {{!-- user id problem --}}
-                                <li><a href="../tailor/tailoraccount/{user.id}">Edit Profile</a></li>
-                                <li><a href="../tailor/tlogout">Log Out</a></li>
+                                <li><a href="/tailor/tailoraccount/{user.id}">Edit Profile</a></li>
+                                <li><a href="/tailor/tlogout">Log Out</a></li>
                                 {{else}}
-                                <li><a href="../tailor/tailorlogin">Login</a></li>
-                                <li><a href="../tailor/tailoregister">Register</a></li>
+                                <li><a href="/tailor/tailorlogin">Login</a></li>
+                                <li><a href="/tailor/tailoregister">Register</a></li>
                                  {{/if}}
                             </ul>
                         </div>
                     </div>
                     <div class="same-style header-wishlist">
-                        <a href="/inbox"><i class="pe-7s-chat"></i></a>
+                        <a href="/inbox/0"><i class="pe-7s-chat"></i></a>
                     </div>
-                    <div class="same-style cart-wrap">
-                        <button class="icon-cart">
-                            <i class="fas fa-shopping-cart"></i>
-                            <span class="count-style">02</span>
-                        </button>
-                        <div class="shopping-cart-content">
-                            <ul>
-                                <li><a href="">Orders Cart</a></li>
-                                <li><a href="">Course Cart</a></li>
-                            </ul>
-                        </div>
-                    </div>
+                    
                 </div>
             </div>
         </div>
