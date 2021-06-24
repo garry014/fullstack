@@ -654,7 +654,7 @@ router.get('/viewshops', (req, res) => {
 
 // Customer View Shop Items
 router.get('/viewshops/:storename', (req, res) => {
-	const title = 'View Shop - ' + req.params.storename;
+	var title = 'View Shop - ' + req.params.storename;
 	var user_status = "customer";
 	if (typeof req.user != "undefined") {
 		req.user.dataValues.usertype;
