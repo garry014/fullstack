@@ -808,55 +808,6 @@ router.get('/rwalletransfer', (req, res) => {
 		{ success_msg: success_msg });
 });
 
-// tailor: view vouchers
-router.get('/vouchers', (req, res) => {
-	res.render('tailor/vouchers', { title: "Vouchers" });
-});
-
-// tailor: add voucher
-router.get('/addVoucher', (req, res) => {
-	res.render('tailor/addvoucher', { title: "Add Voucher" });
-});
-
-// tailor: update voucher
-router.get('/updateVoucher', (req, res) => {
-	res.render('tailor/updatevoucher', { title: "Add Voucher" });
-});
-
-// tailor: view orders
-router.get('/orders', (req, res) => {
-	res.render('tailor/orders', { title: "Order List" });
-});
-
-// tailor: view sales
-router.get('/sales', (req, res) => {
-	res.render('tailor/sales', { title: "Sales Chart" });
-});
-
-// tailor: change target
-router.get('/target', (req, res) => {
-	res.render('tailor/target', { title: "Change Target" });
-});
-
-// tailor: view deals
-router.get('/tailordeals', (req, res) => {
-	res.render('tailor/tailordeals', { title: "Flash Deals" });
-});
-
-// tailor: add deal
-router.get('/adddeal', (req, res) => {
-	res.render('tailor/adddeal', { title: "Add Flash Deal" });
-});
-
-// tailor: update deal
-router.get('/updatedeal', (req, res) => {
-	res.render('tailor/updatedeal', { title: "Update Flash Deal" });
-});
-
-// customer: flash deals
-router.get('/flashdeals', (req, res) => {
-	res.render('customer/flashdeals', { title: "Flash Deals" });
-});
 
 // logout user 
 // router.get('/logout', (req, res) => {
