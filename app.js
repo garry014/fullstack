@@ -124,6 +124,12 @@ Handlebars.registerHelper("calculatedisc", function(price, discount) {
 	return a.toFixed(2);
 });
 
+Handlebars.registerHelper("link", function(data) {
+	console.log(data)
+		
+   return new Handlebars.SafeString("<a href='" + data.hash.url + data.hash.id + "'>" + data.hash.text +"</a>");
+});
+
 Handlebars.registerHelper('getToday', function () {
 	return getToday();
 });
