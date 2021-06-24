@@ -657,7 +657,7 @@ router.get('/viewshops/:storename', (req, res) => {
 	var title = 'View Shop - ' + req.params.storename;
 	var user_status = "customer";
 	if (typeof req.user != "undefined") {
-		req.user.dataValues.usertype;
+		user_status = req.user.dataValues.usertype;
 	}
 
 	Catalouge.findAll({
@@ -680,11 +680,6 @@ router.get('/viewshops/:storename', (req, res) => {
 				.then((review) => {
 					for(var i=0; i<review.length; i++){
 						review[i].avgRating = parseFloat(review[i].avgRating);
-					}
-					title = 'View Items - ' + req.params.storename;
-					user_status = "cust";
-					if (typeof req.user != "undefined") {
-						user_status = res.locals.user.usertype;
 					}
 					res.render('customer/viewstore', {
 						title: title,
