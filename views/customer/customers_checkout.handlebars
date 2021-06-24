@@ -1,4 +1,4 @@
-@@ -1,122 +1,123 @@
+@@ -1,278 +1,286 @@
 <div class="breadcrumb-area pt-35 pb-35 bg-gray-3">
     <div class="container">
         <div class="breadcrumb-content text-center">
@@ -167,7 +167,93 @@
                     </form>
                     <div class="checkout-account mt-25">
                         <input class="checkout-toggle" type="checkbox">
-@ -210,16 +211,29 @@
+                        <span>Ship to a different address?</span>
+                    </div>
+                    <div class="different-address open-toggle mt-30">
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6">
+                                <div class="billing-info mb-20">
+                                    <label>First Name</label>
+                                    <input type="text">
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <div class="billing-info mb-20">
+                                    <label>Last Name</label>
+                                    <input type="text">
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="billing-info mb-20">
+                                    <label>Company Name</label>
+                                    <input type="text">
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="billing-select mb-20">
+                                    <label>Country</label>
+                                    <select>
+                                        <option>Select a country</option>
+                                        <option>Azerbaijan</option>
+                                        <option>Bahamas</option>
+                                        <option>Bahrain</option>
+                                        <option>Bangladesh</option>
+                                        <option>Barbados</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="billing-info mb-20">
+                                    <label>Street Address</label>
+                                    <input class="billing-address" placeholder="House number and street name"
+                                        type="text">
+                                    <input placeholder="Apartment, suite, unit etc." type="text">
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="billing-info mb-20">
+                                    <label>Town / City</label>
+                                    <input type="text">
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <div class="billing-info mb-20">
+                                    <label>State / County</label>
+                                    <input type="text">
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <div class="billing-info mb-20">
+                                    <label>Postcode / ZIP</label>
+                                    <input type="text">
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <div class="billing-info mb-20">
+                                    <label>Phone</label>
+                                    <input type="text">
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <div class="billing-info mb-20">
+                                    <label>Email Address</label>
+                                    <input type="text">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="your-order-area">
+                    <h3>Your order</h3>
+                    <div class="your-order-wrap gray-bg-4">
+                        <div class="your-order-product-info">
+                            <div class="your-order-top">
+                                <ul>
+                                    <li>Product</li>
+                                    <li>Total</li>
                                 </ul>
                             </div>
                             <div class="your-order-middle">
@@ -200,7 +286,7 @@
                                     </ul>
                                 </div>
                                 <!--                                 <p>Note: Self Collection is available only from 9am-6pm from monday to friday.</p>-->
-@ -227,18 +241,12 @@
+                            </div>
                         </div>
                     </div>
                     <div class="Place-order mt-25">
@@ -224,7 +310,19 @@
                           <script>
                             function initPayPalButton() {
                               paypal.Buttons({
-@ -258,7 +266,8 @@
+                                style: {
+                                  shape: 'rect',
+                                  color: 'gold',
+                                  layout: 'vertical',
+                                  label: 'checkout',
+
+                                },
+
+                                createOrder: function(data, actions) {
+                                  return actions.order.create({
+                                    purchase_units: [{"amount":{"currency_code":"SGD","value":1}}]
+                                  });
+                                },
 
                                 onApprove: function(data, actions) {
                                   return actions.order.capture().then(function(details) {
@@ -234,7 +332,10 @@
                                   });
                                 },
 
-@ -269,7 +278,6 @@
+                                onError: function(err) {
+                                  console.log(err);
+                                }
+                              }).render('#paypal-button-container');
                             }
                             initPayPalButton();
                           </script>
@@ -242,4 +343,6 @@
                     </div>
                 </div>
             </div>
-@ @@
+        </div>
+    </div>
+</div>
