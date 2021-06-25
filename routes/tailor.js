@@ -187,39 +187,45 @@ router.get('/editproduct/:id', ensureAuthenticated, (req, res) => {
 		raw: true
 	})
 		.then(pdetails => {
-			if (pdetails.storename != shopname) {
-				alertMessage(res, 'danger', 'You shall not pass!', 'fas fa-exclamation-triangle', true);
-				res.redirect('/viewshops');
-			}
-			else {
-				if (pdetails) {
-					if (pdetails.customcat == "radiobtn") {
-						Productchoices.findAll({
-							where: { catalougeId: req.params.id },
-							raw: true
-						})
-							.then(pchoices => {
-								res.render('tailor/editproduct', {
-									title: "Update product",
-									pdetails: pdetails,
-									pchoices: pchoices
-								});
-							})
-							.catch(err => {
-								console.error('Unable to connect to the database:', err);
-							});
-
-					}
-					else {
-						res.render('tailor/editproduct', {
-							title: "Update product",
-							pdetails: pdetails
-						});
-					}
+			if(pdetails){
+				if (pdetails.storename != shopname) {
+					alertMessage(res, 'danger', 'You shall not pass!', 'fas fa-exclamation-triangle', true);
+					res.redirect('/viewshops');
 				}
 				else {
-					return res.redirect('/404');
+					if (pdetails) {
+						if (pdetails.customcat == "radiobtn") {
+							Productchoices.findAll({
+								where: { catalougeId: req.params.id },
+								raw: true
+							})
+								.then(pchoices => {
+									res.render('tailor/editproduct', {
+										title: "Update product",
+										pdetails: pdetails,
+										pchoices: pchoices
+									});
+								})
+								.catch(err => {
+									console.error('Unable to connect to the database:', err);
+								});
+	
+						}
+						else {
+							res.render('tailor/editproduct', {
+								title: "Update product",
+								pdetails: pdetails
+							});
+						}
+					}
+					else {
+						return res.redirect('/404');
+					}
 				}
+			}
+			else {
+				alertMessage(res, 'danger', 'You have accessed an invalid link.', 'fas fa-exclamation-triangle', true);
+				res.redirect('/viewshops');
 			}
 
 		})
