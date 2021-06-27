@@ -373,7 +373,7 @@ router.put('/editproduct/:id', ensureAuthenticated, urlencodedParser, (req, res)
 			customcat: q1category
 		}, {
 			where: {
-				[Op.and]: [{id: req.params.id}, {storename: shopname}]
+				[Op.and]: [{ id: req.params.id }, { storename: shopname }]
 			}
 		}).then(() => {
 
@@ -454,19 +454,19 @@ router.post('/createcourse', (req, res) => {
 	let description = req.body.description;
 	let price = req.body.price;
 	let thumbnail = req.body.thumbnail;
-	
-	
+
+
 	console.log(title, language);
 
-	if(req.files){
-		
+	if (req.files) {
+
 		console.log(req.files);
 		var file = req.files.thumbnail;
 		var filename = file.name;
 		console.log(filename);
 
-		file.mv('./public/uploads/courseimg/'+ filename, function(err){
-			if (err){
+		file.mv('./public/uploads/courseimg/' + filename, function (err) {
+			if (err) {
 				res.send(err);
 			}
 		});
@@ -479,9 +479,9 @@ router.post('/createcourse', (req, res) => {
 		day: day,
 		material: material,
 		description: description,
-		price:price,
-		thumbnail : filename,
-		user : 1
+		price: price,
+		thumbnail: filename,
+		user: 1
 	}).then((course) => {
 		res.redirect('/tailor/viewcourse/:user'); // redirect to call router.get(/listVideos...) to retrieve all updated
 		// videos
@@ -498,7 +498,7 @@ router.get('/viewcourse/:id', (req, res) => {
 		raw: true
 	}).then((course) => {
 		//console.log(course);
-		res.render('tailor/viewcourse', { title: "View Course", course:course });
+		res.render('tailor/viewcourse', { title: "View Course", course: course });
 	}).catch(err => console.log(err));
 });
 
@@ -512,7 +512,7 @@ router.post('/deletecourse/:id', (req, res) => {
 			id: req.params.id,
 			user: 1
 		},
-		raw:true
+		raw: true
 		// attributes: ['id']
 	}).then((course) => { // if record is found, user is owner of video
 		if (course) {
@@ -537,10 +537,10 @@ router.get('/updatecourse/:id', (req, res) => {
 		where: {
 			id: req.params.id //ummmmmmmmmmmmmm
 		},
-		raw:true
+		raw: true
 	}).then((course) => {
 		//console.log(course);
-		res.render('tailor/updatecourse', { title: "Update Course", course:course });
+		res.render('tailor/updatecourse', { title: "Update Course", course: course });
 	}).catch(err => console.log(err));
 });
 
@@ -561,16 +561,16 @@ router.put('/updatecourse/:id', (req, res) => {   // id is course id
 		day: day,
 		material: material,
 		description: description,
-		price:price,
-		thumbnail : thumbnail,
-		user : 1
+		price: price,
+		thumbnail: thumbnail,
+		user: 1
 	}, {
 		where: {
 			id: req.params.id
 		}
 	}).then(() => {
-		res.redirect('/tailor/viewcourse/1'); 
-			// videos
+		res.redirect('/tailor/viewcourse/1');
+		// videos
 	}).catch(err => console.log(err));
 });
 
@@ -599,16 +599,16 @@ router.get('/addcontent/:id', (req, res) => {
 			raw: true
 		})
 			.then((videos) => {
-				res.render('tailor/addcontent', { 
-					title: "Course Content", 
-					course:course, 
+				res.render('tailor/addcontent', {
+					title: "Course Content",
+					course: course,
 					videos: videos,
-					id:req.params.id 
+					id: req.params.id
 				});
-			}) 
-				//.then((videos)
-				
-				//);
+			})
+		//.then((videos)
+
+		//);
 
 	}).catch(err => console.log(err));
 	//is delete supp to be here too???
@@ -622,16 +622,16 @@ router.post('/addcontent/:id', (req, res) => {
 	let video = req.body.video;
 	//let courseid = req.course.id //?????????? cannot
 	//video not showing in sql but is storing??  whats ur prob.
-	console.log(topic,video); 
-	
-	if(req.files){
+	console.log(topic, video);
+
+	if (req.files) {
 		console.log(req.files);
 		var file = req.files.video;
 		var filename = file.name;
 		console.log(filename);
 
-		file.mv('./public/uploads/video/'+ filename, function(err){
-			if (err){
+		file.mv('./public/uploads/video/' + filename, function (err) {
+			if (err) {
 				res.send(err);
 			}
 		});
@@ -657,8 +657,8 @@ router.get('/deletecontent/:courseid/:id', (req, res) => {
 			//user: 1
 		}
 		//raw:true 
-	}).then((videos) => { 
-		
+	}).then((videos) => {
+
 		console.log(videos)
 		if (videos) {
 			Video.destroy({
@@ -667,7 +667,7 @@ router.get('/deletecontent/:courseid/:id', (req, res) => {
 				}
 			}).then(() => {
 				alertMessage(res, 'info', 'topic deleted', 'far fa-trash-alt', true);
-				res.redirect('/tailor/addcontent/' + req.params.courseid ); // To retrieve all videos again
+				res.redirect('/tailor/addcontent/' + req.params.courseid); // To retrieve all videos again
 			}).catch(err => console.log(err));
 		} else {
 			alertMessage(res, 'danger', 'Unauthorised access to topic', 'fas fa-exclamation-circle', true);
@@ -696,7 +696,7 @@ router.post('/login', (req, res, next) => {
 		(req, res, next);
 });
 
-function onSuccess(response){
+function onSuccess(response) {
 	return '../tailor/hometailor'
 }
 
@@ -725,8 +725,8 @@ router.post('/tailoregister', (req, res) => {
 		req.body.postalcode,
 		req.body.email,
 		req.body.phoneno,
-		req.body.usertype='tailor'
-		);
+		req.body.usertype = 'tailor'
+	);
 
 	// Checks if both passwords entered are the same
 	if (req.body.password !== req.body.password2) {
@@ -803,21 +803,31 @@ router.post('/tailoregister', (req, res) => {
 router.get('/tailoraccount/:id', ensureAuthenticated, (req, res) => {
 	User.findOne({
 		where: {
-			id: req.params.id
+			id: res.locals.user.id
 		},
 		raw: true
 	}).then((Tailor) => {
-		console.log(Tailor);
-		if (req.params.id === Tailor.id) {
-			res.render('tailor/tailoracct', {
-				User: Tailor
-			});
-		} else {
+		if (!Tailor) {
 			alertMessage(res, 'danger', 'Access Denied', 'fas fa-exclamation-circle', true);
-			res.redirect('/tlogout');
-			// sth wrong here with the res.redirect 
+			req.logout();
+			res.redirect('/tailor/hometailor');
+
 		}
+		else {
+			if (req.params.id == Tailor.id) {
+				res.render('tailor/tailoracct', {
+					User: Tailor,
+				});
+			}
+			else {
+				alertMessage(res, 'danger', 'Access Denied', 'fas fa-exclamation-circle', true);
+				req.logout();
+				res.redirect('/tailor/hometailor');
+			}
+		}
+
 	}).catch(err => console.log(err));
+
 });
 
 router.put('/tailoraccount/:id', ensureAuthenticated, (req, res) => {

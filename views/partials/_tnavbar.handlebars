@@ -115,11 +115,11 @@
                                 {{#if user}}
                                 <li>{{user.username}}</li>
                                 {{!-- user id problem --}}
-                                <li><a href="/tailor/tailoraccount/{user.id}">Edit Profile</a></li>
+                                <li><a href="/tailor/tailoraccount/{{user.id}}">Edit Profile</a></li>
                                 <li><a href="/tailor/tlogout">Log Out</a></li>
                                 {{else}}
-                                <li><a href="/tailor/tailorlogin">Login</a></li>
-                                <li><a href="/tailor/tailoregister">Register</a></li>
+                                <li><a href="../tailor/tailorlogin">Login</a></li>
+                                <li><a href="../tailor/tailoregister">Register</a></li>
                                  {{/if}}
                             </ul>
                         </div>
