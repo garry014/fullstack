@@ -86,7 +86,7 @@
                                 {{#if user}}
                                 <li>{{user.username}}</li>
                                 {{!-- user id problem --}}
-                                <li><a href="/rider/rideraccount/{user.id}">Edit Profile</a></li>
+                                <li><a href="/rider/rideraccount/{{user.id}}">Edit Profile</a></li>
                                 <li><a href="/rider/rlogout">Log Out</a></li>
                                 {{else}}
                                 <li><a href="/rider/riderlogin">Login</a></li>

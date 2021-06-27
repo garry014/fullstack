@@ -18,7 +18,7 @@ const jwt = require('jsonwebtoken');
 
 // riders: home page 
 router.get('/homerider', (req, res) => {
-	res.render('rider/homerider', {path:"rider" });
+	res.render('rider/homerider', { path: "rider" });
 });
 
 // riders: login page 
@@ -33,7 +33,7 @@ router.post('/login', (req, res, next) => {
 		failureFlash: 'Invalid username or password.',
 		userProperty: res.user
 	})
-	(req, res, next);
+		(req, res, next);
 });
 
 // riders: register page 
@@ -51,7 +51,7 @@ router.get('/rideregcomplete', (req, res) => {
 // add the account type for the various users 
 router.post('/rideregister', (req, res) => {
 	let errors = [];
-	let { firstname, lastname, username, password, password2, gender, email, phoneno,transport,licenseno,usertype } = req.body;
+	let { firstname, lastname, username, password, password2, gender, email, phoneno, transport, licenseno, usertype } = req.body;
 
 	// All this are your variables
 	console.log(req.body.firstname,
@@ -62,10 +62,10 @@ router.post('/rideregister', (req, res) => {
 		req.body.gender,
 		req.body.email,
 		req.body.phoneno,
-        req.body.transport,
-        req.body.licenseno,
-		req.body.usertype='rider'
-		);
+		req.body.transport,
+		req.body.licenseno,
+		req.body.usertype = 'rider'
+	);
 
 	// Checks if both passwords entered are the same
 	if (req.body.password !== req.body.password2) {
@@ -95,8 +95,8 @@ router.post('/rideregister', (req, res) => {
 			gender,
 			email,
 			phoneno,
-            transport,
-            licenseno,
+			transport,
+			licenseno,
 			usertype
 		});
 	} else {
@@ -113,8 +113,8 @@ router.post('/rideregister', (req, res) => {
 						gender,
 						email,
 						phoneno,
-                        transport,
-                        licenseno,
+						transport,
+						licenseno,
 						usertype
 					});
 				} else {
@@ -122,7 +122,7 @@ router.post('/rideregister', (req, res) => {
 						bcrypt.hash(password, salt, (err, hash) => {
 							if (err) throw err;
 							password = hash;
-							User.create({ firstname, lastname, username, password, gender, email, phoneno, transport, licenseno,usertype:'rider' })
+							User.create({ firstname, lastname, username, password, gender, email, phoneno, transport, licenseno, usertype: 'rider' })
 								.then(user => {
 									alertMessage(res, 'success', user.username + ' Please proceed to login', 'fas fa-sign-in-alt', true);
 									res.redirect('rideregcomplete');
@@ -138,41 +138,42 @@ router.post('/rideregister', (req, res) => {
 });
 
 // customer: account page 
-router.get('/rideraccount/:id', ensureAuthenticated,(req, res) => {
+router.get('/rideraccount/:id', ensureAuthenticated, (req, res) => {
 	User.findOne({
 		where: {
-			id: req.params.id
+			id: res.locals.user.id
 		},
 		raw: true
 	}).then((Rider) => {
-		console.log(Rider);
-		if (req.params.id == Rider.id) {
-			res.render('rider/rideraccount/', { 
-				User: Rider
-			});
-		} else {
+		if (!Rider) {
 			alertMessage(res, 'danger', 'Access Denied', 'fas fa-exclamation-circle', true);
-			res.redirect('/clogout');
-			// sth wrong here with the res.redirect 
+			req.logout();
+			res.redirect('/rider/homerider');
+
 		}
+		else {
+			if (req.params.id == Rider.id) {
+				res.render('rider/rideracct', {
+					User: Rider,
+				});
+			}
+			else {
+				alertMessage(res, 'danger', 'Access Denied', 'fas fa-exclamation-circle', true);
+				req.logout();
+				res.redirect('/rider/homerider');
+			}
+		}
+
 	}).catch(err => console.log(err));
 
-	// alertMessage(res, 'success',
-	// 	'You have updated your account details successfully!', 'fas fa-sign-in-alt', true);
-	// alertMessage(res, 'danger',
-	// 	'Something went wrong. Please try again! ', 'fas fa-exclamation-circle', false);
-	// alertMessage(res, 'success',
-	// 	'You have updated your password successfully!', 'fas fa-sign-in-alt', true);
-	// let error_msg = 'Your passwords do not match please try again later!';
 });
-
 router.put('/rideraccount/:id', ensureAuthenticated, (req, res) => {
 	let firstname = req.body.firstname;
 	let lastname = req.body.lastname;
 	let password = req.body.password;
 	let email = req.body.email;
 	let phoneno = req.body.phoneno;
-    let transport = req.body.transport; 
+	let transport = req.body.transport;
 	// console.log(firstname);
 
 	User.update({
@@ -181,15 +182,15 @@ router.put('/rideraccount/:id', ensureAuthenticated, (req, res) => {
 		password,
 		email,
 		phoneno,
-        transport
+		transport
 	}, {
 		where: {
 			id: req.params.id
 		}
 	}).then(() => {
 		// get value from customeraccount
-		alertMessage(res, 'success','Account has been updated successfully!', 'fas fa-sign-in-alt', true);
-		res.redirect('/rider/rideraccount/'+req.params.id);
+		alertMessage(res, 'success', 'Account has been updated successfully!', 'fas fa-sign-in-alt', true);
+		res.redirect('/rider/rideraccount/' + req.params.id);
 	}).catch(err => console.log(err));
 });
 // req.params is where u pass in the variables into the URL 
