@@ -181,9 +181,19 @@ img{ max-width:100%;}
   .inbox_people {
     display: none;
   }
+  .inbox_people_mobile{
+    display: block;
+  }
   .mesgs{
     width: 100%;
   }
+}
+
+@media screen and (min-width: 701px) {
+  .inbox_people_mobile{
+    display: none;
+  }
+  /* hide it elsewhere */
 }
 
 
