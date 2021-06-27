@@ -3,7 +3,6 @@ const Catalouge = require('../models/Catalouge');
 const Productchoices = require('../models/Productchoices');
 const Chat = require('../models/Chat');
 const Message = require('../models/Message');
-const Notification = require('../models/Notifications');
 const User = require('../models/User.js');
 const Review = require('../models/Review.js');
 const Cart = require('../models/Cart');
@@ -53,19 +52,6 @@ function cNotification(recipient, category, message, hyperlink) {
 		"timestamp": getToday()
 	}
 	
-	io.sockets.emit('send_notification', data);
-
-	
-	Notification.create({
-		hyperlink: hyperlink,
-		category: category,
-		message: message,
-		recipient: recipient,
-		status: "Unread",
-		time: getToday()
-	}).catch(err => {
-		console.error('Unable to connect to the database:', err);
-	});
 }
 
 // create application/json parser
@@ -89,6 +75,8 @@ router.get('/', (req, res) => {
 
 // Customer Notifications
 router.get('/notification', (req, res) => {
+	// send_notification("merlion", "Updates", "Your chat has been sent", "hyperlink");
+	console.log(res.locals.noti);
 	res.render('user/allnotifications', { title: "View all notifications" })
 });
 
@@ -381,7 +369,6 @@ router.post('/chatwith/:name', ensureAuthenticated, (req, res) => {
 });
 
 router.get('/inbox/:id', ensureAuthenticated, (req, res) => {
-	fnName();
 	if (typeof req.user != "undefined") {
 		var currentuser;
 		if(req.user.dataValues.usertype == "tailor"){

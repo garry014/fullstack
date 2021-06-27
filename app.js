@@ -178,14 +178,16 @@ app.use(passport.session());
 app.use(flash());
 app.use(FlashMessenger.middleware);
 
-// Place to define global variables - not used in practical 1
+// Place to define global variables
 app.use(function (req, res, next) {
 	res.locals.success_msg = req.flash('success_msg');
 	res.locals.error_msg = req.flash('error_msg');
 	res.locals.error = req.flash('error');
+	// User Details
 	if (typeof req.user != "undefined") {
 		res.locals.user = req.user.dataValues || null;
 	}
+	// Navbar
 	if (req.path.includes('/customer')){
 		res.locals.useracctype = 'Customer';
 	}
@@ -194,6 +196,19 @@ app.use(function (req, res, next) {
 	}
 	else if (req.path.includes('/tailor')){
 		res.locals.useracctype = 'Tailor';
+	}
+	
+	// Notifications
+	if (typeof req.user != "undefined") {
+		Notification.findAll({
+			limit: 3,
+			where: { recipient: req.user.dataValues.username },
+			order: [['id', 'DESC']],
+			raw: true
+		})
+		.then((noti) => {
+			res.locals.noti = noti;	
+		});
 	}
 	next();
 });
@@ -229,6 +244,7 @@ var users = [];
 
 const Chat = require('./models/Chat');
 const Message = require('./models/Message');
+const Notification = require('./models/Notifications');
 
 function getToday(){
 	// Get Date
@@ -253,15 +269,6 @@ io.on("connection", function(socket){
 		console.log('user disconnected: ', socket.id);
 	});
 
-	// socket.on("user_connected", function(username){
-	// 	users[username] = socket.id;
-
-	// 	// socket id will be used to send msg to individual person
-
-	// 	//notify all connect clients
-	// 	io.emit("user_connected", username);
-	// });
-
 	socket.on("send_message", function(data){
 		// send event to receiver
 		var socketId = users[data.receiver];
@@ -270,7 +277,6 @@ io.on("connection", function(socket){
 		data["timestamp"] = datetime;
 		data["sender"] = currentuser;
 		io.to(socketId).emit("new_message", data);
-		console.log(data);
 
 		// Save in db
 		Message.create({
@@ -293,15 +299,30 @@ io.on("connection", function(socket){
 });
 // This route maps the root URL to any path defined in main.js
 
-global.fnName = function(){ 
+global.send_notification = function(recipient, category, message, hyperlink){ 
+	// Create object to send to client side
 	var data = {
-		"recipient": "recipient",
-		"category": "category",
-		"message": "message",
-		"hyperlink": "hyperlink",
+		"recipient": recipient,
+		"category": category,
+		"message": message,
+		"hyperlink": hyperlink,
 		"timestamp": getToday()
 	}
-	io.sockets.emit('send_notification', data);
+
+	Notification.create({
+		hyperlink: hyperlink,
+		category: category,
+		message: message,
+		recipient: recipient,
+		status: "Unread",
+		time: getToday()
+	}).catch(err => {
+		console.error('Unable to connect to the database:', err);
+	});
+
+	var socketId = users[recipient];
+	console.log(socketId);
+	io.to(socketId).emit("send_notification", data);
 };
 
 // fix google redirect page problem & must display login name 

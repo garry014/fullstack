@@ -8,7 +8,9 @@
 
 
 
-
+                {{#each noti}}
+                    {{this.id}}
+                {{/each}}
                 <!--NEW NOTIFICATIONS-->
                 <div onclick="location.href='/manage_ads';"
                     style="background: #ebebeb; border-radius: 3px; padding: 5px 10px 5px 12px; border-bottom: 1px solid black; cursor: pointer;">
@@ -41,45 +43,7 @@
 
 
 
-                <div onclick="location.href='/my_orders';"
-                    style="border-radius: 3px; padding: 5px 10px 5px 12px; border-bottom: 1px solid black; cursor: pointer;">
-                    <div style="position: relative; float: right;">
-                        <a href="/noti/delete/71"><i class="fa fa-times" title="Delete this notification"></i></a>
-                    </div>
-                    Your payment of $210.0 has been received, and your order will be processed.
-                    <div style="font-size:10px">
-                        <i class="fa fa-rss"></i>
-                        10 May 03:05PM
-                    </div>
-                </div>
-
-
-
-                <div onclick="location.href='/my_orders';"
-                    style="border-radius: 3px; padding: 5px 10px 5px 12px; border-bottom: 1px solid black; cursor: pointer;">
-                    <div style="position: relative; float: right;">
-                        <a href="/noti/delete/70"><i class="fa fa-times" title="Delete this notification"></i></a>
-                    </div>
-                    Your payment of $218.4 has been received, and your order will be processed.
-                    <div style="font-size:10px">
-                        <i class="fa fa-rss"></i>
-                        22 Mar 10:58PM
-                    </div>
-                </div>
-
-
-
-                <div onclick="location.href='/my_orders';"
-                    style="border-radius: 3px; padding: 5px 10px 5px 12px; border-bottom: 1px solid black; cursor: pointer;">
-                    <div style="position: relative; float: right;">
-                        <a href="/noti/delete/69"><i class="fa fa-times" title="Delete this notification"></i></a>
-                    </div>
-                    Your payment of 218.4 has been received, and your order will be processed.
-                    <div style="font-size:10px">
-                        <i class="fa fa-rss"></i>
-                        22 Mar 02:56PM
-                    </div>
-                </div>
+               
 
 
 
