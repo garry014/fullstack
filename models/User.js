@@ -49,6 +49,9 @@ const User = db.define('User', {
 	licenseno: {
 		type: Sequelize.STRING
 	},
+	photo: {
+		type: Sequelize.STRING
+	},
 	usertype: {
 		type: Sequelize.STRING
 	}

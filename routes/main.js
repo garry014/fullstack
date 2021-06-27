@@ -582,7 +582,7 @@ router.post('/inbox/delete/:id', ensureAuthenticated, (req, res) => {
 router.get('/viewshops', (req, res) => {
 	User.findAll({
 		where: { usertype: "tailor" },
-		attributes: ['address1', 'address2', 'city', 'postalcode', 'shopname'],
+		attributes: ['address1', 'address2', 'city', 'postalcode', 'shopname', 'photo'],
 		raw: true
 	})
 	.then((shopdetails) => {

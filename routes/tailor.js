@@ -714,20 +714,6 @@ router.post('/tailoregister', (req, res) => {
 	let errors = [];
 	let { shopname, username, password, password2, address1, address2, city, postalcode, email, phoneno, usertype } = req.body;
 
-	// All this are your variables
-	console.log(req.body.shopname,
-		req.body.username,
-		req.body.password,
-		req.body.password2,
-		req.body.address1,
-		req.body.address2,
-		req.body.city,
-		req.body.postalcode,
-		req.body.email,
-		req.body.phoneno,
-		req.body.usertype = 'tailor'
-	);
-
 	// Checks if both passwords entered are the same
 	if (req.body.password !== req.body.password2) {
 		errors.push({
@@ -746,6 +732,15 @@ router.post('/tailoregister', (req, res) => {
 	 In that case, render register.handlebars with error messages.
 	 */
 	// same email + same username + within the same usertype cannot register
+
+	// Image Validation
+	if (!req.files) {
+		errors.push({ msg: 'Please upload an image file.' });
+	}
+	else if (req.files.file.mimetype.startsWith("image") == false) {
+		errors.push({ msg: 'Please upload a valid image file.' });
+	}
+
 	if (errors.length > 0) {
 		res.render('tailor/tailoregister', {
 			errors: errors,
@@ -762,7 +757,7 @@ router.post('/tailoregister', (req, res) => {
 			usertype
 		});
 	} else {
-		User.findOne({ where: { username: req.body.username, email: req.body.email, usertype: req.body.usertype } })
+		User.findOne({ where: { username: req.body.username, email: req.body.email, usertype: 'tailor' } })
 			.then(Tailor => {
 				if (Tailor) {
 					res.render('tailor/tailoregister', {
@@ -780,11 +775,33 @@ router.post('/tailoregister', (req, res) => {
 						usertype
 					});
 				} else {
+					// Image Upload
+					var file = req.files.file;
+					var filename = file.name;
+					var filetype = file.mimetype.substring(6);
+					const newid = uuidv4(); // Generate unique file id
+
+					var newFileName = newid + '.' + filetype;
+					if (fs.existsSync(newFileName)) {
+						fs.unlinkSync(newFileName);
+					}
+
+					file.mv('./public/uploads/user/' + filename, function (err) {
+						if (err) {
+							res.send(err);
+						}
+						else {
+							fs.rename('./public/uploads/user/' + filename, './public/uploads/user/' + newFileName, function (err) {
+								if (err) console.log('ERROR: ' + err);
+							});
+						}
+					});
+
 					bcrypt.genSalt(10, (err, salt) => {
 						bcrypt.hash(password, salt, (err, hash) => {
 							if (err) throw err;
 							password = hash;
-							User.create({ shopname, username, password, address1, address2, city, postalcode, email, phoneno, usertype: 'tailor' })
+							User.create({ shopname, username, password, address1, address2, city, postalcode, email, phoneno,  photo: newFileName, usertype: 'tailor' })
 								.then(user => {
 									alertMessage(res, 'success', user.username + ' Please proceed to login', 'fas fa-sign-in-alt', true);
 									res.redirect('tailoregcomplete');
