@@ -10,9 +10,9 @@
             </div>
             <div class="col-xl-8 col-lg-8 d-none d-lg-block">
                 <div class="main-menu">
-                    {{#if (eq user.usertype "tailor")}}
                     <nav>
-                        <ul>
+                    <ul>
+                    {{#if (eq user.usertype "tailor")}}
                             <li><a href="/viewshops/{{user.shopname}}">View My Shop <i class="fa fa-angle-down"></i></a>
                             <ul class="submenu">
                                     <li><a href="/tailor/addproduct">Add Products</a></li>
@@ -42,11 +42,11 @@
                             </li>
 
                             <li><a href="/faq">Help </a></li>
-                        </ul>
-                    </nav>
                     {{else}}
                     <center>Welcome to TailorNow, sign in to continue.</center>
                     {{/if}}
+                    </ul>
+                    </nav>
                 </div>
             </div>
             <div class="col-xl-2 col-lg-2 col-md-6 col-8">
