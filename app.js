@@ -142,6 +142,10 @@ Handlebars.registerHelper('getToday', function () {
 	return getToday();
 });
 
+Handlebars.registerHelper("pageInc", function (page) {
+	return page+1;
+});
+
 // Handlebars.registerHelper('ifIncludes', function (location,path) {
 // 	debugger
 // 	console.log(location);
@@ -385,10 +389,6 @@ app.get('/auth/facebook/homecust',
 
 // })
 
-
-app.get('/test', (req, res) => {
-	res.render('testchat', { title: "Test Chat" });
-});
 // This route maps the root URL to any path defined in main.js
 
 // Handle 404 error page - Keep this as a last route
