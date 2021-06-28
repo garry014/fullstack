@@ -10,6 +10,7 @@
             </div>
             <div class="col-xl-8 col-lg-8 d-none d-lg-block">
                 <div class="main-menu">
+                     {{#if (eq user.usertype "rider")}}
                     <nav>
                         <ul>
                             <li><a href="">View Orders </a></li>
@@ -18,6 +19,9 @@
                             <li><a href="/faq">Help </a></li>
                         </ul>
                     </nav>
+                    {{else}}
+                    <center>Welcome to TailorNow, sign in to continue.</center>
+                    {{/if}}
                 </div>
             </div>
             <div class="col-xl-2 col-lg-2 col-md-6 col-8">
@@ -130,19 +134,4 @@
             </div>
         </div>
     </div>
-
-    {{!--
-    <script>
-        var action = 0;
-
-        function clear_new() {
-            if (action == 1) {
-                action = 2;
-                location.href = "{{ url_for('update_notification', action="readall", id=0) }}";
-            } else {
-                action = 1;
-                document.getElementById("new_noti").style.display = 'none';
-            }
-        }
-    </script> --}}
 </header>

@@ -22,6 +22,8 @@ const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const JWT_SECRET = 'secret super'
 const jwt = require('jsonwebtoken');
+const validator = require("email-validator");
+const Regex = require("regex");
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
@@ -707,6 +709,7 @@ router.get('/tailoregister', (req, res) => {
 router.post('/tailoregister', (req, res) => {
 	let errors = [];
 	let { shopname, username, password, password2, address1, address2, city, postalcode, email, phoneno, usertype } = req.body;
+	const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
 	// All this are your variables
 	console.log(req.body.shopname,
@@ -734,6 +737,33 @@ router.post('/tailoregister', (req, res) => {
 			msg: 'Password must be at least 8 characters'
 		});
 	}
+	// validation for email
+	if (validator.validate(req.body.email) == false) {
+		errors.push({
+			msg: 'Please enter valid email.'
+		});
+	}
+
+	if (regex.test(req.body.password) == false) {
+		errors.push({
+			msg: 'Password must contain at least eight characters with at least one uppercase letter, one lowercase letter, one number and one special character'
+		});
+	}
+
+	//validation for phone no.
+	if (! /^[0-9]{8}$/.test(req.body.phoneno)) {
+		errors.push({
+			msg: 'Phone Number have to consist of 8 digits.'
+		});
+	}
+	//validation for postalcode
+	if (! /^[0-9]{6}$/.test(req.body.postalcode)) {
+		errors.push({
+			msg: 'Postal Code have to consist of 6 digits.'
+		});
+	}
+
+
 	/*
 	 If there is any error with password mismatch or size, then there must be
 	 more than one error message in the errors array, hence its length must be more than one.

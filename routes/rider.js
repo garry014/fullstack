@@ -14,6 +14,8 @@ const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const JWT_SECRET = 'secret super'
 const jwt = require('jsonwebtoken');
+const validator = require("email-validator");
+const Regex = require("regex");
 
 
 // riders: home page 
@@ -52,6 +54,7 @@ router.get('/rideregcomplete', (req, res) => {
 router.post('/rideregister', (req, res) => {
 	let errors = [];
 	let { firstname, lastname, username, password, password2, gender, email, phoneno, transport, licenseno, usertype } = req.body;
+	const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
 	// All this are your variables
 	console.log(req.body.firstname,
@@ -79,11 +82,28 @@ router.post('/rideregister', (req, res) => {
 			msg: 'Password must be at least 8 characters'
 		});
 	}
-	/*
-	 If there is any error with password mismatch or size, then there must be
-	 more than one error message in the errors array, hence its length must be more than one.
-	 In that case, render register.handlebars with error messages.
-	 */
+
+	// validation for email
+	if (validator.validate(req.body.email) == false) {
+		errors.push({
+			msg: 'Please enter valid email.'
+		});
+	}
+
+	// validation for password
+	if (regex.test(req.body.password) == false) {
+		errors.push({
+			msg: 'Password must contain at least eight characters with at least one uppercase letter, one lowercase letter, one number and one special character'
+		});
+	}
+
+	//validation for phone no.
+	if (! /^[0-9]{8}$/.test(req.body.phoneno)) {
+		errors.push({
+			msg: 'Phone Number have to consist of 8 digits.'
+		});
+	}
+	
 	if (errors.length > 0) {
 		res.render('rider/rideregister', {
 			errors: errors,

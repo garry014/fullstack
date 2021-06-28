@@ -20,6 +20,8 @@ const jwt = require('jsonwebtoken');
 const e = require('connect-flash');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
+const validator = require("email-validator");
+const Regex = require("regex");
 
 // customer: login page 
 // router.get('custlogin', (req, res) => {
@@ -75,7 +77,8 @@ router.get('/custregcomplete', (req, res) => {
 router.post('/custregister', (req, res) => {
 	let errors = [];
 	let { firstname, lastname, username, password, password2, address1, address2, city, postalcode, gender, email, phoneno, usertype } = req.body;
-
+	// Minimum eight characters with at least one uppercase letter, one lowercase letter, one number and one special character
+	const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 	// All this are your variables
 	console.log(req.body.firstname,
 		req.body.lastname,
@@ -95,20 +98,40 @@ router.post('/custregister', (req, res) => {
 	// Checks if both passwords entered are the same
 	if (req.body.password !== req.body.password2) {
 		errors.push({
-			msg: 'Passwords do not match'
+			msg: 'Passwords do not match.'
 		});
 	}
-	// Checks that password length is more than 8 (upgrade this to include checking for special characters etc)
+	// Checks that password length is more than 8 
 	if (req.body.password.length < 8) {
 		errors.push({
-			msg: 'Password must be at least 8 characters'
+			msg: 'Password must be at least 8 characters.'
 		});
 	}
-	/*
-	 If there is any error with password mismatch or size, then there must be
-	 more than one error message in the errors array, hence its length must be more than one.
-	 In that case, render register.handlebars with error messages.
-	 */
+	// validation for email
+	if (validator.validate(req.body.email) == false) {
+		errors.push({
+			msg: 'Please enter valid email.'
+		});
+	}
+	// validation for password 
+	if (regex.test(req.body.password) == false) {
+		errors.push({
+			msg: 'Password must contain at least eight characters with at least one uppercase letter, one lowercase letter, one number and one special character.'
+		});
+	}
+	//validation for phone no.
+	if (! /^[0-9]{8}$/.test(req.body.phoneno)) {
+		errors.push({
+			msg: 'Phone Number have to consist of 8 digits.'
+		});
+	}
+	//validation for postalcode
+	if (! /^[0-9]{6}$/.test(req.body.postalcode)) {
+		errors.push({
+			msg: 'Postal Code have to consist of 6 digits.'
+		});
+	}
+
 	if (errors.length > 0) {
 		res.render('customer/custregister', {
 			errors: errors,
@@ -171,7 +194,7 @@ router.get('/custaccount/:id', ensureAuthenticated, (req, res) => {
 	User.findOne({
 		where: {
 			// Compare using passport authentications instead of the usual id.params
-			id:  res.locals.user.id
+			id: res.locals.user.id
 		},
 		raw: true
 	}).then((Customer) => {

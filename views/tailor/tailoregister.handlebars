@@ -25,39 +25,51 @@
               <div class="login-register-form">
                 <form method="post" action="">
                   <div class="form-group">
+                    <label>Username</label>
                     <input type="text" name="username" placeholder="User Name" value="{{username }}">
                   </div>
                   <div class="form-group">
-                    <input type="text" name="password" placeholder="Password" value="{{password }}">
+                    <label>Password (Password must contain at least eight characters with at least one uppercase letter,
+                      one lowercase letter, one number and one special character)</label>
+                    <input type="password" name="password" placeholder="Password" value="{{password }}" id="password">
+                    <input type="checkbox" onclick="showpassword()">Show Password
                   </div>
                   <div class="form-group">
-                    <input type="text" name="password2" placeholder="Password" value="{{password2 }}">
+                    <label>Enter password again</label>
+                    <input type="password" name="password2" placeholder="Password" value="{{password2 }}">
                   </div>
                   <div class="form-group">
+                    <label>Shop Name</label>
                     <input type="text" name="shopname" placeholder="Shop Name" value="{{shopname }}">
                   </div>
                   <div class="form-group">
+                    <label>Address Line 1</label>
                     <input type="text" name="address1" placeholder="Address Line 1" value="{{address1 }}">
                   </div>
                   <div class="form-group">
+                    <label>Address Line 2</label>
                     <input type="text" name="address2" placeholder="Address Line 2" value="{{address2 }}">
                   </div>
                   <div class="row">
                     <div class="col-lg-6 col-md-6">
                       <div class="form-group">
+                        <label>City</label>
                         <input type="text" name="city" placeholder="City" value="{{city }}">
                       </div>
                     </div>
                     <div class="col-lg-6 col-md-6">
                       <div class="form-group">
+                        <label>Postal Code</label>
                         <input type="text" name="postalcode" placeholder="Postal Code" value="{{ postalcode }}">
                       </div>
                     </div>
                   </div>
                   <div class="form-group">
+                    <label>Email</label>
                     <input type="text" name="email" placeholder="Email" value="{{ email }}">
                   </div>
                   <div class="form-group">
+                    <label>Phone Number</label>
                     <input type="text" name="phoneno" placeholder="Phone Number" value="{{phoneno}}">
                   </div>
                   <div class="button-box">
@@ -76,3 +88,13 @@
 </div>
 </div>
 </div>
+<script>
+  function showpassword() {
+  var x = document.getElementById("password");
+  if (x.type === "password") {
+    x.type = "text";
+  } else {
+    x.type = "password";
+  }
+}
+</script>
