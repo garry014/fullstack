@@ -23,7 +23,7 @@
           <div id="lg2" class="tab-pane">
             <div class="login-form-container">
               <div class="login-register-form">
-                <form method="post" action="">
+                <form method="post" action="" enctype="multipart/form-data">
                   <div class="row">
                     <div class="col-lg-6 col-md-6">
                       <div class="form-group">
@@ -43,10 +43,18 @@
                     <input type="text" name="username" placeholder="User Name" value="{{ username }}">
                   </div>
                   <div class="form-group">
+<<<<<<< HEAD
                     <label>Password (Password must contain at least eight characters with at least one uppercase letter,
                       one lowercase letter, one number and one special character)</label>
                     <input type="password" name="password" placeholder="Password" id="password" value="{{ password }}">
                     <input type="checkbox" onclick="showpassword()">Show Password
+=======
+                    Profile photo:
+                    <input type="file" id="file" name="file">
+                  </div>
+                  <div class="form-group">
+                    <input type="text" name="password" placeholder="Password" value="{{ password }}">
+>>>>>>> 2ae4dd6cce63c49ab84953dffffb7814ab6fd268
                   </div>
                   <div class="form-group">
                     <label>Enter password again</label>

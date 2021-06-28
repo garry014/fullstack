@@ -10,6 +10,8 @@ const ensureAuthenticated = require('../helpers/auth');
 // Other Requires
 const express = require('express');
 const router = express.Router();
+const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const JWT_SECRET = 'secret super'
@@ -56,20 +58,6 @@ router.post('/rideregister', (req, res) => {
 	let { firstname, lastname, username, password, password2, gender, email, phoneno, transport, licenseno, usertype } = req.body;
 	const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-	// All this are your variables
-	console.log(req.body.firstname,
-		req.body.lastname,
-		req.body.username,
-		req.body.password,
-		req.body.password2,
-		req.body.gender,
-		req.body.email,
-		req.body.phoneno,
-		req.body.transport,
-		req.body.licenseno,
-		req.body.usertype = 'rider'
-	);
-
 	// Checks if both passwords entered are the same
 	if (req.body.password !== req.body.password2) {
 		errors.push({
@@ -104,6 +92,18 @@ router.post('/rideregister', (req, res) => {
 		});
 	}
 	
+	// Image Validation
+	if (!req.files) {
+		errors.push({ msg: 'Please upload an image file.' });
+	}
+	else if (req.files.file.mimetype.startsWith("image") == false) {
+		errors.push({ msg: 'Please upload a valid image file.' });
+	}
+	/*
+	 If there is any error with password mismatch or size, then there must be
+	 more than one error message in the errors array, hence its length must be more than one.
+	 In that case, render register.handlebars with error messages.
+	 */
 	if (errors.length > 0) {
 		res.render('rider/rideregister', {
 			errors: errors,
@@ -120,7 +120,7 @@ router.post('/rideregister', (req, res) => {
 			usertype
 		});
 	} else {
-		User.findOne({ where: { username: req.body.username, email: req.body.email, usertype: req.body.usertype } })
+		User.findOne({ where: { username: req.body.username, email: req.body.email, usertype: 'rider' } })
 			.then(Rider => {
 				if (Rider) {
 					res.render('rider/rideregister', {
@@ -138,11 +138,33 @@ router.post('/rideregister', (req, res) => {
 						usertype
 					});
 				} else {
+					// Image Upload
+					var file = req.files.file;
+					var filename = file.name;
+					var filetype = file.mimetype.substring(6);
+					const newid = uuidv4(); // Generate unique file id
+
+					var newFileName = newid + '.' + filetype;
+					if (fs.existsSync(newFileName)) {
+						fs.unlinkSync(newFileName);
+					}
+
+					file.mv('./public/uploads/user/' + filename, function (err) {
+						if (err) {
+							res.send(err);
+						}
+						else {
+							fs.rename('./public/uploads/user/' + filename, './public/uploads/user/' + newFileName, function (err) {
+								if (err) console.log('ERROR: ' + err);
+							});
+						}
+					});
+
 					bcrypt.genSalt(10, (err, salt) => {
 						bcrypt.hash(password, salt, (err, hash) => {
 							if (err) throw err;
 							password = hash;
-							User.create({ firstname, lastname, username, password, gender, email, phoneno, transport, licenseno, usertype: 'rider' })
+							User.create({ firstname, lastname, username, password, gender, email, phoneno, transport, licenseno, photo:newFileName, usertype: 'rider' })
 								.then(user => {
 									alertMessage(res, 'success', user.username + ' Please proceed to login', 'fas fa-sign-in-alt', true);
 									res.redirect('rideregcomplete');

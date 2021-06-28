@@ -23,7 +23,7 @@
           <div id="lg2" class="tab-pane">
             <div class="login-form-container">
               <div class="login-register-form">
-                <form method="post" action="">
+                <form method="post" action=""  enctype="multipart/form-data">
                   <div class="row">
                     <div class="col-lg-6 col-md-6">
                       <div class="form-group">
@@ -55,9 +55,17 @@
                       value="{{password2}}" required>
                   </div>
                   <div class="form-group">
+<<<<<<< HEAD
                     <label>Address Line 1</label>
                     <input type="text" name="address1" placeholder="Block Number and Street No" value="{{address}}"
                       required>
+=======
+                    Profile photo:
+                    <input type="file" id="file" name="file">
+                  </div>
+                  <div class="form-group">
+                    <input type="text" name="address1" placeholder="Address Line 1" value="{{address}}" required>
+>>>>>>> 2ae4dd6cce63c49ab84953dffffb7814ab6fd268
                   </div>
                   <div class="form-group">
                     <label>Address Line 2</label>

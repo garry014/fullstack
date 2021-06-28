@@ -84,7 +84,7 @@
                         </div>
                     </div>
                     <div class="same-style account-satting">
-                        <a class="account-satting-active" href="#"><i class="pe-7s-user-female"></i></a>
+                        <a class="account-satting-active" href="#">{{#ifCond user.photo '==' null}}<i class="pe-7s-user-female"></i>{{/ifCond}}{{#ifCond user.photo '!=' null}}<img src="/uploads/user/{{user.photo}}" alt="Profile Pic" width="25" height="25" style="border-radius: 50%;">{{/ifCond}}</a>
                         <div class="account-dropdown">
                             <ul>
                                 {{#if user}}

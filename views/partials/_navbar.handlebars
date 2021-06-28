@@ -43,6 +43,7 @@
 
                         </button>
                         <div class="search-content">
+                            {{#each noti}}
                             <!-- Unread Notifications -->
                             <div onclick="location.href='/manage_ads';"
                                 style="background: #ebebeb; border-radius: 3px; padding: 5px 10px 5px 12px; border-bottom: 1px solid black; cursor: pointer;">
@@ -57,7 +58,7 @@
                                     13 May 11:15AM
                                 </div>
                             </div>
-
+                            {{/each}}
                             <!-- Read Notifications -->
                             <div onclick="location.href='/manage_ads';"
                                 style="border-radius: 3px; padding: 5px 10px 5px 12px; border-bottom: 1px solid black; cursor: pointer;">
@@ -72,26 +73,11 @@
                                 </div>
                             </div>
 
-                            <!-- Rubbish data -->
-                            <div onclick="location.href='/my_orders';"
-                                style="border-radius: 3px; padding: 5px 10px 5px 12px; border-bottom: 1px solid black; cursor: pointer;">
-                                <div style="position: relative; float: right;">
-                                    <a href="/noti/delete/71"><i class="fa fa-times"
-                                            title="Delete this notification"></i></a>
-                                </div>
-                                Your payment of $210.0 has been received, and your order will be processed.
-                                <div style="font-size:10px">
-                                    <i class="fa fa-rss"></i>
-                                    10 May 03:05PM
-                                </div>
-                            </div>
-                            <!-- end of rubbish -->
-
                             <center><a href="/notification">See All</a></center>
                         </div>
                     </div>
                     <div class="same-style account-satting">
-                        <a class="account-satting-active" href="#"><i class="pe-7s-user-female"></i></a>
+                        <a class="account-satting-active" href="#">{{#ifCond user.photo '==' null}}<i class="pe-7s-user-female"></i>{{/ifCond}}{{#ifCond user.photo '!=' null}}<img src="/uploads/user/{{user.photo}}" alt="Profile Pic" width="25" height="25" style="border-radius: 50%;">{{/ifCond}}</a>
                         <div class="account-dropdown">
                             <ul>
                                 {{#if user}}
