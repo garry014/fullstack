@@ -640,111 +640,59 @@ router.get('/viewshops', (req, res) => {
 
 
 // Customer View Shop Items
-router.get('/viewshops/:storename', (req, res) => {
-	Catalouge.findAll({
+router.get('/viewshops/:storename/:page', (req, res) => {
+	var page = parseInt(req.params.page) - 1;
+	var limit = 6; 
+	
+	// limit: Remainder of page/6, if 0 > default 6.
+	Catalouge.findAndCountAll({
 		where: { storename: req.params.storename },
+		offset: page*6,
+		limit: limit,
 		raw: true
 	})
 		.then(shopprod => {
-			if(shopprod.length > 0){
+			var min_item = (page*limit)+1;
+			var max_item = (page*limit) + (shopprod.count%6 || 6);
+			var nextpage = page+2;
+			var totalpage = Math.ceil(shopprod.count/limit)
+			console.log(nextpage);
+			if (shopprod.count > 0) {
 				var itemsId = [];
-				shopprod.forEach(e => {
+				shopprod.rows.forEach(e => {
 					itemsId.push(e.id);
 				});
-				
+
 				Review.findAll({
 					where: { productid: itemsId },
 					attributes: ['productid', [Sequelize.fn('AVG', Sequelize.col('stars')), 'avgRating']],
-   					group: 'productid',
+					group: 'productid',
 					raw: true
 				})
-				.then((review) => {
-					for(var i=0; i<review.length; i++){
-						review[i].avgRating = parseFloat(review[i].avgRating);
-					}
-					title = 'View Items - ' + req.params.storename;
-					user_status = "cust";
-					if (typeof req.user != "undefined") {
-						user_status = res.locals.user.usertype;
-					}
-					res.render('customer/viewstore', {
-						title: title,
-						shopprod: shopprod,
-						user_status: user_status,
-						review: review,
-						storename: req.params.storename
-					});
-				})
-			}
-		})
-		.catch(err => {
-			console.error('Unable to connect to the database:', err);
-		});
-});
-
-
-router.get("/view/:id", (req, res) => {
-	// http://localhost:5000/view/1
-	const title = 'Add Product';
-	Catalouge.findOne({
-		where: { id: req.params.id },
-		raw: true
-	})
-		.then(pdetails => {
-			if (pdetails) {
-				var choicesArray = [];
-				var getDetails = pdetails;
-				var discprice = getDetails['price'] * (1 - (getDetails['discount'] / 100)); // after discount price
-				// Patrick if you need any values from my side
-				// ALL THESE IS WHAT I HAVE: storename, name, price, image, description, discount, custom, customchoices
-				// console.log('Example of product name ' + getDetails['name']); 
-
-				// Bug here: cannot run on id that does nt exists.
-				if (getDetails['customcat'] == "radiobtn") {
-					Productchoices.findAll({
-						where: { catalougeId: req.params.id },
-						raw: true
+					.then((review) => {
+						for (var i = 0; i < review.length; i++) {
+							review[i].avgRating = parseFloat(review[i].avgRating);
+						}
+						title = 'View Items - ' + req.params.storename;
+						user_status = "cust";
+						if (typeof req.user != "undefined") {
+							user_status = res.locals.user.usertype;
+						}
+						res.render('customer/viewstore', {
+							title: title,
+							shopprod: shopprod.rows,
+							total_count: shopprod.count,
+							min_item: min_item,
+							max_item: max_item,
+							user_status: user_status,
+							review: review,
+							storename: req.params.storename,
+							currentpage: req.params.page,
+							nextpage: nextpage,
+							totalpage: totalpage
+						});
 					})
-						.then(pchoices => {
-							pchoices.forEach(element => {
-								choicesArray.push(element['choice']);
-							});
-						})
-						.catch(err => {
-							console.error('Unable to connect to the database:', err);
-						});
-				}
-
-				Review.findAll({
-					where: { productid: req.params.id },
-					raw: true
-				})
-				.then((reviews) => {
-					var avgRating = 0;
-					if(reviews.length > 0){
-						reviews.forEach(r => {
-							avgRating = avgRating + r.stars;
-						});
-						avgRating = avgRating / reviews.length;
-					}
-					
-					res.render('customer/productview', {
-						title: pdetails.name + ' - ' + pdetails.storename,
-						pdetails: getDetails,
-						choicesArray: choicesArray,
-						discprice: discprice,
-						avgRating: avgRating,
-						reviews:reviews
-					});
-				})
-				.catch(err => {
-					console.error('Unable to connect to the database:', err);
-				});
 			}
-			else {
-				return res.redirect('/404');
-			}
-
 		})
 		.catch(err => {
 			console.error('Unable to connect to the database:', err);
