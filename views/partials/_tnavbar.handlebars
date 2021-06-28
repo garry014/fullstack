@@ -112,7 +112,7 @@
                         <a class="account-satting-active" href="#"><i class="pe-7s-user-female"></i></a>
                         <div class="account-dropdown">
                             <ul>
-                                {{#if user}}
+                                {{#if (eq user.usertype "tailor")}}
                                 <li>{{user.username}}</li>
                                 {{!-- user id problem --}}
                                 <li><a href="/tailor/tailoraccount/{{user.id}}">Edit Profile</a></li>
