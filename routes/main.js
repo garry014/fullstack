@@ -654,9 +654,7 @@ router.get('/viewshops/:storename/:page', (req, res) => {
 		.then(shopprod => {
 			var min_item = (page*limit)+1;
 			var max_item = (page*limit) + (shopprod.count%6 || 6);
-			var nextpage = page+2;
 			var totalpage = Math.ceil(shopprod.count/limit)
-			console.log(nextpage);
 			if (shopprod.count > 0) {
 				var itemsId = [];
 				shopprod.rows.forEach(e => {
@@ -688,8 +686,11 @@ router.get('/viewshops/:storename/:page', (req, res) => {
 							review: review,
 							storename: req.params.storename,
 							currentpage: req.params.page,
-							nextpage: nextpage,
-							totalpage: totalpage
+							totalpage: totalpage,
+							pagination: {
+								page: req.params.page, // The current page the user is on
+								pageCount: totalpage  // The total number of available pages
+							}
 						});
 					})
 			}

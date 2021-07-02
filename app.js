@@ -146,6 +146,9 @@ Handlebars.registerHelper("pageInc", function (page) {
 	return page+1;
 });
 
+var paginate = require('handlebars-paginate');
+Handlebars.registerHelper('paginate', paginate);
+
 // Handlebars.registerHelper('ifIncludes', function (location,path) {
 // 	debugger
 // 	console.log(location);
