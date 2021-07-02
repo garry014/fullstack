@@ -30,8 +30,23 @@
                     {{#ifCond id '==' ../id}}
                     <div class="chat_list active_chat">
                         <div class="chat_people">
-                            <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil">
-                            </div>
+                            {{#ifCond ../currentuser "==" recipient}}
+                                {{#each ../photodetails}}
+                                {{#if (eq ../sender username) }}
+                                <div class="chat_img"> <img src="/uploads/user/{{photo}}" style="border-radius: 50%;"> </div>
+                                {{else if (eq ../sender shopname)}}
+                                <div class="chat_img"> <img src="/uploads/user/{{photo}}" style="border-radius: 50%;"> </div>
+                                {{/if}}
+                                {{/each}}
+                            {{else}}
+                                {{#each ../photodetails}}
+                                {{#if (eq ../recipient username) }}
+                                <div class="chat_img"> <img src="/uploads/user/{{photo}}" style="border-radius: 50%;"> </div>
+                                {{else if (eq ../recipient shopname)}}
+                                <div class="chat_img"> <img src="/uploads/user/{{photo}}" style="border-radius: 50%;"> </div>
+                                {{/if}}
+                                {{/each}}
+                            {{/ifCond}}
                             <div class="chat_ib">
                                 <h5>{{#ifCond ../currentuser "==" recipient}}{{sender}}{{else}}{{recipient}}{{/ifCond}}</h5>
                                 <p id="messagePreview">
@@ -52,8 +67,23 @@
                     <a href="/inbox/{{id}}">
                         <div class="chat_list">
                             <div class="chat_people">
-                                <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil">
-                                </div>
+                                {{#ifCond ../currentuser "==" recipient}}
+                                    {{#each ../photodetails}}
+                                    {{#if (eq ../sender username) }}
+                                    <div class="chat_img"> <img src="/uploads/user/{{photo}}" style="border-radius: 50%;"> </div>
+                                    {{else if (eq ../sender shopname)}}
+                                    <div class="chat_img"> <img src="/uploads/user/{{photo}}" style="border-radius: 50%;"> </div>
+                                    {{/if}}
+                                    {{/each}}
+                                {{else}}
+                                    {{#each ../photodetails}}
+                                    {{#if (eq ../recipient username) }}
+                                    <div class="chat_img"> <img src="/uploads/user/{{photo}}" style="border-radius: 50%;"> </div>
+                                    {{else if (eq ../recipient shopname)}}
+                                    <div class="chat_img"> <img src="/uploads/user/{{photo}}" style="border-radius: 50%;"> </div>
+                                    {{/if}}
+                                    {{/each}}
+                                {{/ifCond}}
                                 <div class="chat_ib">
                                     <h5>{{#ifCond currentuser "==" recipient}}{{sender}}{{else}}{{recipient}}{{/ifCond}}</h5>
                                     <p>{{#ifCond message "!=" null}}
@@ -123,7 +153,7 @@
 
             <div class="msg_history" id="msg_history">
                 <br>
-                <div class="incoming_msg">
+                <!--<div class="incoming_msg">
                     <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png"
                             alt="sunil"> </div>
                     <div class="received_msg">
@@ -133,7 +163,7 @@
                             <span class="time_date"> 18 May 2021 11:41 | Merlion Tailor</span>
                         </div>
                     </div>
-                </div>
+                </div>-->
                 {{#each messages}}
                 {{#if message}}
                 {{#ifCond sentby '==' ../currentuser}}
@@ -147,8 +177,13 @@
                 {{else}}
                 <!-- Right/Sent msg if sender == current user-->
                 <div class="incoming_msg">
-                    <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png"
-                            alt="sunil"> </div>
+                    {{#each ../photodetails}}
+                    {{#if (eq ../../recipient username) }}
+                    <div class="incoming_msg_img"> <img src="/uploads/user/{{photo}}" style="border-radius: 50%;"> </div>
+                    {{else if (eq ../../recipient shopname)}}
+                    <div class="incoming_msg_img"> <img src="/uploads/user/{{photo}}" style="border-radius: 50%;"> </div>
+                    {{/if}}
+                    {{/each}}
                     <div class="received_msg">
                         <div class="received_withd_msg">
                             <p>{{message}}</p>
@@ -169,8 +204,13 @@
                 </div>
                 {{else}}
                 <div class="incoming_msg">
-                    <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png"
-                            alt="sunil"> </div>
+                    {{#each ../photodetails}}
+                    {{#if (eq ../../recipient username) }}
+                    <div class="incoming_msg_img"> <img src="/uploads/user/{{photo}}" style="border-radius: 50%;"> </div>
+                    {{else if (eq ../../recipient shopname)}}
+                    <div class="incoming_msg_img"> <img src="/uploads/user/{{photo}}" style="border-radius: 50%;"> </div>
+                    {{/if}}
+                    {{/each}}
                     <div class="received_msg">
                         <div class="received_withd_msg">
                             <p><img id="myImg" src="/uploads/chat/{{upload}}" width="200px" height="auto"
@@ -186,13 +226,13 @@
 
 
 
-                <div class="outgoing_msg">
+                <!--<div class="outgoing_msg">
                     <div class="sent_msg">
                         <p><audio controls="" id="audioPlayer" src="/testdata.oga" type="audio/oga">Your browser does
                                 not support the audio element.</audio></p>
                         <span class="time_date"> 18 May 2021 12:11 | me</span>
                     </div>
-                </div>
+                </div>-->
             </div>
             <div class="type_msg">
                 <div class="input_msg_write">
@@ -347,8 +387,23 @@
                     {{#ifCond id '==' ../id}}
                     <div class="chat_list active_chat">
                         <div class="chat_people">
-                            <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil">
-                            </div>
+                            {{#ifCond ../currentuser "==" recipient}}
+                                {{#each ../photodetails}}
+                                {{#if (eq ../sender username) }}
+                                <div class="chat_img"> <img src="/uploads/user/{{photo}}" style="border-radius: 50%;"> </div>
+                                {{else if (eq ../sender shopname)}}
+                                <div class="chat_img"> <img src="/uploads/user/{{photo}}" style="border-radius: 50%;"> </div>
+                                {{/if}}
+                                {{/each}}
+                            {{else}}
+                                {{#each ../photodetails}}
+                                {{#if (eq ../recipient username) }}
+                                <div class="chat_img"> <img src="/uploads/user/{{photo}}" style="border-radius: 50%;"> </div>
+                                {{else if (eq ../recipient shopname)}}
+                                <div class="chat_img"> <img src="/uploads/user/{{photo}}" style="border-radius: 50%;"> </div>
+                                {{/if}}
+                                {{/each}}
+                            {{/ifCond}}
                             <div class="chat_ib">
                                 <h5>{{#ifCond ../currentuser "==" recipient}}{{sender}}{{else}}{{recipient}}{{/ifCond}}</h5>
                                 <p id="messagePreview">
@@ -369,8 +424,23 @@
                     <a href="/inbox/{{id}}">
                         <div class="chat_list">
                             <div class="chat_people">
-                                <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil">
-                                </div>
+                                {{#ifCond ../currentuser "==" recipient}}
+                                    {{#each ../photodetails}}
+                                    {{#if (eq ../sender username) }}
+                                    <div class="chat_img"> <img src="/uploads/user/{{photo}}" style="border-radius: 50%;"> </div>
+                                    {{else if (eq ../sender shopname)}}
+                                    <div class="chat_img"> <img src="/uploads/user/{{photo}}" style="border-radius: 50%;"> </div>
+                                    {{/if}}
+                                    {{/each}}
+                                {{else}}
+                                    {{#each ../photodetails}}
+                                    {{#if (eq ../recipient username) }}
+                                    <div class="chat_img"> <img src="/uploads/user/{{photo}}" style="border-radius: 50%;"> </div>
+                                    {{else if (eq ../recipient shopname)}}
+                                    <div class="chat_img"> <img src="/uploads/user/{{photo}}" style="border-radius: 50%;"> </div>
+                                    {{/if}}
+                                    {{/each}}
+                                {{/ifCond}}
                                 <div class="chat_ib">
                                     <h5>{{#ifCond currentuser "==" recipient}}{{sender}}{{else}}{{recipient}}{{/ifCond}}</h5>
                                     <p>{{#ifCond message "!=" null}}
