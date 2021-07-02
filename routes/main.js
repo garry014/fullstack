@@ -321,10 +321,6 @@ router.get('/purchasehistory', (req, res) => {
 });
 
 
-// FOR DESIGNING PURPOSES ONLY
-router.get('/design', (req, res) => {
-	res.render('customer/testaudio', { title: "Add product" });
-});
 
 // Post Route to start chat
 router.post('/chatwith/:name', ensureAuthenticated, (req, res) => {
@@ -694,6 +690,75 @@ router.get('/viewshops/:storename/:page', (req, res) => {
 						});
 					})
 			}
+		})
+		.catch(err => {
+			console.error('Unable to connect to the database:', err);
+		});
+});
+
+// Customer View Item
+router.get("/view/:id", (req, res) => {
+	// http://localhost:5000/view/1
+	const title = 'Add Product';
+	Catalouge.findOne({
+		where: { id: req.params.id },
+		raw: true
+	})
+		.then(pdetails => {
+			if (pdetails) {
+				var choicesArray = [];
+				var getDetails = pdetails;
+				var discprice = getDetails['price'] * (1 - (getDetails['discount'] / 100)); // after discount price
+				// Patrick if you need any values from my side
+				// ALL THESE IS WHAT I HAVE: storename, name, price, image, description, discount, custom, customchoices
+				// console.log('Example of product name ' + getDetails['name']); 
+
+				// Bug here: cannot run on id that does nt exists.
+				if (getDetails['customcat'] == "radiobtn") {
+					Productchoices.findAll({
+						where: { catalougeId: req.params.id },
+						raw: true
+					})
+						.then(pchoices => {
+							pchoices.forEach(element => {
+								choicesArray.push(element['choice']);
+							});
+						})
+						.catch(err => {
+							console.error('Unable to connect to the database:', err);
+						});
+				}
+
+				Review.findAll({
+					where: { productid: req.params.id },
+					raw: true
+				})
+				.then((reviews) => {
+					var avgRating = 0;
+					if(reviews.length > 0){
+						reviews.forEach(r => {
+							avgRating = avgRating + r.stars;
+						});
+						avgRating = avgRating / reviews.length;
+					}
+					
+					res.render('customer/productview', {
+						title: pdetails.name + ' - ' + pdetails.storename,
+						pdetails: getDetails,
+						choicesArray: choicesArray,
+						discprice: discprice,
+						avgRating: avgRating,
+						reviews:reviews
+					});
+				})
+				.catch(err => {
+					console.error('Unable to connect to the database:', err);
+				});
+			}
+			else {
+				return res.redirect('/404');
+			}
+
 		})
 		.catch(err => {
 			console.error('Unable to connect to the database:', err);
