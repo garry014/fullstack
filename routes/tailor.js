@@ -430,12 +430,12 @@ router.get('/deleteProduct/:id', ensureAuthenticated, (req, res) => {
 			})
 				.then((pDetails) => {
 					alertMessage(res, 'info', 'Successfully deleted item.', 'far fa-trash-alt', true);
-					res.redirect('/viewshops/' + pdetails.storename);
+					res.redirect('/viewshops/' + pdetails.storename + '/1');
 				})
 		}
 		else {
 			alertMessage(res, 'danger', 'Do you have a badge????', 'fas fa-exclamation-triangle', true);
-			res.redirect('/viewshops/' + pdetails.storename);
+			res.redirect('/viewshops/' + pdetails.storename + '/1');
 		}
 	})
 });
