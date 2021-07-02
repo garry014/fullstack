@@ -51,7 +51,7 @@ function cNotification(recipient, category, message, hyperlink) {
 		"hyperlink": hyperlink,
 		"timestamp": getToday()
 	}
-
+	
 }
 
 // create application/json parser
@@ -96,7 +96,7 @@ router.get('/transaction_complete', (req, res) => {
 	sess = req.session;
 	//send into sql
 	console.log("cart", sess["mycart"])
-	let cartId = Date.now() / 1000;
+	let cartId = Date.now()/1000;
 
 	sess["myCart"].forEach(cartItem => {
 		let insertData = {
@@ -109,13 +109,13 @@ router.get('/transaction_complete', (req, res) => {
 			timestamp: cartId
 		}
 		console.log("insertData==>", insertData);
-		Cart.create(insertData).then(success => {
+		Cart.create(insertData).then(success =>{
 			console.log("Receipt created==>", success)
 			sess["myCart"] = []
 		}).catch(err => {
 			console.error('Unable to connect to the database:', err);
 		});
-
+		
 	});
 
 
@@ -146,12 +146,12 @@ router.post('/transaction_complete', (req, res) => {
 
 //delete
 deleteCartItem = (inItemId, sess) => {
-	console.log("delete myCart==>", sess["myCart"])
+	console.log("delete myCart==>",  sess["myCart"])
 	let itemId = parseInt(inItemId)
 	if (itemId < sess["myCart"].length) {
 		sess["myCart"].splice(itemId, 1);
 	}
-	console.log("delete after myCart==>", sess["myCart"])
+	console.log("delete after myCart==>",  sess["myCart"])
 	let i = 0;
 	for (let item of sess["myCart"]) {
 		item.itemId = i;
@@ -258,66 +258,66 @@ router.get('/purchasehistory', (req, res) => {
 		// attributes: [
 		// 	[Sequelize.fn('DISTINCT', Sequelize.col('storename')) ,'storename'],
 	})
-		.then((purchases) => {
-			console.log("/purchase_history body data===> ", purchases);
-			if (purchases) {
+	.then((purchases) => {
+		console.log("/purchase_history body data===> ", purchases);
+		if(purchases){
 
-
-				let purchaseDict = {}
-				for (let data of purchases) {
-					if (!(data.timestamp in purchaseDict)) {
-						purchaseDict[data.timestamp] = []
-					}
-					purchaseDict[data.timestamp].push(data)
-				}
-
-				// sess["purchases"] = [];
-				// let cartNum = 1;
-
-				// Iterating individual cart purchases so far
-				for (let purchaseKey in purchaseDict) {
-					let purchaseData = purchaseDict[purchaseKey]
-					let purchasedCart = {
-						cartId: purchaseData[0].timestamp,
-						items: [],
-						total: 0
-					}
-					let itemId = 1
-
-					// Populating items inside one cart purchase
-					for (let cartItem of purchaseData) {
-						let cartInfo = {
-
-						}
-						cartInfo["itemId"] = itemId;
-						cartInfo["itemname"] = cartItem.name;
-						cartInfo["qty"] = cartItem.quantity;
-						cartInfo["price"] = cartItem.price;
-						cartInfo["subtotal"] = cartItem.quantity * cartItem.price;
-						purchasedCart["total"] += cartInfo["subtotal"];
-						cartInfo["subtotalStr"] = cartInfo["subtotal"].toFixed(2);
-						purchasedCart["items"].push(cartInfo);
-						itemId += 1;
-					}
-					purchasedCart["totalStr"] = purchasedCart["total"].toFixed(2);
-					sess["purchases"].push(purchasedCart)
-				}
-
-
+		
+		let purchaseDict = {}
+		for (let data of purchases){
+			if(!(data.timestamp in purchaseDict)){
+				purchaseDict[data.timestamp] = []
 			}
-			else {
-				sess["purchases"] = [];
+			purchaseDict[data.timestamp].push(data)
+		}
+
+		// sess["purchases"] = [];
+		// let cartNum = 1;
+
+		// Iterating individual cart purchases so far
+		for(let purchaseKey in purchaseDict){
+			let purchaseData = purchaseDict[purchaseKey]
+			let purchasedCart = {
+				cartId:purchaseData[0].timestamp,
+				items: [], 
+				total: 0
 			}
-			console.log("sess purchases==>", sess["purchases"])
-			// console.log("sess purchases items==>", sess["purchases"][0].items)
-			res.render('customer/purchasehistory', {
-				title: "Purchase History",
-				purchases: sess["purchases"],
-			});
-			// res.render('customer/purchasehistory', { title: "Purchase History" });
-		}).catch((err) => {
-			//error codes
-		})
+			let itemId = 1
+
+			// Populating items inside one cart purchase
+			for(let cartItem of purchaseData){
+				let cartInfo = {
+
+				}	
+				cartInfo["itemId"] = itemId;
+				cartInfo["itemname"] = cartItem.name;
+				cartInfo["qty"] = cartItem.quantity;
+				cartInfo["price"] = cartItem.price;
+				cartInfo["subtotal"] = cartItem.quantity * cartItem.price;
+				purchasedCart["total"] += cartInfo["subtotal"];
+				cartInfo["subtotalStr"] = cartInfo["subtotal"].toFixed(2);
+				purchasedCart["items"].push(cartInfo);
+				itemId += 1;
+			}
+			purchasedCart["totalStr"] = purchasedCart["total"].toFixed(2);
+			sess["purchases"].push(purchasedCart)
+		}
+
+		
+	}
+	else{
+		sess["purchases"] = [];
+	}
+	console.log("sess purchases==>", sess["purchases"])
+	// console.log("sess purchases items==>", sess["purchases"][0].items)
+	res.render('customer/purchasehistory', {
+		title: "Purchase History",
+		purchases: sess["purchases"],
+	});
+	// res.render('customer/purchasehistory', { title: "Purchase History" });
+}).catch((err)=>{
+//error codes
+})
 });
 
 
@@ -326,7 +326,7 @@ router.get('/purchasehistory', (req, res) => {
 router.post('/chatwith/:name', ensureAuthenticated, (req, res) => {
 	if (typeof req.user != "undefined") {
 		var currentuser;
-		if (req.user.dataValues.usertype == "tailor") {
+		if(req.user.dataValues.usertype == "tailor"){
 			currentuser = req.user.dataValues.shopname;
 		}
 		else {
@@ -340,34 +340,34 @@ router.post('/chatwith/:name', ensureAuthenticated, (req, res) => {
 		},
 		raw: true
 	})
-		.then((chats) => {
-			if (chats.length > 0) {
-				res.redirect('/inbox/' + chats[0].id);
-			}
-			else {
-				Chat.create({
-					sender: currentuser,
-					recipient: req.params.name,
-					senderstatus: "Read",
-					recipientstatus: "Unread"
-				})
-					.then((chat) => {
-						res.redirect('/inbox/' + chat.id);
-					})
-					.catch(err => {
-						console.error('Unable to connect to the database:', err);
-					});
-			}
-		})
-		.catch(err => {
-			console.error('Unable to connect to the database:', err);
-		});
+	.then((chats) => {
+		if(chats.length>0){
+			res.redirect('/inbox/'+chats[0].id);
+		}
+		else{
+			Chat.create({
+				sender: currentuser,
+				recipient: req.params.name,
+				senderstatus: "Read",
+				recipientstatus: "Unread"
+			})
+			.then((chat) =>{
+				res.redirect('/inbox/'+chat.id);
+			})
+			.catch(err => {
+				console.error('Unable to connect to the database:', err);
+			});
+		}
+	})
+	.catch(err => {
+		console.error('Unable to connect to the database:', err);
+	});
 });
 
 router.get('/inbox/:id', ensureAuthenticated, (req, res) => {
 	if (typeof req.user != "undefined") {
 		var currentuser;
-		if (req.user.dataValues.usertype == "tailor") {
+		if(req.user.dataValues.usertype == "tailor"){
 			currentuser = req.user.dataValues.shopname;
 		}
 		else {
@@ -385,124 +385,113 @@ router.get('/inbox/:id', ensureAuthenticated, (req, res) => {
 		raw: true
 	})
 		.then((chats) => {
-			User.findAll({
-				attributes: ['username', 'shopname', 'photo'],
-				raw: true
-			})
-				.then((photodetails) => {
-					// Error: something wrong when chatid > 1
-					if (chats) {
-						chatIdExist = false;
-						// Need to extract ONLY one section of each chats object
-						// & check if current webpage ID exists
-						for (var c = chats.length - 1; c >= 0; c--) {
-							console.log(chats[c].id, req.params.id);
-							if (chats[c].id == req.params.id) { // 1 is static data
-								chatIdExist = true;
-								if (currentuser == chats[c].recipient) {
-									recipient = chats[c].sender;
-								}
-								else {
-									recipient = chats[c].recipient;
+			// Error: something wrong when chatid > 1
+			if (chats) {
+				chatIdExist = false;
+				// Need to extract ONLY one section of each chats object
+				// & check if current webpage ID exists
+				for (var c = chats.length-1; c >= 0; c--) {
+					console.log(chats[c].id, req.params.id);
+					if (chats[c].id == req.params.id) { // 1 is static data
+						chatIdExist = true;
+						if(currentuser == chats[c].recipient){
+							recipient = chats[c].sender;
+						}
+						else{
+							recipient = chats[c].recipient;
+						}
+					}
+
+					if (chats[c].sender ==currentuser && chats[c].senderstatus == "deleted"){
+						chats.splice(c,1);
+					}
+					else if (chats[c].recipient ==currentuser && chats[c].recipientstatus == "deleted"){
+						chats.splice(c,1);
+					}
+					else {
+						chatids.push(chats[c].id);
+					}
+				};
+
+				Message.findAll({
+					where: {
+						chatId: chatids
+					},
+					order: [
+						['id', 'DESC'],
+					],
+					raw: true
+				})
+					.then((messageInChat) => {
+						// Filter to get the biggest msg id FOR EACH chat id.
+						const idcheck = chatids.reduce((acc, curr) => (acc[curr] = 0, acc), {});
+						const checkedlist = [];
+						for (var msg in messageInChat) {
+							for (var i in idcheck){
+								if (messageInChat[msg].chatId == i && !checkedlist.includes(messageInChat[msg].chatId)){
+									idcheck[i] = messageInChat[msg].message;
+									checkedlist.push(messageInChat[msg].chatId);
 								}
 							}
+						}
 
-							if (chats[c].sender == currentuser && chats[c].senderstatus == "deleted") {
-								chats.splice(c, 1);
-							}
-							else if (chats[c].recipient == currentuser && chats[c].recipientstatus == "deleted") {
-								chats.splice(c, 1);
-							}
-							else {
-								chatids.push(chats[c].id);
-							}
-						};
-
-
-
-						Message.findAll({
-							where: {
-								chatId: chatids
-							},
-							order: [
-								['id', 'DESC'],
-							],
-							raw: true
-						})
-							.then((messageInChat) => {
-								// Filter to get the biggest msg id FOR EACH chat id.
-								const idcheck = chatids.reduce((acc, curr) => (acc[curr] = 0, acc), {});
-								const checkedlist = [];
-								for (var msg in messageInChat) {
-									for (var i in idcheck) {
-										if (messageInChat[msg].chatId == i && !checkedlist.includes(messageInChat[msg].chatId)) {
-											idcheck[i] = messageInChat[msg].message;
-											checkedlist.push(messageInChat[msg].chatId);
-										}
-									}
+						var keys = Object.keys(idcheck);
+						for (var c in chats){
+							keys.forEach(function(key){
+								if(chats[c].id == key){
+									chats[c]["message"] = idcheck[key];
 								}
-
-								var keys = Object.keys(idcheck);
-								for (var c in chats) {
-									keys.forEach(function (key) {
-										if (chats[c].id == key) {
-											chats[c]["message"] = idcheck[key];
-										}
-									});
-								}
-
-								// console.log(idcheck);
-								// console.log(chats);
-							})
-							.catch(err => {
-								console.error('Unable to connect to the database:', err);
 							});
+						}
 
-						if (chatIdExist == true || req.params.id == "0") {
+						// console.log(idcheck);
+						// console.log(chats);
+					})
+					.catch(err => {
+						console.error('Unable to connect to the database:', err);
+					});
+
+				if (chatIdExist == true || req.params.id == "0") {
+					Message.findAll({
+						where: { chatId: req.params.id, }, // static data 
+						raw: true
+					})
+						.then((messages) => {
+
+							// Get every first message of the chat
 							Message.findAll({
 								where: { chatId: req.params.id, }, // static data 
 								raw: true
 							})
-								.then((messages) => {
-
-									// Get every first message of the chat
-									Message.findAll({
-										where: { chatId: req.params.id, }, // static data 
-										raw: true
-									})
 
 
-									res.render('user/chat', {
-										title: "Chat",
-										chats: chats,
-										messages: messages,
-										currentuser: currentuser,
-										recipient: recipient,
-										id: req.params.id,
-										photodetails: photodetails
-									});
-								})
-								.catch(err => {
-									console.error('Unable to connect to the database:', err);
-								});
-						}
-						else {
-							alertMessage(res, 'danger', 'Access Denied, you do not have permission to view message that is not yours.', 'fas fa-exclamation-triangle', true);
 							res.render('user/chat', {
 								title: "Chat",
 								chats: chats,
+								messages: messages,
 								currentuser: currentuser,
 								recipient: recipient,
-								id: req.params.id,
-								photodetails: photodetails
+								id: req.params.id
 							});
-						}
-					}
-					else {
-						res.render('user/chat', { title: "Chat" });
-					}
-				})
-
+						})
+						.catch(err => {
+							console.error('Unable to connect to the database:', err);
+						});
+				}
+				else {
+					alertMessage(res, 'danger', 'Access Denied, you do not have permission to view message that is not yours.', 'fas fa-exclamation-triangle', true);
+					res.render('user/chat', {
+						title: "Chat",
+						chats: chats,
+						currentuser: currentuser,
+						recipient: recipient,
+						id: req.params.id
+					});
+				}
+			}
+			else {
+				res.render('user/chat', { title: "Chat" });
+			}
 
 		})
 		.catch(err => {
@@ -541,7 +530,7 @@ router.post('/inbox/uploadimg/:id', (req, res) => {
 					}).catch(err => {
 						console.error('Unable to connect to the database:', err);
 					});
-					return res.redirect('../../inbox/' + req.params.id);
+					return res.redirect('../../inbox/'+req.params.id);
 				}
 			});
 		}
@@ -560,27 +549,27 @@ router.post('/inbox/delete/:id', ensureAuthenticated, (req, res) => {
 		where: { id: req.params.id },
 		raw: true
 	})
-		.then((chat) => {
-			console.log(chat)
-			if (chat.sender == req.session.username) {
-				console.log("changing recipientstatus")
-				Chat.update({
-					senderstatus: "deleted"
-				}, {
-					where: { id: req.params.id }
-				})
-					.catch(err => console.log(err));
-			}
-			else {
-				Chat.update({
-					recipientstatus: "deleted"
-				}, {
-					where: { id: req.params.id }
-				})
-					.catch(err => console.log(err));
-			}
-		})
-		.catch(err => console.log(err));
+	.then((chat) => {
+		console.log(chat)
+		if(chat.sender == req.session.username){
+			console.log("changing recipientstatus")
+			Chat.update({
+				senderstatus: "deleted" 
+			}, {
+				where: { id: req.params.id }
+			})
+			.catch(err => console.log(err));
+		}
+		else{
+			Chat.update({
+				recipientstatus: "deleted" 
+			}, {
+				where: { id: req.params.id }
+			})
+			.catch(err => console.log(err));
+		}
+	})
+	.catch(err => console.log(err));
 	alertMessage(res, 'success', 'Deleted message successfully!', 'fas fa-check-circle', true);
 	res.redirect('/inbox/0');
 });
@@ -592,76 +581,76 @@ router.get('/viewshops', (req, res) => {
 		attributes: ['address1', 'address2', 'city', 'postalcode', 'shopname', 'photo'],
 		raw: true
 	})
-		.then((shopdetails) => {
-			Catalouge.findAll({
-				// Get all DB values
-				// run a for loop to extract only the distinct storename, max discount
-				// attributes: [
-				// 	[Sequelize.fn('DISTINCT', Sequelize.col('storename')) ,'storename'],
-				// ]
+	.then((shopdetails) => {
+		Catalouge.findAll({
+			// Get all DB values
+			// run a for loop to extract only the distinct storename, max discount
+			// attributes: [
+			// 	[Sequelize.fn('DISTINCT', Sequelize.col('storename')) ,'storename'],
+			// ]
+		})
+			.then((shops) => {
+				if (shops) {
+					// Review average.
+
+					const shop = [];
+					for (var s in shops) {
+						shop.push(shops[s].dataValues);
+					};
+	
+					// shop.forEach(shopItem => {
+					// 	console.log(shopItem);
+					// });
+					
+					// Review Ratings Calculation
+					Review.findAll({
+						attributes: ['storename', [Sequelize.fn('AVG', Sequelize.col('stars')), 'avgRating']],
+						group: 'storename',
+						raw: true
+					})
+					.then((review) => {
+						for(var i=0; i<review.length; i++){
+							review[i].avgRating = parseFloat(review[i].avgRating);
+						}
+
+						console.log(review);
+						console.log(shopdetails);
+						res.render('customer/viewshops', {
+							title: "View Shops",
+							shopdetails: shopdetails,
+							shop: shop,
+							review: review
+						});
+					})
+
+				}
+				else {
+					res.render('customer/viewshops', { title: "View Shops" });
+				}
 			})
-				.then((shops) => {
-					if (shops) {
-						// Review average.
-
-						const shop = [];
-						for (var s in shops) {
-							shop.push(shops[s].dataValues);
-						};
-
-						// shop.forEach(shopItem => {
-						// 	console.log(shopItem);
-						// });
-
-						// Review Ratings Calculation
-						Review.findAll({
-							attributes: ['storename', [Sequelize.fn('AVG', Sequelize.col('stars')), 'avgRating']],
-							group: 'storename',
-							raw: true
-						})
-							.then((review) => {
-								for (var i = 0; i < review.length; i++) {
-									review[i].avgRating = parseFloat(review[i].avgRating);
-								}
-
-								console.log(review);
-								console.log(shopdetails);
-								res.render('customer/viewshops', {
-									title: "View Shops",
-									shopdetails: shopdetails,
-									shop: shop,
-									review: review
-								});
-							})
-
-					}
-					else {
-						res.render('customer/viewshops', { title: "View Shops" });
-					}
-				})
-				.catch(err => {
-					console.error('Unable to connect to the database:', err);
-				});
-		});
+			.catch(err => {
+				console.error('Unable to connect to the database:', err);
+			});
+	});
 });
 
 
 // Customer View Shop Items
 router.get('/viewshops/:storename/:page', (req, res) => {
 	var page = parseInt(req.params.page) - 1;
-	var limit = 6;
-
+	var limit = 6; 
+	
 	// limit: Remainder of page/6, if 0 > default 6.
 	Catalouge.findAndCountAll({
 		where: { storename: req.params.storename },
-		offset: page * 6,
+		offset: page*6,
 		limit: limit,
 		raw: true
 	})
 		.then(shopprod => {
-			var min_item = (page * limit) + 1;
-			var max_item = (page * limit) + (shopprod.count % 6 || 6);
-			var totalpage = Math.ceil(shopprod.count / limit)
+			var min_item = (page*limit)+1;
+			var max_item = (page*limit) + (shopprod.count%6 || 6);
+			var totalpage = Math.ceil(shopprod.count/limit)
 			if (shopprod.count > 0) {
 				var itemsId = [];
 				shopprod.rows.forEach(e => {
@@ -744,27 +733,27 @@ router.get("/view/:id", (req, res) => {
 					where: { productid: req.params.id },
 					raw: true
 				})
-					.then((reviews) => {
-						var avgRating = 0;
-						if (reviews.length > 0) {
-							reviews.forEach(r => {
-								avgRating = avgRating + r.stars;
-							});
-							avgRating = avgRating / reviews.length;
-						}
-
-						res.render('customer/productview', {
-							title: pdetails.name + ' - ' + pdetails.storename,
-							pdetails: getDetails,
-							choicesArray: choicesArray,
-							discprice: discprice,
-							avgRating: avgRating,
-							reviews: reviews
+				.then((reviews) => {
+					var avgRating = 0;
+					if(reviews.length > 0){
+						reviews.forEach(r => {
+							avgRating = avgRating + r.stars;
 						});
-					})
-					.catch(err => {
-						console.error('Unable to connect to the database:', err);
+						avgRating = avgRating / reviews.length;
+					}
+					
+					res.render('customer/productview', {
+						title: pdetails.name + ' - ' + pdetails.storename,
+						pdetails: getDetails,
+						choicesArray: choicesArray,
+						discprice: discprice,
+						avgRating: avgRating,
+						reviews:reviews
 					});
+				})
+				.catch(err => {
+					console.error('Unable to connect to the database:', err);
+				});
 			}
 			else {
 				return res.redirect('/404');
@@ -787,7 +776,7 @@ router.get('/advertise', (req, res) => {
 
 // riders: main orders page 
 router.get('/faq', (req, res) => {
-	res.render('user/faq', { title: "FAQ" });
+	res.render('user/faq', {title: "FAQ"});
 });
 
 
