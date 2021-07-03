@@ -142,8 +142,17 @@ Handlebars.registerHelper('getToday', function () {
 	return getToday();
 });
 
-Handlebars.registerHelper("pageInc", function (page) {
-	return page+1;
+Handlebars.registerHelper('checklength', function (v1, v2, options) {
+	'use strict';
+	   if (v1.length>v2) {
+		 return options.fn(this);
+	  }
+	  return options.inverse(this);
+});
+
+Handlebars.registerHelper('subString', function(passedString) {
+    var theString = passedString.substring(0,70);
+    return new Handlebars.SafeString(theString)
 });
 
 var paginate = require('handlebars-paginate');

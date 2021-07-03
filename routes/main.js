@@ -342,7 +342,7 @@ router.post('/chatwith/:name', ensureAuthenticated, (req, res) => {
 	})
 	.then((chats) => {
 		if(chats.length>0){
-			res.redirect('/inbox/'+chats[0].id);
+			res.redirect('/c/inbox/'+chats[0].id);
 		}
 		else{
 			Chat.create({
@@ -352,7 +352,7 @@ router.post('/chatwith/:name', ensureAuthenticated, (req, res) => {
 				recipientstatus: "Unread"
 			})
 			.then((chat) =>{
-				res.redirect('/inbox/'+chat.id);
+				res.redirect('/c/inbox/'+chat.id);
 			})
 			.catch(err => {
 				console.error('Unable to connect to the database:', err);
@@ -364,10 +364,10 @@ router.post('/chatwith/:name', ensureAuthenticated, (req, res) => {
 	});
 });
 
-router.get('/inbox/:id', ensureAuthenticated, (req, res) => {
+router.get('/c/:chat/:id', ensureAuthenticated, (req, res) => { 
 	if (typeof req.user != "undefined") {
 		var currentuser;
-		if(req.user.dataValues.usertype == "tailor"){
+		if (req.user.dataValues.usertype == "tailor") {
 			currentuser = req.user.dataValues.shopname;
 		}
 		else {
@@ -385,113 +385,148 @@ router.get('/inbox/:id', ensureAuthenticated, (req, res) => {
 		raw: true
 	})
 		.then((chats) => {
-			// Error: something wrong when chatid > 1
-			if (chats) {
-				chatIdExist = false;
-				// Need to extract ONLY one section of each chats object
-				// & check if current webpage ID exists
-				for (var c = chats.length-1; c >= 0; c--) {
-					console.log(chats[c].id, req.params.id);
-					if (chats[c].id == req.params.id) { // 1 is static data
-						chatIdExist = true;
-						if(currentuser == chats[c].recipient){
-							recipient = chats[c].sender;
-						}
-						else{
-							recipient = chats[c].recipient;
-						}
-					}
-
-					if (chats[c].sender ==currentuser && chats[c].senderstatus == "deleted"){
-						chats.splice(c,1);
-					}
-					else if (chats[c].recipient ==currentuser && chats[c].recipientstatus == "deleted"){
-						chats.splice(c,1);
-					}
-					else {
-						chatids.push(chats[c].id);
-					}
-				};
-
-				Message.findAll({
-					where: {
-						chatId: chatids
-					},
-					order: [
-						['id', 'DESC'],
-					],
-					raw: true
-				})
-					.then((messageInChat) => {
-						// Filter to get the biggest msg id FOR EACH chat id.
-						const idcheck = chatids.reduce((acc, curr) => (acc[curr] = 0, acc), {});
-						const checkedlist = [];
-						for (var msg in messageInChat) {
-							for (var i in idcheck){
-								if (messageInChat[msg].chatId == i && !checkedlist.includes(messageInChat[msg].chatId)){
-									idcheck[i] = messageInChat[msg].message;
-									checkedlist.push(messageInChat[msg].chatId);
+			User.findAll({
+				attributes: ['username', 'shopname', 'photo'],
+				raw: true
+			})
+				.then((photodetails) => {
+					// Error: something wrong when chatid > 1
+					if (chats) {
+						chatIdExist = false;
+						// Need to extract ONLY one section of each chats object
+						// & check if current webpage ID exists
+						for (var c = chats.length - 1; c >= 0; c--) {
+							console.log(chats[c].id, req.params.id);
+							if (chats[c].id == req.params.id) { // 1 is static data
+								chatIdExist = true;
+								if (currentuser == chats[c].recipient) {
+									recipient = chats[c].sender;
+								}
+								else {
+									recipient = chats[c].recipient;
 								}
 							}
-						}
 
-						var keys = Object.keys(idcheck);
-						for (var c in chats){
-							keys.forEach(function(key){
-								if(chats[c].id == key){
-									chats[c]["message"] = idcheck[key];
+							if (chats[c].sender == currentuser && chats[c].senderstatus == "deleted") {
+								chats.splice(c, 1);
+							}
+							else if (chats[c].recipient == currentuser && chats[c].recipientstatus == "deleted") {
+								chats.splice(c, 1);
+							}
+							else {
+								if (req.params.chat == "inbox"){
+									if (chats[c].sender == currentuser && chats[c].senderstatus == "archive"){
+										chats.splice(c, 1);
+									}
+									else if (chats[c].recipient == currentuser && chats[c].recipientstatus == "archive"){
+										chats.splice(c, 1);
+									}
+									else {
+										chatids.push(chats[c].id);
+									}
 								}
+								else if (req.params.chat == "archive") {
+									if (chats[c].sender == currentuser && chats[c].senderstatus != "archive"){
+										chats.splice(c, 1);
+									}
+									else if (chats[c].recipient == currentuser && chats[c].recipientstatus != "archive"){
+										chats.splice(c, 1);
+									}
+									else {
+										chatids.push(chats[c].id);
+									}
+								}
+								
+							}
+						};
+
+
+
+						Message.findAll({
+							where: {
+								chatId: chatids
+							},
+							order: [
+								['id', 'DESC'],
+							],
+							raw: true
+						})
+							.then((messageInChat) => {
+								// Filter to get the biggest msg id FOR EACH chat id.
+								const idcheck = chatids.reduce((acc, curr) => (acc[curr] = 0, acc), {});
+								const checkedlist = [];
+								for (var msg in messageInChat) {
+									for (var i in idcheck) {
+										if (messageInChat[msg].chatId == i && !checkedlist.includes(messageInChat[msg].chatId)) {
+											idcheck[i] = messageInChat[msg].message;
+											checkedlist.push(messageInChat[msg].chatId);
+										}
+									}
+								}
+
+								var keys = Object.keys(idcheck);
+								for (var c in chats) {
+									keys.forEach(function (key) {
+										if (chats[c].id == key) {
+											chats[c]["message"] = idcheck[key];
+										}
+									});
+								}
+
+								// console.log(idcheck);
+								// console.log(chats);
+							})
+							.catch(err => {
+								console.error('Unable to connect to the database:', err);
 							});
-						}
 
-						// console.log(idcheck);
-						// console.log(chats);
-					})
-					.catch(err => {
-						console.error('Unable to connect to the database:', err);
-					});
-
-				if (chatIdExist == true || req.params.id == "0") {
-					Message.findAll({
-						where: { chatId: req.params.id, }, // static data 
-						raw: true
-					})
-						.then((messages) => {
-
-							// Get every first message of the chat
+						if (chatIdExist == true || req.params.id == "0") {
 							Message.findAll({
 								where: { chatId: req.params.id, }, // static data 
 								raw: true
 							})
+								.then((messages) => {
+
+									// Get every first message of the chat
+									Message.findAll({
+										where: { chatId: req.params.id, }, // static data 
+										raw: true
+									})
 
 
+									res.render('user/chat', {
+										title: "Chat",
+										chats: chats,
+										messages: messages,
+										currentuser: currentuser,
+										recipient: recipient,
+										id: req.params.id,
+										chatstatus: req.params.chat,
+										photodetails: photodetails
+									});
+								})
+								.catch(err => {
+									console.error('Unable to connect to the database:', err);
+								});
+						}
+						else {
+							alertMessage(res, 'danger', 'Access Denied, you do not have permission to view message that is not yours.', 'fas fa-exclamation-triangle', true);
 							res.render('user/chat', {
 								title: "Chat",
 								chats: chats,
-								messages: messages,
 								currentuser: currentuser,
 								recipient: recipient,
-								id: req.params.id
+								id: req.params.id,
+								chatstatus: req.params.chat,
+								photodetails: photodetails
 							});
-						})
-						.catch(err => {
-							console.error('Unable to connect to the database:', err);
-						});
-				}
-				else {
-					alertMessage(res, 'danger', 'Access Denied, you do not have permission to view message that is not yours.', 'fas fa-exclamation-triangle', true);
-					res.render('user/chat', {
-						title: "Chat",
-						chats: chats,
-						currentuser: currentuser,
-						recipient: recipient,
-						id: req.params.id
-					});
-				}
-			}
-			else {
-				res.render('user/chat', { title: "Chat" });
-			}
+						}
+					}
+					else {
+						res.render('user/chat', { title: "Chat" });
+					}
+				})
+
 
 		})
 		.catch(err => {
@@ -530,7 +565,7 @@ router.post('/inbox/uploadimg/:id', (req, res) => {
 					}).catch(err => {
 						console.error('Unable to connect to the database:', err);
 					});
-					return res.redirect('../../inbox/'+req.params.id);
+					res.redirect('/c/inbox/'+req.params.id);
 				}
 			});
 		}
@@ -571,7 +606,7 @@ router.post('/inbox/delete/:id', ensureAuthenticated, (req, res) => {
 	})
 	.catch(err => console.log(err));
 	alertMessage(res, 'success', 'Deleted message successfully!', 'fas fa-check-circle', true);
-	res.redirect('/inbox/0');
+	res.redirect('/c/inbox/0');
 });
 
 // Customer View Shops
