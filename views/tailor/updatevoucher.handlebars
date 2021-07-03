@@ -8,43 +8,44 @@
                             <h4> Update Voucher </h4>
                         </a>
                     </div>
+                    
                     <div id="lg2" class="tab-pane">
                         <div class="login-form-container">
                             <div class="login-register-form">
-                                <form action="#" method="post">
+                                <form action="/tailor/updateVoucher/{{vouchers.id}}?_method=PUT" method="post" id="updateVoucher">
                                     <div class="form-group">
                                         <label for="name">Voucher Code</label>
-                                        <input id="code" name="code" class="form-control" type="text" value="" >
+                                        <input id="code" name="code" class="form-control" type="text" value="{{vouchers.code}}" >
                                     </div>
 
                                     <div class="form-group">
                                         <label for="name">Description</label>
-                                        <input id="description" name="description" class="form-control" type="text" value="" >
+                                        <input id="description" name="description" class="form-control" type="text" value="{{vouchers.description}}" >
                                     </div>
                                     
                                     <div class="form-group">
                                         <label for="name">Discount(%)</label>
-                                        <input id="discount" name="discount" class="form-control" type="text" value="" >
+                                        <input id="discount" name="discount" class="form-control" type="text" value="{{vouchers.discount}}" >
                                     </div>
 
                                     <div class="form-group">
                                         <label for="name">Minimum Purchase($)</label>
-                                        <input id="minpurchase" name="minpurchase" class="form-control" type="text" value="" >
+                                        <input id="minpurchase" name="minpurchase" class="form-control" type="text" value="{{vouchers.minpurchase}}" >
                                     </div>
 
                                     <div class="form-group">
                                         <label for="name">Quantity</label>
-                                        <input id="quantity" name="quantity" class="form-control" type="text" value="" >
+                                        <input id="quantity" name="quantity" class="form-control" type="text" value="{{vouchers.quantity}}" >
                                     </div>
 
                                     <div class="form-group">
                                         <label for="name">Start Date (DD/MM/YYYY)</label>
-                                        <input id="vstartdate" name="vstartdate" class="form-control" type="text" value="" >
+                                        <input id="vstartdate" name="vstartdate" class="form-control" type="text" value="{{vouchers.vstartdate}}" >
                                     </div>
 
                                     <div class="form-group">
                                         <label for="name">Expiry Date (DD/MM/YYYY)</label>
-                                        <input id="vexpirydate" name="vexpirydate" class="form-control" type="text" value="" >
+                                        <input id="vexpirydate" name="vexpirydate" class="form-control" type="text" value="{{vouchers.vexpirydate}}" >
                                     </div>
 
                                     <div class="button-box">
