@@ -127,9 +127,10 @@
             <div class="heading_msg">
                 <b>{{recipient}}</b>
 
-                <a href="/chat/archive/2" title="Mark as archive" style="float: right;"><i class="fa fa-archive"></i>
+                {{#ifCond chatstatus '!=' "archive"}}
+                <a href="/archive/{{id}}" title="Mark as archive" style="float: right;"><i class="fa fa-archive"></i>
                     Archive</a>
-
+                {{/ifCond}}
 
 
                 <form action="/inbox/delete/{{id}}" method="POST" style="display: inline-block; float: right;">
@@ -168,7 +169,7 @@
 
             <div class="msg_history" id="msg_history">
                 <br>
-                <div class="incoming_msg">
+                <!--<div class="incoming_msg">
                     <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png"
                             alt="sunil"> </div>
                     <div class="received_msg">
@@ -178,7 +179,7 @@
                             <span class="time_date"> 18 May 2021 11:41 | Merlion Tailor</span>
                         </div>
                     </div>
-                </div>
+                </div>-->
                 {{#each messages}}
                 {{#if message}}
                 {{#ifCond sentby '==' ../currentuser}}

@@ -578,16 +578,14 @@ router.post('/inbox/uploadaud', (req, res) => {
 	console.log(req.file);
 });
 
+// Chat delete
 router.post('/inbox/delete/:id', ensureAuthenticated, (req, res) => {
-	// not working
 	Chat.findOne({
 		where: { id: req.params.id },
 		raw: true
 	})
 	.then((chat) => {
-		console.log(chat)
 		if(chat.sender == req.session.username){
-			console.log("changing recipientstatus")
 			Chat.update({
 				senderstatus: "deleted" 
 			}, {
@@ -607,6 +605,35 @@ router.post('/inbox/delete/:id', ensureAuthenticated, (req, res) => {
 	.catch(err => console.log(err));
 	alertMessage(res, 'success', 'Deleted message successfully!', 'fas fa-check-circle', true);
 	res.redirect('/c/inbox/0');
+});
+
+// Chat Archive
+router.get('/archive/:id', ensureAuthenticated, (req, res) => {
+	Chat.findOne({
+		where: { id: req.params.id },
+		raw: true
+	})
+	.then((chat) => {
+		if(chat.sender == req.session.username){
+			Chat.update({
+				senderstatus: "archive" 
+			}, {
+				where: { id: req.params.id }
+			})
+			.catch(err => console.log(err));
+		}
+		else{
+			Chat.update({
+				recipientstatus: "archive" 
+			}, {
+				where: { id: req.params.id }
+			})
+			.catch(err => console.log(err));
+		}
+	})
+	.catch(err => console.log(err));
+	alertMessage(res, 'success', 'Message successfully archived!', 'fas fa-check-circle', true);
+	res.redirect('/c/archive/' + req.params.id);
 });
 
 // Customer View Shops

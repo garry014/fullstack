@@ -303,6 +303,33 @@ io.on("connection", function(socket){
 		}).catch(err => {
 			console.error('Unable to connect to the database:', err);
 		});
+
+		Chat.findOne({
+			where: { id: data.chatid },
+			raw: true
+		})
+		.then((chat) => {
+			if(chat.sender == currentuser){
+				Chat.update({
+					senderstatus: "Read",
+					recipientstatus: "Unread" 
+				}, {
+					where: { id: data.chatid }
+				})
+				.catch(err => console.log(err));
+			}
+			else{
+				Chat.update({
+					recipientstatus: "Read",
+					senderstatus: "Unread"
+				}, {
+					where: { id: data.chatid }
+				})
+				.catch(err => console.log(err));
+			}
+
+		})
+		.catch(err => console.log(err));
 	});
 
 	socket.on("send_upload", function(data){
