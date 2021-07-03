@@ -4,6 +4,7 @@
 const Catalouge = require('../models/Catalouge');
 const Review = require('../models/Review');
 const User = require('../models/User');
+const Deal = require('../models/Deal');
 
 // Handlebars Helpers
 const alertMessage = require('../helpers/messenger');
@@ -661,7 +662,7 @@ router.get('/flashdeals', (req, res) => {
     })
         .then((deals) => {
             res.render('customer/flashdeals', {
-				title: "Flash Deals",
+		title: "Flash Deals",
                 deals : deals
             });
         })
