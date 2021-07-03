@@ -2,72 +2,85 @@
     <div class="container">
         <h3 class="cart-page-title">Your vouchers</h3>
         <div class="row">
+            {{#if vouchers}}
             <div class="col-lg-12 col-md-12 col-sm-12 col-12">
-                    <div class="table-content table-responsive cart-table-content">
-                        <table style=" margin-left: auto; margin-right: auto; width: 90%;">
-                            <thead>
-                                <tr>
-                                    <th>Code</th>
-                                    <th>Description</th>
-                                    <th>Discount</th>
-                                    <th>Minimum Purchase</th>
-                                    <th>Quantity</th>
-                                    <th>Start Date</th>
-                                    <th>Expiry Date</th>
-                                    <th>action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="product-code">OVER100</td>
-                                    <td class="product-description">Spend over $100</td>
-                                    <td class="product-discount">40%</td>
-                                    <td class="product-minpurchase">$100</td>
-                                    <td class="product-quantity">100</td>
-                                    <td class="product-start_date">25/05/2021</td>
-                                    <td class="product-end_date">25/06/2021</td>
-                                    <td class="product-remove">
-                                        <a href="/updatevoucher"><i class="fa fa-pencil"></i></a>
-                                        <form action="#" method="POST" style="display: inline-block;">
-                                        <button type="button" style="border:none; background: none; display: inline-block;" data-toggle="modal" data-target="#myModal_"><i class="fa fa-times"></i></button>
+                <div class="table-content table-responsive cart-table-content">
+                    <table style=" margin-left: auto; margin-right: auto; width: 90%;">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Description</th>
+                                <th>Discount</th>
+                                <th>Minimum Purchase</th>
+                                <th>Quantity</th>
+                                <th>Start Date</th>
+                                <th>Expiry Date</th>
+                                <th>action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                {{#each vouchers}}
+                                <td class="product-code">{{code}}</td>
+                                <td class="product-description">{{description}}</td>
+                                <td class="product-discount">{{discount}}%</td>
+                                <td class="product-minpurchase">${{minpurchase}}</td>
+                                <td class="product-quantity">{{quantity}}</td>
+                                <td class="product-vstartdate">{{vstartdate}}</td>
+                                <td class="product-vexpirydate">{{vexpirydate}}</td>
+                                {{!-- <td class="product-start_date">{{formatDate vstartdate 'DD MMM YYYY'}}</td> --}}
+                                {{!-- <td class="product-end_date">{{formatDate vexpirydate 'DD MMM YYYY'}}</td> --}}
+                                <td class="product-remove">
+                                    <a href="updateVoucher/{{id}}"><i class="fa fa-pencil"></i></a>
+                                    <form action="#" method="POST" style="display: inline-block;">
+                                        <button type="button"
+                                            style="border:none; background: none; display: inline-block;"
+                                            data-toggle="modal" data-target="#myModal_"><i
+                                                class="fa fa-times"></i></button>
                                         <!-- The Modal -->
                                         <div class="modal" id="myModal_">
-                                          <div class="modal-dialog">
-                                            <div class="modal-content">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
 
-                                              <!-- Modal Header -->
-                                              <div class="modal-header">
-                                                <h4 class="modal-title">Delete Confirmation</h4>
-                                                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                              </div>
+                                                    <!-- Modal Header -->
+                                                    <div class="modal-header">
+                                                        <h4 class="modal-title">Delete Confirmation</h4>
+                                                        <button type="button" class="close"
+                                                            data-dismiss="modal">&times;</button>
+                                                    </div>
 
-                                              <!-- Modal body -->
-                                              <div class="modal-body">
-                                                Are you sure you want to delete?
-                                              </div>
+                                                    <!-- Modal body -->
+                                                    <div class="modal-body">
+                                                        Are you sure you want to delete?
+                                                    </div>
 
-                                              <!-- Modal footer -->
-                                              <div class="modal-footer">
-                                               <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                                  <button type="submit" value="Delete" class="btn btn-danger">Delete</button>
-                                              </div>
-
+                                                    <!-- Modal footer -->
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-dismiss="modal">Cancel</button>
+                                                        <a href="deleteVoucher/{{id}}" type="submit" value="Delete"
+                                                            class="btn btn-danger">Delete</a>
+                                                    </div>
+                                                </div>
                                             </div>
-                                          </div>
                                         </div>
                                     </form>
-                                   </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                                </td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
+        {{else}}
+        You do not have any vouchers.
+        {{/if}}
         <div class="row">
             <div class="col-lg-12">
                 <div class="cart-shiping-update-wrapper" style="float:right;">
                     <div class="cart-clear">
-                        <a href="/addvoucher">Add Item</a>
+                        <a href="addvoucher">Add Voucher</a>
                     </div>
                 </div>
             </div>
