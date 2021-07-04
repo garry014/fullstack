@@ -378,7 +378,6 @@ app.get('/auth/facebook/homecust',
 app.get('/test', (req, res) => {
 	res.render('testchat', { title: "Test Chat" });
 });
-=======
 	}));
 // This route maps the root URL to any path defined in main.js
 
