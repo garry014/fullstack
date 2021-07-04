@@ -13,22 +13,22 @@
                     <nav>
                     <ul>
                     {{#if (eq user.usertype "tailor")}}
-                            <li><a href="/viewshops/{{user.shopname}}">View My Shop <i class="fa fa-angle-down"></i></a>
+                            <li><a href="/viewshops/{{user.shopname}}/1">View My Shop <i class="fa fa-angle-down"></i></a>
                             <ul class="submenu">
                                     <li><a href="/tailor/addproduct">Add Products</a></li>
                                     <li><a href="">Change Target</a></li>
                                     <li><a href="">Add Deals</a></li>
                                 </ul>
                             </li>
-                            <li><a href="/viewshops">Sales Chart <i class="fa fa-angle-down"></i></a>
-                            <ul class="submenu">
-                                    <li><a href="">Change Target</a></li>
+                            <li><a href="/tailor/sales">Sales Chart <i class="fa fa-angle-down"></i></a>
+                                <ul class="submenu">
+                                    <li><a href="/tailor/target">Change Target</a></li>
                                 </ul>
                             </li>
 
-                            <li><a href="">Vouchers <i class="fa fa-angle-down"></i></i></a>
+                            <li><a href="/tailor/vouchers">Vouchers <i class="fa fa-angle-down"></i></i></a>
                                 <ul class="submenu">
-                                    <li><a href="">Add Vouchers</a></li>
+                                    <li><a href="/tailor/addvoucher">Add Vouchers</a></li>
                                 </ul>
                             </li>
 
@@ -125,7 +125,7 @@
                         </div>
                     </div>
                     <div class="same-style header-wishlist">
-                        <a href="/inbox/0"><i class="pe-7s-chat"></i></a>
+                        <a href="/c/inbox/0"><i class="pe-7s-chat"></i></a>
                     </div>
                     
                 </div>
