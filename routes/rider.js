@@ -91,7 +91,7 @@ router.post('/rideregister', (req, res) => {
 			msg: 'Phone Number have to consist of 8 digits.'
 		});
 	}
-	
+
 	// Image Validation
 	if (!req.files) {
 		errors.push({ msg: 'Please upload an image file.' });
@@ -164,7 +164,7 @@ router.post('/rideregister', (req, res) => {
 						bcrypt.hash(password, salt, (err, hash) => {
 							if (err) throw err;
 							password = hash;
-							User.create({ firstname, lastname, username, password, gender, email, phoneno, transport, licenseno, photo:newFileName, usertype: 'rider' })
+							User.create({ firstname, lastname, username, password, gender, email, phoneno, transport, licenseno, photo: newFileName, usertype: 'rider' })
 								.then(user => {
 									alertMessage(res, 'success', user.username + ' Please proceed to login', 'fas fa-sign-in-alt', true);
 									res.redirect('rideregcomplete');
@@ -191,7 +191,6 @@ router.get('/rideraccount/:id', ensureAuthenticated, (req, res) => {
 			alertMessage(res, 'danger', 'Access Denied', 'fas fa-exclamation-circle', true);
 			req.logout();
 			res.redirect('/rider/homerider');
-
 		}
 		else {
 			if (req.params.id == Rider.id) {
@@ -207,33 +206,137 @@ router.get('/rideraccount/:id', ensureAuthenticated, (req, res) => {
 		}
 
 	}).catch(err => console.log(err));
-
 });
 router.put('/rideraccount/:id', ensureAuthenticated, (req, res) => {
+	let errors = [];
 	let firstname = req.body.firstname;
 	let lastname = req.body.lastname;
 	let password = req.body.password;
-	let email = req.body.email;
 	let phoneno = req.body.phoneno;
 	let transport = req.body.transport;
-	// console.log(firstname);
+	let licenseno = req.body.licenseno;
+	let currentpassword = req.body.currentpassword;
+	let newpassword = req.body.newpassword;
+	let confirmpassword = req.body.confirmpassword;
+	const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-	User.update({
-		firstname,
-		lastname,
-		password,
-		email,
-		phoneno,
-		transport
-	}, {
-		where: {
-			id: req.params.id
-		}
-	}).then(() => {
-		// get value from customeraccount
-		alertMessage(res, 'success', 'Account has been updated successfully!', 'fas fa-sign-in-alt', true);
+	//validation for phone no.
+	if (! /^[0-9]{8}$/.test(req.body.phoneno)) {
+		alertMessage(res, 'danger',
+			'Phone number has to be 8 digits.', 'fas fa-exclamation-circle', false);
+		errors.push(1);
+	}
+
+	// check if the current password matches the database hash 
+	// if (!req.body.currentpassword == false) {
+	// 	bcrypt.genSalt(10, (err, salt) => {
+	// 		bcrypt.hash(currentpassword, salt, (err, hash) => {
+	// 			currentpassword = hash;
+	// 			if (hash !== password) {
+	// 				console.log(password);
+	// 				console.log(hash);
+	// 				alertMessage(res, 'danger',
+	// 					'Current password is invalid.', 'fas fa-exclamation-circle', false);
+	// 			}
+	// 		})
+	// 	});
+	// }
+
+	// Image Validation
+	if (req.file && req.files.file.mimetype.startsWith("image") == false) {
+		alertMessage(res, 'danger',
+			'Please upload a valid image file.', 'fas fa-exclamation-circle', false);
+		errors.push(1);
+	}
+
+	// compare if the new password is the same as the old password 
+	if (currentpassword == newpassword && !req.body.currentpassword == false) {
+		alertMessage(res, 'danger',
+			'New password cannot be the same as the old password. Please try again.', 'fas fa-exclamation-circle', false);
+		errors.push(1);
+	}
+
+	// validation for password 
+	if (regex.test(newpassword) == false && !req.body.newpassword == false) {
+		alertMessage(res, 'danger',
+			'Password must contain at least eight characters with at least one uppercase letter, one lowercase letter, one number and one special character.', 'fas fa-exclamation-circle', false);
+		errors.push(1);
+	}
+
+	// Checks if both passwords entered are the same
+	if (newpassword != confirmpassword) {
+		alertMessage(res, 'danger',
+			'New Passwords do not match.', 'fas fa-exclamation-circle', false);
+		errors.push(1);
+	}
+
+	if (errors.length > 0) {
 		res.redirect('/rider/rideraccount/' + req.params.id);
-	}).catch(err => console.log(err));
+	} else {
+		if (req.files) {
+			// Image Upload		
+
+			var file = req.files.file;
+			var filename = file.name;
+			var filetype = file.mimetype.substring(6);
+			var newid = uuidv4().concat(".").concat(filetype); // Generate unique file id
+
+			console.log("./public/uploads/user/" + newid);
+			file.mv('./public/uploads/user/' + filename, function (err) {
+				if (err) {
+					res.send(err);
+				}
+				else {
+					fs.rename('./public/uploads/user/' + filename, './public/uploads/user/' + newid, function (err) {
+						if (err) console.log('ERROR: ' + err);
+					});
+					User.update({
+						photo: newid
+					}, {
+						where: {
+							id: req.params.id
+						}
+					});
+				}
+			});
+		}
+		if (!req.body.newpassword == false) {
+			bcrypt.genSalt(10, (err, salt) => {
+				bcrypt.hash(newpassword, salt, (err, hash) => {
+					newpassword = hash;
+					User.update({
+						password: newpassword,
+					}, {
+						where: {
+							id: req.params.id
+						}
+					}).then(() => {
+						// get value from customeraccount
+						alertMessage(res, 'success', 'Password has been updated successfully!', 'fas fa-sign-in-alt', true);
+						res.redirect('/rider/rideraccount/' + req.params.id);
+					}).catch(err => console.log(err));
+				})
+			});
+		}
+		else {
+			User.update({
+				firstname,
+				lastname,
+				phoneno,
+				transport,
+				licenseno
+
+			}, {
+				where: {
+					id: req.params.id
+				}
+			}).then(() => {
+				// get value from customeraccount
+				alertMessage(res, 'success', 'Account has been updated successfully!', 'fas fa-sign-in-alt', true);
+				res.redirect('/rider/rideraccount/' + req.params.id);
+			}).catch(err => console.log(err));
+		}
+	}
 });
 // req.params is where u pass in the variables into the URL 
 
@@ -388,6 +491,33 @@ router.post('/resetpassword/:id/:token', (req, res, next) => {
 
 	}).catch(err => console.log(err));
 
+});
+
+// delete user account
+router.get('/delete/:id', ensureAuthenticated, (req, res) => {
+	let id = req.params.id;
+	// Select * from videos where videos.id=videoID and videos.userId=userID
+	User.findOne({
+		where: {
+			id: id,
+		},
+		attributes: ['id']
+	}).then((User) => {
+		// if record is found, user is owner of video
+		if (User != null) {
+			User.destroy({
+				where: {
+					id: id
+				}
+			}).then(() => {
+				alertMessage(res, 'info', 'Your account has been deleted.', 'far fa-trash-alt', true);
+				res.redirect('/rider/homerider');
+			}).catch(err => console.log(err));
+		} else {
+			alertMessage(res, 'danger', 'An error occurred. Please try again later.', 'fas fa-exclamation-circle', true);
+			res.redirect('/rlogout');
+		}
+	});
 });
 
 // logout user 

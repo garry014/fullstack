@@ -77,7 +77,10 @@
                         </div>
                     </div>
                     <div class="same-style account-satting">
-                        <a class="account-satting-active" href="#">{{#ifCond user.photo '==' null}}<i class="pe-7s-user-female"></i>{{/ifCond}}{{#ifCond user.photo '!=' null}}<img src="/uploads/user/{{user.photo}}" alt="Profile Pic" width="25" height="25" style="border-radius: 50%;">{{/ifCond}}</a>
+                        <a class="account-satting-active" href="#">{{#ifCond user.photo '==' null}}<i
+                                class="pe-7s-user-female"></i>{{/ifCond}}{{#ifCond user.photo '!=' null}}<img
+                                src="/uploads/user/{{user.photo}}" alt="Profile Pic" width="25" height="25"
+                                style="border-radius: 50%;">{{/ifCond}}</a>
                         <div class="account-dropdown">
                             <ul>
                                 {{#if (eq user.usertype "customer")}}
@@ -102,7 +105,7 @@
                         </button>
                         <div class="shopping-cart-content">
                             <ul>
-                                 <li><a href="/customers_checkout">Orders Cart</a></li>
+                                <li><a href="/customers_checkout">Orders Cart</a></li>
                                 <li><a href="">Course Cart</a></li>
                             </ul>
                         </div>

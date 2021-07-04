@@ -56,21 +56,6 @@
                     <label>Profile photo:</label>
                     <input type="file" id="file" name="file">
                   </div>
-                  {{!-- <div class="form-group">
-                    <label>Password (Password must contain at least eight characters with at least one uppercase letter,
-                      one lowercase letter, one number and one special character)</label>
-                    <input type="password" name="password" placeholder="Password" id="password" value="{{ password }}">
-                    <input type="checkbox" onclick="showpassword()">Show Password
-                    Profile photo:
-                    <input type="file" id="file" name="file">
-                  </div>
-                  <div class="form-group">
-                    <input type="text" name="password" placeholder="Password" value="{{ password }}">
-                  </div>
-                  <div class="form-group">
-                    <label>Enter password again</label>
-                    <input type="password" name="password2" placeholder="Password" value="{{ password2 }}">
-                  </div> --}}
                   <div class="form-group">
                     <label>Email</label>
                     <input type="text" name="email" placeholder="Email" value="{{ email }}">
@@ -89,7 +74,15 @@
                   </div>
                   <div class="form-group">
                     <label>Transport</label>
-                    <input type="text" name="transport" placeholder="Transport" value="{{transport}}">
+                    <select name="transport" value="{{transport}}" required onchange='CheckTransport(this.value);'>
+                      <option>Pick a Transport</option>
+                      <option value="car">Car</option>
+                      <option value="bicycle">Bicycle</option>
+                      <option value="motocycle">Motorcycle</option>
+                      <option value="van">Van</option>
+                      <option value="others">If Others, please specify: </option>
+                    </select>
+                    <input type="text"  value="{{ transport }}" id="others" style='display:none;'/>
                   </div>
                   <div class="form-group">
                     <label>License No</label>
@@ -111,7 +104,7 @@
 </div>
 </div>
 </div>
-<script>
+<script type="text/javascript">
   function showpassword() {
     var x = document.getElementById("password");
     if (x.type === "password") {
@@ -119,5 +112,13 @@
     } else {
       x.type = "password";
     }
+  }
+
+  function CheckTransport(val) {
+    var element = document.getElementById('others');
+    if (val == 'Pick a Transport' || val == 'others')
+      element.style.display = 'block';
+    else
+      element.style.display = 'none';
   }
 </script>

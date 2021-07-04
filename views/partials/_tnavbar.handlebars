@@ -3,7 +3,7 @@
         <div class="row">
             <div class="col-xl-2 col-lg-2 col-md-6 col-4">
                 <div class="logo">
-                    <a href="../tailor/hometailor">
+                    <a href="/tailor/hometailor">
                         <img alt="" src="/img/logo/logo.png">
                     </a>
                 </div>
@@ -14,14 +14,14 @@
                     <nav>
                         <ul>
                             <li><a href="/viewshops/{{user.shopname}}">View My Shop <i class="fa fa-angle-down"></i></a>
-                            <ul class="submenu">
+                                <ul class="submenu">
                                     <li><a href="/tailor/addproduct">Add Products</a></li>
                                     <li><a href="">Change Target</a></li>
                                     <li><a href="">Add Deals</a></li>
                                 </ul>
                             </li>
                             <li><a href="/viewshops">Sales Chart <i class="fa fa-angle-down"></i></a>
-                            <ul class="submenu">
+                                <ul class="submenu">
                                     <li><a href="">Change Target</a></li>
                                 </ul>
                             </li>
@@ -32,8 +32,8 @@
                                 </ul>
                             </li>
 
-                             <li><a href="">Orders</a></li>
-                             <li><a href="">Courses <i class="fa fa-angle-down"></i></i></a>
+                            <li><a href="">Orders</a></li>
+                            <li><a href="">Courses <i class="fa fa-angle-down"></i></i></a>
                                 <ul class="submenu">
                                     <li><a href="">Create Courses</a></li>
                                     <li><a href="">View My Courses</a></li>
@@ -93,23 +93,28 @@
                             </div>
 
                             <!-- Rubbish data -->
-                            <div onclick="location.href='/my_orders';" style="border-radius: 3px; padding: 5px 10px 5px 12px; border-bottom: 1px solid black; cursor: pointer;">
-                                            <div style="position: relative; float: right;">
-                                                <a href="/noti/delete/71"><i class="fa fa-times" title="Delete this notification"></i></a>
-                                            </div>
-                                            Your payment of $210.0 has been received, and your order will be processed.
-                                            <div style="font-size:10px">
-                                                <i class="fa fa-rss"></i>
-                                                10 May 03:05PM
-                                            </div>
-                                        </div>
+                            <div onclick="location.href='/my_orders';"
+                                style="border-radius: 3px; padding: 5px 10px 5px 12px; border-bottom: 1px solid black; cursor: pointer;">
+                                <div style="position: relative; float: right;">
+                                    <a href="/noti/delete/71"><i class="fa fa-times"
+                                            title="Delete this notification"></i></a>
+                                </div>
+                                Your payment of $210.0 has been received, and your order will be processed.
+                                <div style="font-size:10px">
+                                    <i class="fa fa-rss"></i>
+                                    10 May 03:05PM
+                                </div>
+                            </div>
                             <!-- end of rubbish -->
 
                             <center><a href="/notification">See All</a></center>
                         </div>
                     </div>
                     <div class="same-style account-satting">
-                        <a class="account-satting-active" href="#"><i class="pe-7s-user-female"></i></a>
+                        <a class="account-satting-active" href="#">{{#ifCond user.photo '==' null}}<i
+                                class="pe-7s-user-female"></i>{{/ifCond}}{{#ifCond user.photo '!=' null}}<img
+                                src="/uploads/user/{{user.photo}}" alt="Profile Pic" width="25" height="25"
+                                style="border-radius: 50%;">{{/ifCond}}</a>
                         <div class="account-dropdown">
                             <ul>
                                 {{#if (eq user.usertype "tailor")}}
@@ -120,14 +125,14 @@
                                 {{else}}
                                 <li><a href="../tailor/tailorlogin">Login</a></li>
                                 <li><a href="../tailor/tailoregister">Register</a></li>
-                                 {{/if}}
+                                {{/if}}
                             </ul>
                         </div>
                     </div>
                     <div class="same-style header-wishlist">
                         <a href="/inbox/0"><i class="pe-7s-chat"></i></a>
                     </div>
-                    
+
                 </div>
             </div>
         </div>

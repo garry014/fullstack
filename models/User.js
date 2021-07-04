@@ -54,6 +54,12 @@ const User = db.define('User', {
 	},
 	usertype: {
 		type: Sequelize.STRING
+	},
+	facebook_id: {
+		type: Sequelize.STRING
+	},
+	google_id: {
+		type: Sequelize.STRING
 	}
 	
 });

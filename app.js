@@ -2,6 +2,7 @@
 * 'require' is similar to import used in Java and Python. It brings in the libraries required to be used
 * in this JS file.
 * */
+
 const express = require('express');
 const upload = require('express-fileupload');
 const path = require('path');
@@ -13,6 +14,14 @@ const { v4: uuidv4 } = require('uuid');
 const passport = require('passport');
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
+const { OAuth2Client, IdTokenClient } = require('google-auth-library');
+const client = new OAuth2Client(IdTokenClient);
+const bcrypt = require('bcryptjs');
+const alertMessage = require('./helpers/messenger');
+
+
+// for facebook create user 
+// const urlParams = queryString.parse(window.location.search);
 // const jwt = require('jsonwebtoken')
 
 const flash = require('connect-flash');
@@ -104,25 +113,25 @@ Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
 });
 
 Handlebars.registerHelper('eq', function () {
-    const args = Array.prototype.slice.call(arguments, 0, -1);
-    return args.every(function (expression) {
-        return args[0] === expression;
-    });
+	const args = Array.prototype.slice.call(arguments, 0, -1);
+	return args.every(function (expression) {
+		return args[0] === expression;
+	});
 });
 
 // For loop
-Handlebars.registerHelper('times', function(n, block) {
-    var accum = '';
-    for(var i = 0; i < n; ++i)
-        accum += block.fn(i);
-    return accum;
+Handlebars.registerHelper('times', function (n, block) {
+	var accum = '';
+	for (var i = 0; i < n; ++i)
+		accum += block.fn(i);
+	return accum;
 });
 
 Handlebars.registerHelper('minusStars', function (n, block) {
 	var accum = '';
-    for(var i = 0; i < 5-n; ++i)
-        accum += block.fn(i);
-    return accum;
+	for (var i = 0; i < 5 - n; ++i)
+		accum += block.fn(i);
+	return accum;
 });
 
 Handlebars.registerHelper('money2dp', function (distance) {
@@ -134,8 +143,8 @@ Handlebars.registerHelper("calculatedisc", function (price, discount) {
 	return a.toFixed(2);
 });
 
-Handlebars.registerHelper("link", function(data) {
-   return new Handlebars.SafeString("<a href='" + data.hash.url + data.hash.id + "'>" + data.hash.text +"</a>");
+Handlebars.registerHelper("link", function (data) {
+	return new Handlebars.SafeString("<a href='" + data.hash.url + data.hash.id + "'>" + data.hash.text + "</a>");
 });
 
 Handlebars.registerHelper('getToday', function () {
@@ -166,10 +175,10 @@ app.use(methodOverride('_method'));
 
 // Enables session to be stored using browser's Cookie ID
 app.use(cookieParser());
-
-
+// app.use(passport.authenticate('RememberMe'));
 
 // To store session information. By default it is stored as a cookie on browser
+// so the cookie works here alrdy so how shld i "deactivate" it LOLOLOLOLOLOL 
 app.use(session);
 
 app.use(passport.initialize());
@@ -188,16 +197,16 @@ app.use(function (req, res, next) {
 		res.locals.user = req.user.dataValues || null;
 	}
 	// Navbar
-	if (req.path.includes('/customer')){
+	if (req.path.includes('/customer')) {
 		res.locals.useracctype = 'Customer';
 	}
-	else if (req.path.includes('/rider')){
+	else if (req.path.includes('/rider')) {
 		res.locals.useracctype = 'Rider';
 	}
-	else if (req.path.includes('/tailor')){
+	else if (req.path.includes('/tailor')) {
 		res.locals.useracctype = 'Tailor';
 	}
-	
+
 	// Notifications
 	if (typeof req.user != "undefined") {
 		Notification.findAll({
@@ -206,9 +215,9 @@ app.use(function (req, res, next) {
 			order: [['id', 'DESC']],
 			raw: true
 		})
-		.then((noti) => {
-			res.locals.noti = noti;	
-		});
+			.then((noti) => {
+				res.locals.noti = noti;
+			});
 	}
 	next();
 });
@@ -246,30 +255,30 @@ const Chat = require('./models/Chat');
 const Message = require('./models/Message');
 const Notification = require('./models/Notifications');
 
-function getToday(){
+function getToday() {
 	// Get Date
-	var currentdate = new Date(); 
-	const monthNames = ["January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December"];
+	var currentdate = new Date();
+	const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 	var datetime = currentdate.getDate() + " "
-			+ monthNames[currentdate.getMonth()]  + " " 
-			+ currentdate.getFullYear() + " "  
-			+ currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+		+ monthNames[currentdate.getMonth()] + " "
+		+ currentdate.getFullYear() + " "
+		+ currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
 	return datetime;
 }
 
 io.use(sharedsession(session));
 // add listener for new connection
-io.on("connection", function(socket){
+io.on("connection", function (socket) {
 	console.log("'\x1b[36m%s\x1b[0m'", "user connected: ", socket.id);
 	var currentuser = socket.handshake.session.username;
 	users[currentuser] = socket.id;
-	
+
 
 	socket.on('disconnect', () => {
 		console.log('user disconnected: ', socket.id);
 	});
 
-	socket.on("send_message", function(data){
+	socket.on("send_message", function (data) {
 		// send event to receiver
 		var socketId = users[data.receiver];
 
@@ -289,7 +298,7 @@ io.on("connection", function(socket){
 		});
 	});
 
-	socket.on("send_upload", function(data){
+	socket.on("send_upload", function (data) {
 		// send event to receiver
 		data["sender"] = currentuser;
 		var socketId = users[data.receiver];
@@ -299,7 +308,7 @@ io.on("connection", function(socket){
 });
 // This route maps the root URL to any path defined in main.js
 
-global.send_notification = function(recipient, category, message, hyperlink){ 
+global.send_notification = function (recipient, category, message, hyperlink) {
 	// Create object to send to client side
 	var data = {
 		"recipient": recipient,
@@ -325,66 +334,96 @@ global.send_notification = function(recipient, category, message, hyperlink){
 	io.to(socketId).emit("send_notification", data);
 };
 
-// fix google redirect page problem & must display login name 
+// google login
 passport.use(new GoogleStrategy({
 	clientID: '601670228405-m3un3mco0q1q9faa22ho21e1g5abtd1j.apps.googleusercontent.com',
 	clientSecret: 'LB_jS4hb3y_jYxTWnKAhr0P8',
-	callbackURL: "http://localhost:5000/customer/homecust",
-	userProfileURL: 'https://googleapis.com/oauth2/v3/userinfo'
+	callbackURL: "http://localhost:5000/auth/google/homecust"
 },
 	function (accessToken, refreshToken, profile, cb) {
-		User.findOrCreate({ googleId: profile.id }, function (err, user) {
-			return cb(err, user);
-		});
+		User.findOne({ where: { google_id: profile.id, usertype: 'customer' } })
+			.then(Customer => {
+				if (Customer) {
+					cb(null, Customer);
+				}
+				else {
+					console.log(profile);
+					let firstname = profile.displayName.split(' ')[0];
+					let lastname = profile.displayName.split(' ')[1];
+					let password = '12345678Aa!'
+					bcrypt.genSalt(10, (err, salt) => {
+						bcrypt.hash(password, salt, (err, hash) => {
+							if (err) throw err;
+							password = hash;
+							User.create({ username: profile.displayName, firstname: firstname, lastname: lastname, google_id: profile.id, usertype: 'customer', password: password})
+								.then(user => {
+									cb(null, user);
+								})
+								.catch(err => console.log(err));
+						})
+					});
+				}
+			});
 	}
 ));
 
-app.get("/auth/google", passport.authenticate("google", { scope: ["profile"] })
-);
-app.get("auth/google/homecust", passport.authenticate("google", { failureRedirect: "/customer/custlogin" }),
+app.get("/auth/google", passport.authenticate("google", { scope: ['profile'] }));
+
+
+app.get("/auth/google/homecust", passport.authenticate("google", { failureRedirect: "/customer/custlogin" }),
 	function (req, res) {
-		res.redirect('customer/homecust');
+		alertMessage(res, 'success', 'Default password is 12345678Aa! Please change your password.', 'fas fa-sign-in-alt', true);
+		res.redirect('/customer/homecust')
 	}
 )
+
+// facebook login
 passport.use(new FacebookStrategy({
 	clientID: '3000022716989207',
 	clientSecret: 'e3883b73cf1392784301194f05963827',
-	callbackURL: "http://localhost:5000/customer/homecust"
+	callbackURL: "http://localhost:5000/auth/facebook/homecust"
 },
-	 function(accessToken, refreshToken, profile, done) {
-		User.findOrCreate({ facebookId: profile.id }, function (err, user) {
-			if (err) { return done(err); }
-			done(null, user);
-		});
+	function (accessToken, refreshToken, profile, done) {
+		console.log('facebook-->', profile);
+
+		User.findOne({ where: { facebook_id: profile.id, usertype: 'customer' } })
+			.then(Customer => {
+				if (Customer) {
+					done(null, Customer);
+				}
+				else {
+					let firstname = profile.displayName.split(' ')[0];
+					let lastname = profile.displayName.split(' ')[1];
+					let password = '12345678Aa!'
+					bcrypt.genSalt(10, (err, salt) => {
+						bcrypt.hash(password, salt, (err, hash) => {
+							if (err) throw err;
+							password = hash;
+							User.create({ username: profile.displayName, firstname: firstname, lastname: lastname, facebook_id: profile.id, usertype: 'customer',password:password})
+								.then(user => {
+									// alertMessage(res, 'success', user.username + ' Please proceed to login', 'fas fa-sign-in-alt', true);
+									// res.redirect('customer/homecust');
+									done(null, user);
+								})
+								.catch(err => console.log(err));
+						})
+					});
+				}
+			});
 	}
 ));
 
-// sth wrong with the facebook authentication
 app.get('/auth/facebook', passport.authenticate('facebook'));
 app.get('/auth/facebook/homecust',
 	passport.authenticate('facebook', {
-		successRedirect: '/homecust',
+		// successRedirect: '/customer/homecust',
 		failureRedirect: '/customer/custlogin'
-	}));
-
-
-// // reset password
-// app.get('/forgetpassword', (req, res, next) => {
-
-// })
-
-// app.post('/forgetpassword', (req, res, next) => {
-
-// })
-
-// app.get('/resetpassword', (req, res, next) => {
-
-// })
-
-// app.post('/resetpassword', (req, res, next) => {
-
-// })
-
+	}),
+	function (req, res) {
+		alertMessage(res, 'success', 'Default password is 12345678Aa! Please change your password.', 'fas fa-sign-in-alt', true);
+		res.redirect('/customer/homecust')
+	}
+);
 
 app.get('/test', (req, res) => {
 	res.render('testchat', { title: "Test Chat" });

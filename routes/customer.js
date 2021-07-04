@@ -22,6 +22,7 @@ const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const validator = require("email-validator");
 const Regex = require("regex");
+const { username } = require('../config/db');
 
 // customer: login page 
 // router.get('custlogin', (req, res) => {
@@ -41,6 +42,7 @@ function getToday() {
 
 // Customer Home Page
 router.get('/homecust', (req, res) => {
+	console.log("user-->", req.user);
 	const title = 'TailorNow Home';
 	res.render('homecust', { title: title, user: req.user });
 });
@@ -80,9 +82,8 @@ router.post('/custregister', (req, res) => {
 	// Minimum eight characters with at least one uppercase letter, one lowercase letter, one number and one special character
 	const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-
 	// Checks if both passwords entered are the same
-	if (req.body.password !== req.body.password2) {
+	if (req.body.password != req.body.password2) {
 		errors.push({
 			msg: 'Passwords do not match.'
 		});
@@ -99,6 +100,8 @@ router.post('/custregister', (req, res) => {
 			msg: 'Please enter valid email.'
 		});
 	}
+	// regex.test(req.body.password)
+	// password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
 	// validation for password 
 	if (regex.test(req.body.password) == false) {
 		errors.push({
@@ -118,9 +121,11 @@ router.post('/custregister', (req, res) => {
 		});
 	}
 
-
 	// Image Validation
-	if (!req.files && req.files.file.mimetype.startsWith("image") == false) {
+	if (!req.files) {
+		errors.push({ msg: 'Please upload an image file.' });
+	}
+	else if (req.files.file.mimetype.startsWith("image") == false) {
 		errors.push({ msg: 'Please upload a valid image file.' });
 	}
 	/*
@@ -146,7 +151,7 @@ router.post('/custregister', (req, res) => {
 			usertype
 		});
 	} else {
-		User.findOne({ where: { username: req.body.username, email: req.body.email, usertype: 'customer' } })
+		User.findOne({ where: { email: req.body.email, usertype: 'customer' } })
 			.then(Customer => {
 				if (Customer) {
 					res.render('customer/custregister', {
@@ -166,11 +171,12 @@ router.post('/custregister', (req, res) => {
 						usertype
 					});
 				} else {
-					// Image Upload
+					// Image Upload				
 					var file = req.files.file;
 					var filename = file.name;
 					var filetype = file.mimetype.substring(6);
 					const newid = uuidv4(); // Generate unique file id
+					console.log(address1);
 
 					var newFileName = newid + '.' + filetype;
 					if (fs.existsSync(newFileName)) {
@@ -202,8 +208,6 @@ router.post('/custregister', (req, res) => {
 					});
 				}
 			});
-		// alertMessage(res, 'success', `${req.body.email} registered successfully`, 'fas fa-check-circle', true);
-		// rnodes.redirect('/customer/custregcomplete');
 	}
 });
 
@@ -211,21 +215,14 @@ router.post('/custregister', (req, res) => {
 router.get('/custaccount/:id', ensureAuthenticated, (req, res) => {
 	User.findOne({
 		where: {
-			// Compare using passport authentications instead of the usual id.params
 			id: res.locals.user.id
 		},
 		raw: true
 	}).then((Customer) => {
-		// console.log(Customer);
-		// customerLength = Object.keys(Customer).length;
-		// const newObj = customerLength || undefined;
-		// newObj = Object.keys(Customer).length;
-		// console.log(Customer);
 		if (!Customer) {
 			alertMessage(res, 'danger', 'Access Denied', 'fas fa-exclamation-circle', true);
 			req.logout();
 			res.redirect('/customer/homecust');
-
 		}
 		else {
 			if (req.params.id == Customer.id) {
@@ -245,6 +242,7 @@ router.get('/custaccount/:id', ensureAuthenticated, (req, res) => {
 });
 
 router.put('/custaccount/:id', ensureAuthenticated, (req, res) => {
+	let errors = [];
 	let firstname = req.body.firstname;
 	let lastname = req.body.lastname;
 	let address1 = req.body.address1;
@@ -252,32 +250,140 @@ router.put('/custaccount/:id', ensureAuthenticated, (req, res) => {
 	let city = req.body.city;
 	let postalcode = req.body.postalcode;
 	let password = req.body.password;
-	let email = req.body.email;
 	let phoneno = req.body.phoneno;
-	// console.log(firstname);
+	let currentpassword = req.body.currentpassword;
+	let newpassword = req.body.newpassword;
+	let confirmpassword = req.body.confirmpassword;
+	const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-	User.update({
-		firstname,
-		lastname,
-		address1,
-		address2,
-		city,
-		postalcode,
-		password,
-		email,
-		phoneno
-	}, {
-		where: {
-			id: req.params.id
+	//validation for phone no.
+	if (! /^[0-9]{8}$/.test(req.body.phoneno)) {
+		alertMessage(res, 'danger',
+			'Phone number has to be 8 digits.', 'fas fa-exclamation-circle', false);
+		errors.push(1);
+	}
+
+	//validation for postalcode
+	if (! /^[0-9]{6}$/.test(req.body.postalcode)) {
+		alertMessage(res, 'danger',
+			'Postal Code have to consist of 6 digits.', 'fas fa-exclamation-circle', false);
+		errors.push(1);
+	}
+
+	// Image Validation
+	if (req.file && req.files.file.mimetype.startsWith("image") == false) {
+		alertMessage(res, 'danger',
+			'Please upload a valid image file.', 'fas fa-exclamation-circle', false);
+		errors.push(1);
+	}
+
+	// check if the current password matches the database hash 
+	// if (!req.body.currentpassword == false) {
+	// 	bcrypt.genSalt(10, (err, salt) => {
+	// 		bcrypt.hash(currentpassword, salt, (err, hash) => {
+	// 			currentpassword = hash;
+	// 			if (hash !== password) {
+	// 				console.log(password);
+	// 				console.log(hash);
+	// 				alertMessage(res, 'danger',
+	// 					'Current password is invalid.', 'fas fa-exclamation-circle', false);
+	// 			}
+	// 		})
+	// 	});
+	// }
+
+	// compare if the new password is the same as the old password 
+	if (currentpassword == newpassword && !req.body.currentpassword == false) {
+		alertMessage(res, 'danger',
+			'New password cannot be the same as the old password. Please try again.', 'fas fa-exclamation-circle', false);
+		errors.push(1);
+	}
+
+	// validation for password 
+	if (regex.test(newpassword) == false && !req.body.newpassword == false) {
+		alertMessage(res, 'danger',
+			'Password must contain at least eight characters with at least one uppercase letter, one lowercase letter, one number and one special character.', 'fas fa-exclamation-circle', false);
+		errors.push(1);
+	}
+
+	// Checks if both passwords entered are the same
+	if (newpassword != confirmpassword) {
+		alertMessage(res, 'danger',
+			'New Passwords do not match.', 'fas fa-exclamation-circle', false);
+		errors.push(1);
+	}
+
+	if (errors.length > 0) {
+		res.redirect('/customer/custaccount/' + req.params.id);
+	} else {
+		if (req.files) {
+			// Image Upload		
+
+			var file = req.files.file;
+			var filename = file.name;
+			var filetype = file.mimetype.substring(6);
+			var newid = uuidv4().concat(".").concat(filetype); // Generate unique file id
+
+			console.log("./public/uploads/user/" + newid);
+			file.mv('./public/uploads/user/' + filename, function (err) {
+				if (err) {
+					res.send(err);
+				}
+				else {
+					fs.rename('./public/uploads/user/' + filename, './public/uploads/user/' + newid, function (err) {
+						if (err) console.log('ERROR: ' + err);
+					});
+					User.update({
+						photo: newid
+					}, {
+						where: {
+							id: req.params.id
+						}
+					});
+				}
+			});
 		}
-	}).then(() => {
-		// get value from customeraccount
-		alertMessage(res, 'success', 'Account has been updated successfully!', 'fas fa-sign-in-alt', true);
-		res.redirect('../customer/custaccount/' + req.params.id);
-	}).catch(err => console.log(err));
+		if (!req.body.newpassword == false) {
+			bcrypt.genSalt(10, (err, salt) => {
+				bcrypt.hash(newpassword, salt, (err, hash) => {
+					newpassword = hash;
+					User.update({
+						password: newpassword,
+					}, {
+						where: {
+							id: req.params.id
+						}
+					}).then(() => {
+						// get value from customeraccount
+						alertMessage(res, 'success', 'Password has been updated successfully!', 'fas fa-sign-in-alt', true);
+						res.redirect('/customer/custaccount/' + req.params.id);
+					}).catch(err => console.log(err));
+				})
+			});
+		}
+		else {
+			User.update({
+				firstname,
+				lastname,
+				address1,
+				address2,
+				city,
+				postalcode,
+				phoneno,
+			}, {
+				where: {
+					id: req.params.id
+				}
+			}).then(() => {
+				// get value from customeraccount
+				alertMessage(res, 'success', 'Account has been updated successfully!', 'fas fa-sign-in-alt', true);
+				res.redirect('/customer/custaccount/' + req.params.id);
+			}).catch(err => console.log(err));
+		}
+	}
 });
-// req.params is where u pass in the variables into the URL 
 
+// req.params is where u pass in the variables into the URL 
 router.get('/forgetpassword', (req, res, next) => {
 	res.render('customer/cforgetpassword')
 });
@@ -362,29 +468,23 @@ router.post('/resetpassword/:id/:token', (req, res, next) => {
 		},
 		raw: true
 	}).then((user) => {
-		// check if this id exist in database 
-		// if (!user) {
-		// 	res.send('Invalid id')
-		// 	return
-		// }
 		const secret = JWT_SECRET + user.password
+		const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 		try {
 			let errors = [];
 			const payload = jwt.verify(token, secret);
 			// Checks if both passwords entered are the same
 			if (password !== password2) {
-				console.log('match')
 				errors.push({
 					msg: 'Passwords do not match.'
 				});
 			}
-			// Checks that password length is more than 8 (upgrade this to include checking for special characters etc)
-			if (req.body.password.length < 8) {
-				console.log('length')
-				errors.push({
-					msg: 'Passwords must at least have 8 characters.'
-				});
+			if (regex.test(req.body.password) == false) {
+				alertMessage(res, 'danger',
+					'Password must contain at least eight characters with at least one uppercase letter, one lowercase letter, one number and one special character.', 'fas fa-exclamation-circle', false);
+				errors.push(1);
 			}
+
 			if (errors.length > 0) {
 				res.render('customer/cresetpassword', {
 					errors: errors,
@@ -422,9 +522,7 @@ router.post('/resetpassword/:id/:token', (req, res, next) => {
 					})
 			}
 		} catch (error) {
-			console.log(error.message);
 			res.send(error.message);
-
 		}
 
 	}).catch(err => console.log(err));
@@ -647,5 +745,32 @@ router.get('/deletereview/:itemid/:id', ensureAuthenticated, (req, res) => {
 
 		})
 })
+
+// delete user account
+router.get('/delete/:id', ensureAuthenticated, (req, res) => {
+	let id = req.params.id;
+	// Select * from videos where videos.id=videoID and videos.userId=userID
+	User.findOne({
+		where: {
+			id: id,
+		},
+		attributes: ['id']
+	}).then((User) => {
+		// if record is found, user is owner of video
+		if (User != null) {
+			User.destroy({
+				where: {
+					id: id
+				}
+			}).then(() => {
+				alertMessage(res, 'info', 'Your account has been deleted.', 'far fa-trash-alt', true);
+				res.redirect('/customer/homecust');
+			}).catch(err => console.log(err));
+		} else {
+			alertMessage(res, 'danger', 'An error occurred. Please try again later.', 'fas fa-exclamation-circle', true);
+			res.redirect('/clogout');
+		}
+	});
+});
 
 module.exports = router;
