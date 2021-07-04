@@ -363,32 +363,23 @@ passport.use(new FacebookStrategy({
 	}
 ));
 
-// sth wrong with the facebook authentication
 app.get('/auth/facebook', passport.authenticate('facebook'));
 app.get('/auth/facebook/homecust',
 	passport.authenticate('facebook', {
-		successRedirect: '/homecust',
+		// successRedirect: '/customer/homecust',
 		failureRedirect: '/customer/custlogin'
+	}),
+	function (req, res) {
+		alertMessage(res, 'success', 'Default password is 12345678Aa! Please change your password.', 'fas fa-sign-in-alt', true);
+		res.redirect('/customer/homecust')
+	}
+);
+
+app.get('/test', (req, res) => {
+	res.render('testchat', { title: "Test Chat" });
+});
+=======
 	}));
-
-
-// // reset password
-// app.get('/forgetpassword', (req, res, next) => {
-
-// })
-
-// app.post('/forgetpassword', (req, res, next) => {
-
-// })
-
-// app.get('/resetpassword', (req, res, next) => {
-
-// })
-
-// app.post('/resetpassword', (req, res, next) => {
-
-// })
-
 // This route maps the root URL to any path defined in main.js
 
 // Handle 404 error page - Keep this as a last route
