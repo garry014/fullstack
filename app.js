@@ -151,6 +151,10 @@ Handlebars.registerHelper('getToday', function () {
 	return getToday();
 });
 
+Handlebars.registerHelper("pageInc", function (page) {
+	return page+1;
+});
+
 // Handlebars.registerHelper('ifIncludes', function (location,path) {
 // 	debugger
 // 	console.log(location);
@@ -418,6 +422,7 @@ app.get('/auth/facebook/homecust',
 	passport.authenticate('facebook', {
 		// successRedirect: '/customer/homecust',
 		failureRedirect: '/customer/custlogin'
+<<<<<<< HEAD
 	}),
 	function (req, res) {
 		alertMessage(res, 'success', 'Default password is 12345678Aa! Please change your password.', 'fas fa-sign-in-alt', true);
@@ -428,6 +433,28 @@ app.get('/auth/facebook/homecust',
 app.get('/test', (req, res) => {
 	res.render('testchat', { title: "Test Chat" });
 });
+=======
+	}));
+
+
+// // reset password
+// app.get('/forgetpassword', (req, res, next) => {
+
+// })
+
+// app.post('/forgetpassword', (req, res, next) => {
+
+// })
+
+// app.get('/resetpassword', (req, res, next) => {
+
+// })
+
+// app.post('/resetpassword', (req, res, next) => {
+
+// })
+
+>>>>>>> d1a33cedda7f864f57a1b4e9eec4aa57fd6ade0c
 // This route maps the root URL to any path defined in main.js
 
 // Handle 404 error page - Keep this as a last route

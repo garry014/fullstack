@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 const db = require('../config/DBConfig');
 
 const Course = db.define('course', {
-	title: {
+	ctitle: {
 		type: Sequelize.STRING
 	},
 	language: {
@@ -13,10 +13,10 @@ const Course = db.define('course', {
 	},
 	
 	material: {
-		type: Sequelize.STRING
+		type: Sequelize.STRING(1000)
 	},
 	description: {
-		type: Sequelize.STRING
+		type: Sequelize.STRING(3000)
 	},
 	
 	price: {

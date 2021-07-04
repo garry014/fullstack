@@ -22,7 +22,11 @@ const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const validator = require("email-validator");
 const Regex = require("regex");
+<<<<<<< HEAD
 const { username } = require('../config/db');
+=======
+const regex = /^(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.[@$!%?&])[A-Za-z\d@$!%?&]{8,}$/;
+>>>>>>> d1a33cedda7f864f57a1b4e9eec4aa57fd6ade0c
 
 // customer: login page 
 // router.get('custlogin', (req, res) => {
@@ -80,7 +84,10 @@ router.post('/custregister', (req, res) => {
 	let errors = [];
 	let { firstname, lastname, username, password, password2, address1, address2, city, postalcode, gender, email, phoneno, usertype } = req.body;
 	// Minimum eight characters with at least one uppercase letter, one lowercase letter, one number and one special character
+<<<<<<< HEAD
 	const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+=======
+>>>>>>> d1a33cedda7f864f57a1b4e9eec4aa57fd6ade0c
 
 	// Checks if both passwords entered are the same
 	if (req.body.password != req.body.password2) {
@@ -210,6 +217,8 @@ router.post('/custregister', (req, res) => {
 			});
 	}
 });
+
+
 
 // customer: account page 
 router.get('/custaccount/:id', ensureAuthenticated, (req, res) => {

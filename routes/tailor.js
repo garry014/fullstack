@@ -449,7 +449,8 @@ router.get('/createcourse', (req, res) => {
 });
 
 router.post('/createcourse', (req, res) => {
-	let title = req.body.title;
+	let errors = [];
+	let ctitle = req.body.ctitle;
 	let language = req.body.language;
 	let day = req.body.day;
 	let material = req.body.material;
@@ -458,10 +459,39 @@ router.post('/createcourse', (req, res) => {
 	let thumbnail = req.body.thumbnail;
 
 
-	console.log(title, language);
-
-	if (req.files) {
-
+	//validation----------------------------------------------
+	if (isNumeric(req.body.price) == false) {
+		errors.push({ msg: "Price can only contain numbers." });
+		// alertMessage(res, 'danger', 'Price can only contain numbers.', true);
+		// errors.push(1);
+	}
+	else if (req.body.price < 0 || req.body.price > 200) {
+		errors.push({ msg: "Price can only be between $0 to $200." });
+		// alertMessage(res, 'danger', 'Price can only be between $0 to $200.', false);
+		// errors.push(1);
+	}
+	if (req.body.ctitle.length < 5) {
+		errors.push({ msg: "Title must be at least 5 characters." });
+		// alertMessage(res, 'danger', 'Title must be at least 5 characters.', false);
+		// errors.push(1);
+	}
+	if (req.body.material.length < 50) {
+		errors.push({ msg: "Materials needed description must be at least 10 characters." });
+		// alertMessage(res, 'danger', 'Materials needed description must be at least 10 characters.', false);
+		// errors.push(1);
+	}
+	if (req.body.description.length < 80) {
+		errors.push({ msg: "Course description must be at least 80 characters." });
+		// alertMessage(res, 'danger', 'Course description must be at least 80 characters.', false);
+		// errors.push(1);
+	}
+	if (!req.files) {
+		errors.push({ msg: 'No course thumbnail uploaded.' });
+	}
+	else if (req.files.thumbnail.mimetype.startsWith("image") == false) {
+		errors.push({ msg: 'Course thumbnail file must be an image.' });
+	}
+	else if (req.files) {
 		console.log(req.files);
 		var file = req.files.thumbnail;
 		var filename = file.name;
@@ -474,45 +504,63 @@ router.post('/createcourse', (req, res) => {
 		});
 	}
 
-	// Multi-value components return array of strings or undefined
-	Course.create({
-		title: title,
-		language: language,
-		day: day,
-		material: material,
-		description: description,
-		price: price,
-		thumbnail: filename,
-		user: 1
-	}).then((course) => {
-		res.redirect('/tailor/viewcourse/:user'); // redirect to call router.get(/listVideos...) to retrieve all updated
-		// videos
-	}).catch(err => console.log(err))
+
+	if (errors.length > 0) {
+		res.render('tailor/createcourse', {
+			errors: errors,
+			title: "Create Course",
+			ctitle,
+			language,
+			day,
+			material,
+			description,
+			price,
+			thumbnail
+		});
+	} else if (errors.length == 0) {
+		// Multi-value components return array of strings or undefined
+		Course.create({
+			ctitle: ctitle,
+			language: language,
+			day: day,
+			material: material,
+			description: description,
+			price: price,
+			thumbnail: filename,
+			user: res.locals.user.id
+		}).then((course) => {
+			res.redirect('/tailor/viewcourse'); // redirect to call router.get(/listVideos...) to retrieve all updated
+			// videos
+		}).catch(err => console.log(err))
+	}
+
 });
 
 
 
-router.get('/viewcourse/:id', (req, res) => {
+router.get('/viewcourse', ensureAuthenticated, (req, res) => {
 	Course.findAll({
 		where: {
-			user: 1 //ummmmmmmmmmmmmm
+			user: res.locals.user.id //ummmmmmmmmmmmmm
 		},
+
 		raw: true
-	}).then((course) => {
+
+	}).then((course, User) => {
 		//console.log(course);
-		res.render('tailor/viewcourse', { title: "View Course", course: course });
+		res.render('tailor/viewcourse', { title: "View Course", course: course, User: User });
 	}).catch(err => console.log(err));
 });
 
 //delete c
-router.post('/deletecourse/:id', (req, res) => {
+router.post('/deletecourse/:id', ensureAuthenticated, (req, res) => {
 	//let courseId = req.params.id;
 	//let userId = 1;
 	//console.log(courseId) // Select * from videos where videos.id=videoID and videos.userId=userID
 	Course.findOne({
 		where: {
-			id: req.params.id,
-			user: 1
+			id: req.params.id, //COURSE ID
+			user: res.locals.user.id
 		},
 		raw: true
 		// attributes: ['id']
@@ -524,16 +572,17 @@ router.post('/deletecourse/:id', (req, res) => {
 				}
 			}).then(() => {
 				alertMessage(res, 'info', 'course deleted', 'far fa-trash-alt', true);
-				res.redirect('/tailor/viewcourse/1'); // To retrieve all videos again
+				res.redirect('/tailor/viewcourse'); // To retrieve all videos again
 			}).catch(err => console.log(err));
 		} else {
 			alertMessage(res, 'danger', 'Unauthorised access to course', 'fas fa-exclamation-circle', true);
-			res.redirect('/tailor/viewcourse/1');
+			res.redirect('/tailor/viewcourse');
 		}
 	});
 });
 
 // tailor: update course
+//validate not working 
 router.get('/updatecourse/:id', (req, res) => {
 	Course.findOne({
 		where: {
@@ -547,33 +596,94 @@ router.get('/updatecourse/:id', (req, res) => {
 });
 
 
-router.put('/updatecourse/:id', (req, res) => {   // id is course id
-	let title = req.body.title;
+router.put('/updatecourse/:id', (req, res) => {
+	let errors = [];  // id is course id
+	let ctitle = req.body.ctitle;
 	let language = req.body.language;
 	let day = req.body.day;
 	let material = req.body.material;
 	let description = req.body.description;
 	let price = req.body.price;
 	let thumbnail = req.body.thumbnail;
-	console.log(title);
+	//console.log(title);
 
-	Course.update({
-		title: title,
-		language: language,
-		day: day,
-		material: material,
-		description: description,
-		price: price,
-		thumbnail: thumbnail,
-		user: 1
-	}, {
-		where: {
-			id: req.params.id
-		}
-	}).then(() => {
-		res.redirect('/tailor/viewcourse/1');
-		// videos
-	}).catch(err => console.log(err));
+	//validation----------------------------------------------
+	if (isNumeric(req.body.price) == false) {
+		//errors.push({ msg: "Price can only contain numbers." });
+		alertMessage(res, 'danger', 'Price can only contain numbers.', true);
+		errors.push(1);
+	}
+	else if (req.body.price < 0 || req.body.price > 200) {
+		//errors.push({ msg: "Price can only be between $0 to $200." });
+		alertMessage(res, 'danger', 'Price can only be between $0 to $200.', false);
+		errors.push(1);
+	}
+	if (req.body.ctitle.length < 5) {
+		//errors.push({ msg: "Title must be at least 5 characters." });
+		alertMessage(res, 'danger', 'Title must be at least 5 characters.', false);
+		errors.push(1);
+	}
+	if (req.body.material.length < 1) {
+		//errors.push({ msg: "Materials needed description must be at least 10 characters." });
+		alertMessage(res, 'danger', 'Materials needed description must be at least 10 characters.', false);
+		errors.push(1);
+	}
+	if (req.body.description.length < 1) {
+		//errors.push({ msg: "Course description must be at least 80 characters." });
+		alertMessage(res, 'danger', 'Course description must be at least 80 characters.', false);
+		errors.push(1);
+	}
+	// if (!req.files) {
+	// 	//errors.push({ msg: 'No course thumbnail uploaded.' });
+	// 	alertMessage(res, 'danger', 'No course thumbnail uploaded.', false);
+	// 	errors.push(1);
+	// }
+	// else if (req.files.thumbnail.mimetype.startsWith("image") == false) {
+	// 	//errors.push({ msg: 'Course thumbnail file must be an image.' });
+	// 	alertMessage(res, 'danger', 'Course thumbnail file must be an image.', false);
+	// 	errors.push(1);
+	// }
+	// else if (req.files) {
+	// 	console.log(req.files);
+	// 	var file = req.files.thumbnail;
+	// 	var filename = file.name;
+	// 	console.log(filename);
+
+	// 	file.mv('./public/uploads/courseimg/' + filename, function (err) {
+	// 		if (err) {
+	// 			res.send(err);
+	// 		}
+	// 	});
+	//}
+	//validation----------------------------------------------
+
+	//um the s--- is not updating but at least it's retaining the other info
+	
+	if (errors.length == 0) {
+		console.log("es");
+		Course.update({
+			ctitle: ctitle,
+			language: language,
+			day: day,
+			material: material,
+			description: description,
+			price: price,
+			//thumbnail: thumbnail
+		}, {
+			where: {
+				id: req.params.id
+			}
+		}).then(() => {
+			res.redirect('/tailor/viewcourse');
+			// videos
+		}).catch(err => console.log(err));
+			
+	} else if (errors.length > 0) {
+		res.redirect('/tailor/updatecourse/' + req.params.id);
+
+	} 
+	
+	
 });
 
 
@@ -584,11 +694,11 @@ router.put('/updatecourse/:id', (req, res) => {   // id is course id
 //display the title after adding NOT IT LOL. 
 //somewhere, the ID is working correctly i suppose bc i tried to enter 10 and the page loads forever (theres no course id 10)
 //view topics addded
-router.get('/addcontent/:id', (req, res) => {
+router.get('/addcontent/:id', ensureAuthenticated, (req, res) => {
 	Course.findOne({
 		where: {
 			id: req.params.id, //ummmmmmmmmmmmmm
-			user: 1
+			user: res.locals.user.id
 		},
 		raw: true
 	}).then((course) => {
@@ -619,14 +729,27 @@ router.get('/addcontent/:id', (req, res) => {
 });
 
 //create topic
-router.post('/addcontent/:id', (req, res) => {
+router.post('/addcontent/:id', ensureAuthenticated, (req, res) => {
+	let errors = [];
 	let topic = req.body.topic;
 	let video = req.body.video;
-	//let courseid = req.course.id //?????????? cannot
-	//video not showing in sql but is storing??  whats ur prob.
-	console.log(topic, video);
 
-	if (req.files) {
+	if (req.body.topic.length < 5) {
+		//errors.push({ msg: "Topic must be at least 5 characters." });
+		alertMessage(res, 'danger', 'Topic must be at least 5 characters.', false);
+		errors.push(1);
+	}
+	if (!req.files) {
+		//errors.push({ msg: 'No video file uploaded.' });
+		alertMessage(res, 'danger', 'No video file uploaded.', false);
+		errors.push(1);
+	}
+	else if (req.files.video.mimetype.startsWith("video") == false) {
+		//errors.push({ msg: 'File uploaded must be in .mp4/.mpeg format.' });
+		alertMessage(res, 'danger', 'File uploaded must be in .mp4/.mpeg format.', false);
+		errors.push(1);
+	}
+	else if (req.files) {
 		console.log(req.files);
 		var file = req.files.video;
 		var filename = file.name;
@@ -638,16 +761,61 @@ router.post('/addcontent/:id', (req, res) => {
 			}
 		});
 	}
+	console.log(errors);
+	//error msg not displaying, (id has some issues? may be fixed) i hate this lololol. 
+	//should be redirecting correctly, but erroor msg not showing 
+	 
+	if (errors.length == 0) {
+		console.log("here1");
+		Video.create({
+			topic: topic,
+			video: filename,
+			courseid: req.params.id
+		}).then((videocontent) => {
+			res.redirect('/tailor/addcontent/' + req.params.id); // redirect to call router.get(/listVideos...) to retrieve all updated
+			// videos
+		}).catch(err => console.log(err))
+	} else if (errors.length > 0) {
+		console.log("here2");
+		res.redirect('/tailor/addcontent/' +req.params.id);
+		// res.render('tailor/addcontent' , {
+		// 	errors: errors,
+		// 	title: "Add Content1",
+		// 	topic,
+		// 	video,
+		//});
+	}
 
-	// Multi-value components return array of strings or undefined
-	Video.create({
-		topic: topic,
-		video: filename,
-		courseid: req.params.id
-	}).then((videocontent) => {
-		res.redirect('/tailor/addcontent/' + req.params.id); // redirect to call router.get(/listVideos...) to retrieve all updated
-		// videos
-	}).catch(err => console.log(err))
+
+	// Video.findOne({
+	// 	where: {
+	// 		courseid: req.params.id
+	// 	}
+	// }).then((videocontent) => {
+	// 	if (errors.length == 0) {
+	// 		console.log("printhere");
+	// 		Video.create({
+	// 			topic: topic,
+	// 			video: filename,
+	// 			courseid: req.params.id
+	// 		}).then((videocontent) => {
+	// 			res.render('/tailor/addcontent/' + req.params.id, videocontent); // redirect to call router.get(/listVideos...) to retrieve all updated
+	// 			// videos
+	// 		}).catch(err => console.log(err))
+	// 	} else if (errors.length > 0) {
+	// 		console.log("printhere2");
+	// 		res.redirect('/tailor/addcontent/' , {
+	// 			errors: errors,
+	// 			title: "Add Content1",
+	// 			topic,
+	// 			video
+	// 		});
+	// 		console.log("printhere3");
+	// 	}
+	// })
+
+
+
 });
 
 //delete topic, is it even going in here.

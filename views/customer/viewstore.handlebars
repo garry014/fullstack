@@ -19,7 +19,7 @@
             <div class="col-lg-12">
                 <div class="shop-top-bar mb-35">
                     <div class="select-shoing-wrap">
-                        <p>Showing 1–3 of 3 result(s)</p>
+                        <p>Showing {{min_item}}–{{max_item}} of {{total_count}} result(s)</p>
                     </div>
                     <div class="filter">
                         {{#ifCond user_status '!=' "tailor"}}
@@ -38,55 +38,55 @@
                     <div class="row">
                         <!--Start of Product List -->
                         {{#ifCond shopprod.length '>=' 1}}
-                        {{#each shopprod}}
-                        <div class="col-xl-4 col-md-6 col-lg-4 col-sm-6">
-                            <div class="product-wrap mb-25 scroll-zoom">
-                                <div class="product-img">
-                                    <a href="/view/{{id}}">
-                                        <img class="default-img" src="/uploads/products/{{image}}" alt="">
-                                        <img class="hover-img" src="/uploads/products/{{image}}" alt="">
-                                    </a>
-                                    {{#ifCond discount '!=' 0}}
-                                        <span class="pink">-{{discount}}%</span>
-                                    {{/ifCond}}
-                                    <div class="product-action">
-                                        {{#ifCond ../user_status '==' "tailor"}}
-                                            {{#ifCond storename '==' ../user.shopname}}
-                                            <div class="pro-same-action pro-quickview" style="width:50%;">
-                                                <a href="/tailor/editproduct/{{id}}"><i class="fa fa-pencil"></i> Edit Item</a>
-                                            </div>
-                                            <div class="pro-same-action pro-wishlist" style="width:50%;">
-                                                <a href="#myModal_{{id}}" data-toggle="modal" data-target="#myModal_{{id}}"><i class="fa fa-trash-o"></i> Delete</a>
-                                            </div>
-                                            {{/ifCond}}
-                                        {{/ifCond}}
-                                        <div class="pro-same-action pro-cart" style="width:100%;">
-                                            <a href="/view/{{id}}"><i class="fa fa-info"></i> View Item</a>
-                                        </div>
-
-                                    </div>
-                                </div>
-                                <div class="product-content text-center">
-                                    <h3><a href="/view/{{id}}">{{name}}</a></h3>
-                                    <div class="product-rating">
-                                        {{#each ../review}}
-                                            {{#ifCond productid '==' ../id}}
-                                                    {{#times avgRating}}<span class="fa fa-star" style="color: orange;"></span>{{/times}}{{#minusStars avgRating}}<span class="fa fa-star"></span>{{/minusStars}}{{avgRating}} stars
-                                            {{/ifCond}} 
-                                        {{/each}}
-                                    </div>
-                                    <div class="product-price">
+                            {{#each shopprod}}
+                            <div class="col-xl-4 col-md-6 col-lg-4 col-sm-6">
+                                <div class="product-wrap mb-25 scroll-zoom">
+                                    <div class="product-img">
+                                        <a href="/view/{{id}}">
+                                            <img class="default-img" src="/uploads/products/{{image}}" alt="">
+                                            <img class="hover-img" src="/uploads/products/{{image}}" alt="">
+                                        </a>
                                         {{#ifCond discount '!=' 0}}
-                                        <span>$ {{calculatedisc price discount}}</span>
-                                        <span class="old">$ {{money2dp price}}</span>
-                                        {{else}}
-                                        <span>$ {{price}}</span>
+                                            <span class="pink">-{{discount}}%</span>
                                         {{/ifCond}}
+                                        <div class="product-action">
+                                            {{#ifCond ../user_status '==' "tailor"}}
+                                                {{#ifCond storename '==' ../user.shopname}}
+                                                <div class="pro-same-action pro-quickview" style="width:50%;">
+                                                    <a href="/tailor/editproduct/{{id}}"><i class="fa fa-pencil"></i> Edit Item</a>
+                                                </div>
+                                                <div class="pro-same-action pro-wishlist" style="width:50%;">
+                                                    <a href="#myModal_{{id}}" data-toggle="modal" data-target="#myModal_{{id}}"><i class="fa fa-trash-o"></i> Delete</a>
+                                                </div>
+                                                {{/ifCond}}
+                                            {{/ifCond}}
+                                            <div class="pro-same-action pro-cart" style="width:100%;">
+                                                <a href="/view/{{id}}"><i class="fa fa-info"></i> View Item</a>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="product-content text-center">
+                                        <h3><a href="/view/{{id}}">{{name}}</a></h3>
+                                        <div class="product-rating">
+                                            {{#each ../review}}
+                                                {{#ifCond productid '==' ../id}}
+                                                        {{#times avgRating}}<span class="fa fa-star" style="color: orange;"></span>{{/times}}{{#minusStars avgRating}}<span class="fa fa-star"></span>{{/minusStars}}{{avgRating}} stars
+                                                {{/ifCond}} 
+                                            {{/each}}
+                                        </div>
+                                        <div class="product-price">
+                                            {{#ifCond discount '!=' 0}}
+                                            <span>$ {{calculatedisc price discount}}</span>
+                                            <span class="old">$ {{money2dp price}}</span>
+                                            {{else}}
+                                            <span>$ {{price}}</span>
+                                            {{/ifCond}}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        {{/each}}
+                            {{/each}}
                         {{else}}
                         This store currently does not have any product/services listed.
                         {{/ifCond}}
@@ -95,10 +95,13 @@
 
                     <div class="pro-pagination-style text-center mt-30">
                         <ul>
-                            <li><a class="prev" href="1"><i class="fa fa-angle-double-left"></i></a></li>
-                            <li><a class="active" href="2">1</a></li>
-                            <li><a href="">2</a></li>
-                            <li><a class="next" href="2"><i class="fa fa-angle-double-right"></i></a></li>
+                            <!-- The count not increasing -->
+                            <li><a class="prev" href="/viewshops/{{storename}}/1"><i class="fa fa-angle-double-left"></i></a></li>
+                            {{#times totalpage}}
+                            <!--<li><a class="active" href="../1">1</a></li>-->
+                            <li><a href="">{{pageInc totalpage}}</a></li>
+                            {{/times}}
+                            <li><a class="next" href="/viewshops/{{storename}}/{{nextpage}}"><i class="fa fa-angle-double-right"></i></a></li>
                         </ul>
                     </div>
                 </div>

@@ -10,43 +10,42 @@
             </div>
             <div class="col-xl-8 col-lg-8 d-none d-lg-block">
                 <div class="main-menu">
-                    {{#if (eq user.usertype "tailor")}}
                     <nav>
-                        <ul>
-                            <li><a href="/viewshops/{{user.shopname}}">View My Shop <i class="fa fa-angle-down"></i></a>
-                                <ul class="submenu">
+                    <ul>
+                    {{#if (eq user.usertype "tailor")}}
+                            <li><a href="/viewshops/{{user.shopname}}/1">View My Shop <i class="fa fa-angle-down"></i></a>
+                            <ul class="submenu">
                                     <li><a href="/tailor/addproduct">Add Products</a></li>
                                     <li><a href="">Change Target</a></li>
                                     <li><a href="">Add Deals</a></li>
                                 </ul>
                             </li>
-                            <li><a href="/viewshops">Sales Chart <i class="fa fa-angle-down"></i></a>
+                            <li><a href="/tailor/sales">Sales Chart <i class="fa fa-angle-down"></i></a>
                                 <ul class="submenu">
-                                    <li><a href="">Change Target</a></li>
+                                    <li><a href="/tailor/target">Change Target</a></li>
                                 </ul>
                             </li>
 
-                            <li><a href="">Vouchers <i class="fa fa-angle-down"></i></i></a>
+                            <li><a href="/tailor/vouchers">Vouchers <i class="fa fa-angle-down"></i></i></a>
                                 <ul class="submenu">
-                                    <li><a href="">Add Vouchers</a></li>
+                                    <li><a href="/tailor/addvoucher">Add Vouchers</a></li>
                                 </ul>
                             </li>
-
-                            <li><a href="">Orders</a></li>
-                            <li><a href="">Courses <i class="fa fa-angle-down"></i></i></a>
+                             <li><a href="">Orders</a></li>
+                             <li><a href="/tailor/viewcourse">Courses <i class="fa fa-angle-down"></i></i></a>
                                 <ul class="submenu">
-                                    <li><a href="">Create Courses</a></li>
-                                    <li><a href="">View My Courses</a></li>
-                                    <li><a href="">Manage my Schedule</a></li>
+                                    <li><a href="/tailor/createcourse">Create Courses</a></li>
+                                    <li><a href="/tailor/viewcourse">View My Courses</a></li>
+                                    <li><a href="/tailor/">Manage my Schedule</a></li>
                                 </ul>
                             </li>
 
                             <li><a href="/faq">Help </a></li>
-                        </ul>
-                    </nav>
                     {{else}}
-                    <center>Welcome to TailorNow, sign in to continue.</center>
+                    <li><a href="/tailor/tailorlogin">Welcome to TailorNow, sign in to continue.</a></li> 
                     {{/if}}
+                    </ul>
+                    </nav>
                 </div>
             </div>
             <div class="col-xl-2 col-lg-2 col-md-6 col-8">
@@ -130,7 +129,7 @@
                         </div>
                     </div>
                     <div class="same-style header-wishlist">
-                        <a href="/inbox/0"><i class="pe-7s-chat"></i></a>
+                        <a href="/c/inbox/0"><i class="pe-7s-chat"></i></a>
                     </div>
 
                 </div>
