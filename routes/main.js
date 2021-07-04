@@ -725,8 +725,17 @@ router.get('/viewshops/:storename/:page', (req, res) => {
 		raw: true
 	})
 		.then(shopprod => {
+			console.log((shopprod.rows.length%6 || 0));
 			var min_item = (page*limit)+1;
-			var max_item = (page*limit) + (shopprod.count%6 || 6);
+			var max_item;
+			if (shopprod.rows.length%6 == 0){
+				max_item = ((page+1)*limit);
+			}
+			else {
+				max_item = ((page+1)*limit) - (limit - (shopprod.rows.length%6));
+			}
+			
+
 			var totalpage = Math.ceil(shopprod.count/limit)
 			if (shopprod.count > 0) {
 				var itemsId = [];
