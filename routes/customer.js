@@ -22,6 +22,7 @@ const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const validator = require("email-validator");
 const Regex = require("regex");
+const regex = /^(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.[@$!%?&])[A-Za-z\d@$!%?&]{8,}$/;
 
 // customer: login page 
 // router.get('custlogin', (req, res) => {
@@ -78,8 +79,6 @@ router.post('/custregister', (req, res) => {
 	let errors = [];
 	let { firstname, lastname, username, password, password2, address1, address2, city, postalcode, gender, email, phoneno, usertype } = req.body;
 	// Minimum eight characters with at least one uppercase letter, one lowercase letter, one number and one special character
-	const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-
 
 	// Checks if both passwords entered are the same
 	if (req.body.password !== req.body.password2) {
@@ -206,6 +205,8 @@ router.post('/custregister', (req, res) => {
 		// rnodes.redirect('/customer/custregcomplete');
 	}
 });
+
+
 
 // customer: account page 
 router.get('/custaccount/:id', ensureAuthenticated, (req, res) => {
