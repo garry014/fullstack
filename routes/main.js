@@ -1,3 +1,8 @@
+// Paypal Details
+
+// acct name : sb-c5hfx5088078@personal.example.com
+// password: -/yG^pE0
+
 // DB Table Connections
 const Catalouge = require('../models/Catalouge');
 const Productchoices = require('../models/Productchoices');
@@ -53,7 +58,7 @@ function cNotification(recipient, category, message, hyperlink) {
 		"hyperlink": hyperlink,
 		"timestamp": getToday()
 	}
-	
+
 }
 
 // create application/json parser
@@ -91,7 +96,7 @@ router.get('/customers_checkout', (req, res) => {
 	var user_details;
 	if (typeof req.user != "undefined") {
 		user_details = res.locals.user;
-		console.log("userdata",res.locals.user)
+		console.log("userdata", res.locals.user)
 	}
 	//addons
 	let { deliverytime, deliverydate } = req.body;
@@ -107,7 +112,7 @@ router.get('/transaction_complete', (req, res) => {
 	userId = res.locals.user.id
 	//send into sql
 	console.log("cart", sess["mycart"])
-	let cartId = Date.now()/1000;
+	let cartId = Date.now() / 1000;
 
 	sess["myCart"].forEach(cartItem => {
 		let insertData = {
@@ -116,17 +121,17 @@ router.get('/transaction_complete', (req, res) => {
 			quantity: cartItem.qty,
 			customqn: cartItem.customqn,
 			custom: cartItem.custom,
-			userid: 0,
+			userid: res.locals.user.id,
 			timestamp: cartId
 		}
 		console.log("insertData==>", insertData);
-		Cart.create(insertData).then(success =>{
+		Cart.create(insertData).then(success => {
 			console.log("Receipt created==>", success)
 			sess["myCart"] = []
 		}).catch(err => {
 			console.error('Unable to connect to the database:', err);
 		});
-		
+
 	});
 
 
@@ -160,39 +165,39 @@ router.post('/customers_checkout', (req, res) => {
 	if (typeof req.user != "undefined") {
 		user_details = res.locals.user;
 		let insertcustdata = {
-			firstname : user_details.firstname,
-			lastname : user_details.lastname,
-			username : user_details.username,
-			address1 : user_details.address1,
-			address2 : user_details.address2,
-			city : user_details.city,
-			postalcode : user_details.postalcode,
-			email : user_details.email,
-			phoneno : user_details.phoneno,
+			firstname: user_details.firstname,
+			lastname: user_details.lastname,
+			username: user_details.username,
+			address1: user_details.address1,
+			address2: user_details.address2,
+			city: user_details.city,
+			postalcode: user_details.postalcode,
+			email: user_details.email,
+			phoneno: user_details.phoneno,
 			deliverytime: req.body.dTime,
-			deliverydate : moment(req.body.delivery_date,'DD/MM/YYYY')
+			deliverydate: moment(req.body.delivery_date, 'DD/MM/YYYY')
 		}
-		console.log("create========>",insertcustdata);
+		console.log("create========>", insertcustdata);
 		BillingDetails.create(insertcustdata)
-		.then(success => {
-			res.redirect('/customers_checkout');
+			.then(success => {
+				res.redirect('/customers_checkout');
 
-			console.log("Billing details generated ====>", success);
-			console.log("did it managed to send through",success);
-		}).catch(err => {
-			console.error('Unable to connect to the database:', err);
-		});
+				console.log("Billing details generated ====>", success);
+				console.log("did it managed to send through", success);
+			}).catch(err => {
+				console.error('Unable to connect to the database:', err);
+			});
 	}
 });
 
 //delete
 deleteCartItem = (inItemId, sess) => {
-	console.log("delete myCart==>",  sess["myCart"])
+	console.log("delete myCart==>", sess["myCart"])
 	let itemId = parseInt(inItemId)
 	if (itemId < sess["myCart"].length) {
 		sess["myCart"].splice(itemId, 1);
 	}
-	console.log("delete after myCart==>",  sess["myCart"])
+	console.log("delete after myCart==>", sess["myCart"])
 	let i = 0;
 	for (let item of sess["myCart"]) {
 		item.itemId = i;
@@ -282,13 +287,14 @@ router.post("/view/:id", (req, res) => {
 	// console.log(sess["myCart"]);	
 	// // res.redirect(sess["lastViewStore"]["url"]);
 	// res.redirect(backURL);
-	res.redirect('/viewshops/' + storename);
+	res.redirect('/viewshops/' + storename + '/1');
 });
 
 //customer purchase history
 router.get('/purchasehistory', (req, res) => {
 	sess = req.session;
 	let that = this;
+
 	userId = res.locals.user.id
 	sess["purchases"] = []
 	Cart.findAll({
@@ -299,66 +305,64 @@ router.get('/purchasehistory', (req, res) => {
 		// attributes: [
 		// 	[Sequelize.fn('DISTINCT', Sequelize.col('storename')) ,'storename'],
 	})
-	.then((purchases) => {
-		console.log("/purchase_history body data===> ", purchases);
-		if(purchases){
+		.then((purchases) => {
+			console.log("/purchase_history body data===> ", purchases);
+			if (purchases) {
+				let purchaseDict = {}
+				for (let data of purchases) {
+					if (!(data.timestamp in purchaseDict)) {
+						purchaseDict[data.timestamp] = []
+					}
+					purchaseDict[data.timestamp].push(data)
+				}
 
-		
-		let purchaseDict = {}
-		for (let data of purchases){
-			if(!(data.timestamp in purchaseDict)){
-				purchaseDict[data.timestamp] = []
+				// sess["purchases"] = [];
+				// let cartNum = 1;
+
+				// Iterating individual cart purchases so far
+				for (let purchaseKey in purchaseDict) {
+					let purchaseData = purchaseDict[purchaseKey]
+					let purchasedCart = {
+						cartId: purchaseData[0].timestamp,
+						items: [],
+						total: 0
+					}
+					let itemId = 1
+
+					// Populating items inside one cart purchase
+					for (let cartItem of purchaseData) {
+						let cartInfo = {
+
+						}
+						cartInfo["itemId"] = itemId;
+						cartInfo["itemname"] = cartItem.name;
+						cartInfo["qty"] = cartItem.quantity;
+						cartInfo["price"] = cartItem.price;
+						cartInfo["subtotal"] = cartItem.quantity * cartItem.price;
+						purchasedCart["total"] += cartInfo["subtotal"];
+						cartInfo["subtotalStr"] = cartInfo["subtotal"].toFixed(2);
+						purchasedCart["items"].push(cartInfo);
+						itemId += 1;
+					}
+					purchasedCart["totalStr"] = purchasedCart["total"].toFixed(2);
+					sess["purchases"].push(purchasedCart)
+				}
+
+
 			}
-			purchaseDict[data.timestamp].push(data)
-		}
-
-		// sess["purchases"] = [];
-		// let cartNum = 1;
-
-		// Iterating individual cart purchases so far
-		for(let purchaseKey in purchaseDict){
-			let purchaseData = purchaseDict[purchaseKey]
-			let purchasedCart = {
-				cartId:purchaseData[0].timestamp,
-				items: [], 
-				total: 0
+			else {
+				sess["purchases"] = [];
 			}
-			let itemId = 1
-
-			// Populating items inside one cart purchase
-			for(let cartItem of purchaseData){
-				let cartInfo = {
-
-				}	
-				cartInfo["itemId"] = itemId;
-				cartInfo["itemname"] = cartItem.name;
-				cartInfo["qty"] = cartItem.quantity;
-				cartInfo["price"] = cartItem.price;
-				cartInfo["subtotal"] = cartItem.quantity * cartItem.price;
-				purchasedCart["total"] += cartInfo["subtotal"];
-				cartInfo["subtotalStr"] = cartInfo["subtotal"].toFixed(2);
-				purchasedCart["items"].push(cartInfo);
-				itemId += 1;
-			}
-			purchasedCart["totalStr"] = purchasedCart["total"].toFixed(2);
-			sess["purchases"].push(purchasedCart)
-		}
-
-		
-	}
-	else{
-		sess["purchases"] = [];
-	}
-	console.log("sess purchases==>", sess["purchases"])
-	// console.log("sess purchases items==>", sess["purchases"][0].items)
-	res.render('customer/purchasehistory', {
-		title: "Purchase History",
-		purchases: sess["purchases"],
-	});
-	// res.render('customer/purchasehistory', { title: "Purchase History" });
-}).catch((err)=>{
-//error codes
-})
+			console.log("sess purchases==>", sess["purchases"])
+			// console.log("sess purchases items==>", sess["purchases"][0].items)
+			res.render('customer/purchasehistory', {
+				title: "Purchase History",
+				purchases: sess["purchases"],
+			});
+			// res.render('customer/purchasehistory', { title: "Purchase History" });
+		}).catch((err) => {
+			//error codes
+		})
 });
 
 
@@ -367,7 +371,7 @@ router.get('/purchasehistory', (req, res) => {
 router.post('/chatwith/:name', ensureAuthenticated, (req, res) => {
 	if (typeof req.user != "undefined") {
 		var currentuser;
-		if(req.user.dataValues.usertype == "tailor"){
+		if (req.user.dataValues.usertype == "tailor") {
 			currentuser = req.user.dataValues.shopname;
 		}
 		else {
@@ -381,31 +385,31 @@ router.post('/chatwith/:name', ensureAuthenticated, (req, res) => {
 		},
 		raw: true
 	})
-	.then((chats) => {
-		if(chats.length>0){
-			res.redirect('/c/inbox/'+chats[0].id);
-		}
-		else{
-			Chat.create({
-				sender: currentuser,
-				recipient: req.params.name,
-				senderstatus: "Read",
-				recipientstatus: "Unread"
-			})
-			.then((chat) =>{
-				res.redirect('/c/inbox/'+chat.id);
-			})
-			.catch(err => {
-				console.error('Unable to connect to the database:', err);
-			});
-		}
-	})
-	.catch(err => {
-		console.error('Unable to connect to the database:', err);
-	});
+		.then((chats) => {
+			if (chats.length > 0) {
+				res.redirect('/c/inbox/' + chats[0].id);
+			}
+			else {
+				Chat.create({
+					sender: currentuser,
+					recipient: req.params.name,
+					senderstatus: "Read",
+					recipientstatus: "Unread"
+				})
+					.then((chat) => {
+						res.redirect('/c/inbox/' + chat.id);
+					})
+					.catch(err => {
+						console.error('Unable to connect to the database:', err);
+					});
+			}
+		})
+		.catch(err => {
+			console.error('Unable to connect to the database:', err);
+		});
 });
 
-router.get('/c/:chat/:id', ensureAuthenticated, (req, res) => { 
+router.get('/c/:chat/:id', ensureAuthenticated, (req, res) => {
 	if (typeof req.user != "undefined") {
 		var currentuser;
 		if (req.user.dataValues.usertype == "tailor") {
@@ -455,11 +459,11 @@ router.get('/c/:chat/:id', ensureAuthenticated, (req, res) => {
 								chats.splice(c, 1);
 							}
 							else {
-								if (req.params.chat == "inbox"){
-									if (chats[c].sender == currentuser && chats[c].senderstatus == "archive"){
+								if (req.params.chat == "inbox") {
+									if (chats[c].sender == currentuser && chats[c].senderstatus == "archive") {
 										chats.splice(c, 1);
 									}
-									else if (chats[c].recipient == currentuser && chats[c].recipientstatus == "archive"){
+									else if (chats[c].recipient == currentuser && chats[c].recipientstatus == "archive") {
 										chats.splice(c, 1);
 									}
 									else {
@@ -467,17 +471,17 @@ router.get('/c/:chat/:id', ensureAuthenticated, (req, res) => {
 									}
 								}
 								else if (req.params.chat == "archive") {
-									if (chats[c].sender == currentuser && chats[c].senderstatus != "archive"){
+									if (chats[c].sender == currentuser && chats[c].senderstatus != "archive") {
 										chats.splice(c, 1);
 									}
-									else if (chats[c].recipient == currentuser && chats[c].recipientstatus != "archive"){
+									else if (chats[c].recipient == currentuser && chats[c].recipientstatus != "archive") {
 										chats.splice(c, 1);
 									}
 									else {
 										chatids.push(chats[c].id);
 									}
 								}
-								
+
 							}
 						};
 
@@ -606,7 +610,7 @@ router.post('/inbox/uploadimg/:id', (req, res) => {
 					}).catch(err => {
 						console.error('Unable to connect to the database:', err);
 					});
-					res.redirect('/c/inbox/'+req.params.id);
+					res.redirect('/c/inbox/' + req.params.id);
 				}
 			});
 		}
@@ -625,25 +629,25 @@ router.post('/inbox/delete/:id', ensureAuthenticated, (req, res) => {
 		where: { id: req.params.id },
 		raw: true
 	})
-	.then((chat) => {
-		if(chat.sender == req.session.username){
-			Chat.update({
-				senderstatus: "deleted" 
-			}, {
-				where: { id: req.params.id }
-			})
-			.catch(err => console.log(err));
-		}
-		else{
-			Chat.update({
-				recipientstatus: "deleted" 
-			}, {
-				where: { id: req.params.id }
-			})
-			.catch(err => console.log(err));
-		}
-	})
-	.catch(err => console.log(err));
+		.then((chat) => {
+			if (chat.sender == req.session.username) {
+				Chat.update({
+					senderstatus: "deleted"
+				}, {
+					where: { id: req.params.id }
+				})
+					.catch(err => console.log(err));
+			}
+			else {
+				Chat.update({
+					recipientstatus: "deleted"
+				}, {
+					where: { id: req.params.id }
+				})
+					.catch(err => console.log(err));
+			}
+		})
+		.catch(err => console.log(err));
 	alertMessage(res, 'success', 'Deleted message successfully!', 'fas fa-check-circle', true);
 	res.redirect('/c/inbox/0');
 });
@@ -654,25 +658,25 @@ router.get('/archive/:id', ensureAuthenticated, (req, res) => {
 		where: { id: req.params.id },
 		raw: true
 	})
-	.then((chat) => {
-		if(chat.sender == req.session.username){
-			Chat.update({
-				senderstatus: "archive" 
-			}, {
-				where: { id: req.params.id }
-			})
-			.catch(err => console.log(err));
-		}
-		else{
-			Chat.update({
-				recipientstatus: "archive" 
-			}, {
-				where: { id: req.params.id }
-			})
-			.catch(err => console.log(err));
-		}
-	})
-	.catch(err => console.log(err));
+		.then((chat) => {
+			if (chat.sender == req.session.username) {
+				Chat.update({
+					senderstatus: "archive"
+				}, {
+					where: { id: req.params.id }
+				})
+					.catch(err => console.log(err));
+			}
+			else {
+				Chat.update({
+					recipientstatus: "archive"
+				}, {
+					where: { id: req.params.id }
+				})
+					.catch(err => console.log(err));
+			}
+		})
+		.catch(err => console.log(err));
 	alertMessage(res, 'success', 'Message successfully archived!', 'fas fa-check-circle', true);
 	res.redirect('/c/archive/' + req.params.id);
 });
@@ -684,76 +688,76 @@ router.get('/viewshops', (req, res) => {
 		attributes: ['address1', 'address2', 'city', 'postalcode', 'shopname', 'photo'],
 		raw: true
 	})
-	.then((shopdetails) => {
-		Catalouge.findAll({
-			// Get all DB values
-			// run a for loop to extract only the distinct storename, max discount
-			// attributes: [
-			// 	[Sequelize.fn('DISTINCT', Sequelize.col('storename')) ,'storename'],
-			// ]
-		})
-			.then((shops) => {
-				if (shops) {
-					// Review average.
-
-					const shop = [];
-					for (var s in shops) {
-						shop.push(shops[s].dataValues);
-					};
-	
-					// shop.forEach(shopItem => {
-					// 	console.log(shopItem);
-					// });
-					
-					// Review Ratings Calculation
-					Review.findAll({
-						attributes: ['storename', [Sequelize.fn('AVG', Sequelize.col('stars')), 'avgRating']],
-						group: 'storename',
-						raw: true
-					})
-					.then((review) => {
-						for(var i=0; i<review.length; i++){
-							review[i].avgRating = parseFloat(review[i].avgRating);
-						}
-
-						console.log(review);
-						console.log(shopdetails);
-						res.render('customer/viewshops', {
-							title: "View Shops",
-							shopdetails: shopdetails,
-							shop: shop,
-							review: review
-						});
-					})
-
-				}
-				else {
-					res.render('customer/viewshops', { title: "View Shops" });
-				}
+		.then((shopdetails) => {
+			Catalouge.findAll({
+				// Get all DB values
+				// run a for loop to extract only the distinct storename, max discount
+				// attributes: [
+				// 	[Sequelize.fn('DISTINCT', Sequelize.col('storename')) ,'storename'],
+				// ]
 			})
-			.catch(err => {
-				console.error('Unable to connect to the database:', err);
-			});
-	});
+				.then((shops) => {
+					if (shops) {
+						// Review average.
+
+						const shop = [];
+						for (var s in shops) {
+							shop.push(shops[s].dataValues);
+						};
+
+						// shop.forEach(shopItem => {
+						// 	console.log(shopItem);
+						// });
+
+						// Review Ratings Calculation
+						Review.findAll({
+							attributes: ['storename', [Sequelize.fn('AVG', Sequelize.col('stars')), 'avgRating']],
+							group: 'storename',
+							raw: true
+						})
+							.then((review) => {
+								for (var i = 0; i < review.length; i++) {
+									review[i].avgRating = parseFloat(review[i].avgRating);
+								}
+
+								console.log(review);
+								console.log(shopdetails);
+								res.render('customer/viewshops', {
+									title: "View Shops",
+									shopdetails: shopdetails,
+									shop: shop,
+									review: review
+								});
+							})
+
+					}
+					else {
+						res.render('customer/viewshops', { title: "View Shops" });
+					}
+				})
+				.catch(err => {
+					console.error('Unable to connect to the database:', err);
+				});
+		});
 });
 
 
 // Customer View Shop Items
 router.get('/viewshops/:storename/:page', (req, res) => {
 	var page = parseInt(req.params.page) - 1;
-	var limit = 6; 
-	
+	var limit = 6;
+
 	// limit: Remainder of page/6, if 0 > default 6.
 	Catalouge.findAndCountAll({
 		where: { storename: req.params.storename },
-		offset: page*6,
+		offset: page * 6,
 		limit: limit,
 		raw: true
 	})
 		.then(shopprod => {
-			var min_item = (page*limit)+1;
-			var max_item = (page*limit) + (shopprod.count%6 || 6);
-			var totalpage = Math.ceil(shopprod.count/limit)
+			var min_item = (page * limit) + 1;
+			var max_item = (page * limit) + (shopprod.count % 6 || 6);
+			var totalpage = Math.ceil(shopprod.count / limit)
 			if (shopprod.count > 0) {
 				var itemsId = [];
 				shopprod.rows.forEach(e => {
@@ -836,27 +840,27 @@ router.get("/view/:id", (req, res) => {
 					where: { productid: req.params.id },
 					raw: true
 				})
-				.then((reviews) => {
-					var avgRating = 0;
-					if(reviews.length > 0){
-						reviews.forEach(r => {
-							avgRating = avgRating + r.stars;
+					.then((reviews) => {
+						var avgRating = 0;
+						if (reviews.length > 0) {
+							reviews.forEach(r => {
+								avgRating = avgRating + r.stars;
+							});
+							avgRating = avgRating / reviews.length;
+						}
+
+						res.render('customer/productview', {
+							title: pdetails.name + ' - ' + pdetails.storename,
+							pdetails: getDetails,
+							choicesArray: choicesArray,
+							discprice: discprice,
+							avgRating: avgRating,
+							reviews: reviews
 						});
-						avgRating = avgRating / reviews.length;
-					}
-					
-					res.render('customer/productview', {
-						title: pdetails.name + ' - ' + pdetails.storename,
-						pdetails: getDetails,
-						choicesArray: choicesArray,
-						discprice: discprice,
-						avgRating: avgRating,
-						reviews:reviews
+					})
+					.catch(err => {
+						console.error('Unable to connect to the database:', err);
 					});
-				})
-				.catch(err => {
-					console.error('Unable to connect to the database:', err);
-				});
 			}
 			else {
 				return res.redirect('/404');
@@ -879,7 +883,7 @@ router.get('/advertise', (req, res) => {
 
 // riders: main orders page 
 router.get('/faq', (req, res) => {
-	res.render('user/faq', {title: "FAQ"});
+	res.render('user/faq', { title: "FAQ" });
 });
 
 
