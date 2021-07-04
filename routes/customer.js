@@ -23,7 +23,6 @@ const { v4: uuidv4 } = require('uuid');
 const validator = require("email-validator");
 const Regex = require("regex");
 const { username } = require('../config/db');
-const { username } = require('../config/db');
 const regex = /^(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.[@$!%?&])[A-Za-z\d@$!%?&]{8,}$/;
 
 // customer: login page 
