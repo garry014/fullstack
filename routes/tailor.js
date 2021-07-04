@@ -189,7 +189,7 @@ router.get('/editproduct/:id', ensureAuthenticated, (req, res) => {
 		raw: true
 	})
 		.then(pdetails => {
-			if (pdetails) {
+			if(pdetails){
 				if (pdetails.storename != shopname) {
 					alertMessage(res, 'danger', 'You shall not pass!', 'fas fa-exclamation-triangle', true);
 					res.redirect('/viewshops');
@@ -211,7 +211,7 @@ router.get('/editproduct/:id', ensureAuthenticated, (req, res) => {
 								.catch(err => {
 									console.error('Unable to connect to the database:', err);
 								});
-
+	
 						}
 						else {
 							res.render('tailor/editproduct', {
@@ -430,12 +430,12 @@ router.get('/deleteProduct/:id', ensureAuthenticated, (req, res) => {
 			})
 				.then((pDetails) => {
 					alertMessage(res, 'info', 'Successfully deleted item.', 'far fa-trash-alt', true);
-					res.redirect('/viewshops/' + pdetails.storename);
+					res.redirect('/viewshops/' + pdetails.storename + '/1');
 				})
 		}
 		else {
 			alertMessage(res, 'danger', 'Do you have a badge????', 'fas fa-exclamation-triangle', true);
-			res.redirect('/viewshops/' + pdetails.storename);
+			res.redirect('/viewshops/' + pdetails.storename + '/1');
 		}
 	})
 });
