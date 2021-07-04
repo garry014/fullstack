@@ -106,9 +106,19 @@
                             </div>
                             <div class="col-lg-12">
                                 <div class="billing-info mb-20">
-                                    <label for="delivery_date">Delivery Date</label>
-                                    <input type="text" name="delivery_date" placeholder="delivery_date"
-                                        value="{{request.form.delivery_date }}">
+                                    <label class="font-italic">Delivery Time</label>
+                                    <p>Choose your preferred delivery time</p>
+                                    <select id="dTime" name="dTime" value="dTime">
+                                        <option value="">0900 to 1000</option>
+                                        <option value="2">1000 to 1100</option>
+                                        <option value="3">1100 to 1200</option>
+                                        <option value="4">1200 to 1300</option>
+                                        <option value="5">1300 to 1400</option>
+                                        <option value="6">1400 to 1500</option>
+                                        <option value="7">1500 to 1600</option>
+                                        <option value="8">1600 to 1700</option>
+                                        <option value="9">1700 to 1800</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="checkout-account-toggle open-toggle2 mb-30">
