@@ -289,10 +289,10 @@ router.post("/view/:id", (req, res) => {
 router.get('/purchasehistory', (req, res) => {
 	sess = req.session;
 	let that = this;
-	userId = sess["loginId"]
+	userId = res.locals.user.id
 	sess["purchases"] = []
 	Cart.findAll({
-		where: { userid: 0 },
+		where: { userid: res.locals.user.id },
 		raw: true
 		// Get all DB values
 		// run a for loop to extract only the distinct storename, max discount
