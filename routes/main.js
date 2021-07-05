@@ -553,38 +553,51 @@ router.get('/c/:chat/:id', ensureAuthenticated, (req, res) => {
 // Chat - Upload Image
 router.post('/inbox/uploadimg/:id', (req, res) => {
 	const currentuser = req.session.username; //temp var
+	const errors = [];
 
-	var file = req.files.fileUpload;
-	var filename = file.name;
-	var filetype = file.mimetype.substring(6);
-	console.log(file);
-	const newid = uuidv4(); // Generate unique file id
-	var newFileName = uuidv4().concat(".").concat(filetype);
+	if (!req.files) {
+		errors.push({ msg: 'Please upload an image file.' });
+	}
+	
+	if(errors.length == 0){
+		var file = req.files.fileUpload;
+		var filename = file.name;
+		var filetype = file.mimetype.substring(6);
+		console.log(file);
+		const newid = uuidv4(); // Generate unique file id
+		var newFileName = uuidv4().concat(".").concat(filetype);
 
-	file.mv('./public/uploads/chat/' + filename, function (err) {
-		if (err) {
-			res.send(err);
-		}
-		else {
-			fs.rename('./public/uploads/chat/' + filename, './public/uploads/chat/' + newFileName, function (err) {
-				if (err) {
-					console.log('ERROR: ' + err)
-				}
-				else {
-					var datetime = getToday();
-					Message.create({
-						sentby: currentuser,
-						timestamp: datetime,
-						upload: newFileName,
-						chatId: req.params.id
-					}).catch(err => {
-						console.error('Unable to connect to the database:', err);
-					});
-					res.redirect('/c/inbox/'+req.params.id);
-				}
-			});
-		}
-	});
+		file.mv('./public/uploads/chat/' + filename, function (err) {
+			if (err) {
+				res.send(err);
+			}
+			else {
+				fs.rename('./public/uploads/chat/' + filename, './public/uploads/chat/' + newFileName, function (err) {
+					if (err) {
+						console.log('ERROR: ' + err)
+					}
+					else {
+						var datetime = getToday();
+						Message.create({
+							sentby: currentuser,
+							timestamp: datetime,
+							upload: newFileName,
+							chatId: req.params.id
+						}).catch(err => {
+							console.error('Unable to connect to the database:', err);
+						});
+						res.redirect('/c/inbox/'+req.params.id);
+					}
+				});
+			}
+		});
+	}
+	else {
+		alertMessage(res, 'danger', 'Please upload a valid image file.', 'fas fa-exclamation-triangle', true);
+		res.redirect('/c/inbox/'+req.params.id);
+	}
+
+	
 
 });
 
