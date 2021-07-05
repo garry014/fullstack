@@ -6,6 +6,7 @@ const Message = require('../models/Message');
 const User = require('../models/User.js');
 const Review = require('../models/Review.js');
 const Cart = require('../models/Cart');
+const BillingDetails = require('../models/BillingDetails');
 
 // Handlebars Helpers
 const alertMessage = require('../helpers/messenger');
@@ -24,6 +25,7 @@ const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 var io = require('socket.io')();
 var sess;
+const moment = require('moment');
 
 ////// Flash Error Message for easy referrence ///////
 // alertMessage(res, 'success',
@@ -86,10 +88,18 @@ router.get('/rewardpage', (req, res) => {
 })
 // Customer : checkout page
 router.get('/customers_checkout', (req, res) => {
+	var user_details;
+	if (typeof req.user != "undefined") {
+		user_details = res.locals.user;
+		console.log("userdata", res.locals.user)
+	}
+	//addons
+	let { deliverytime, deliverydate } = req.body;
+	console.log(deliverytime, deliverydate);
 	sess = req.session;
 
 	console.log(sess["myCart"]);
-	res.render('customer/customers_checkout', { title: "customers_checkout", sess: sess })
+	res.render('customer/customers_checkout', { title: "customers_checkout", sess: sess, user_details: user_details })
 })
 // Customer : after transaction page
 router.get('/transaction_complete', (req, res) => {
@@ -143,6 +153,37 @@ router.post('/transaction_complete', (req, res) => {
 
 	res.render('customer/transaction_complete', { title: "transaction_complete" })
 })
+
+// Billing information details
+router.post('/customers_checkout', (req, res) => {
+	var user_details;
+	if (typeof req.user != "undefined") {
+		user_details = res.locals.user;
+		let insertcustdata = {
+			firstname: user_details.firstname,
+			lastname: user_details.lastname,
+			username: user_details.username,
+			address1: user_details.address1,
+			address2: user_details.address2,
+			city: user_details.city,
+			postalcode: user_details.postalcode,
+			email: user_details.email,
+			phoneno: user_details.phoneno,
+			deliverytime: req.body.dTime,
+			deliverydate: moment(req.body.delivery_date, 'DD/MM/YYYY')
+		}
+		console.log("create========>", insertcustdata);
+		BillingDetails.create(insertcustdata)
+			.then(success => {
+				res.redirect('/customers_checkout');
+
+				console.log("Billing details generated ====>", success);
+				console.log("did it managed to send through", success);
+			}).catch(err => {
+				console.error('Unable to connect to the database:', err);
+			});
+	}
+});
 
 //delete
 deleteCartItem = (inItemId, sess) => {
@@ -248,10 +289,10 @@ router.post("/view/:id", (req, res) => {
 router.get('/purchasehistory', (req, res) => {
 	sess = req.session;
 	let that = this;
-	userId = sess["loginId"]
+	userId = res.locals.user.id
 	sess["purchases"] = []
 	Cart.findAll({
-		where: { userid: 0 },
+		where: { userid: res.locals.user.id },
 		raw: true
 		// Get all DB values
 		// run a for loop to extract only the distinct storename, max discount
