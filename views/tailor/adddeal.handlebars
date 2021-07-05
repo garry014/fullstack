@@ -12,6 +12,9 @@
                         <div class="login-form-container">
                             <div class="login-register-form">
                                 <form action="#" method="post">
+                                    {{#each shopprod}}
+                                    <br>ID: {{id}}<!-- Good to use my catalouge id as a foriegn key--> Product Name: {{name}}   Price: {{price}}     Image <img src="/uploads/products/{{image}}" width="50" height="auto">
+                                    {{/each}}
                                     <div class="form-group">
                                         <label for="name">Product Name</label>
                                         <input id="pname" name="pname" class="form-control" type="text" value="" >
