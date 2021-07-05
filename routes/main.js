@@ -104,9 +104,10 @@ router.get('/customers_checkout', (req, res) => {
 // Customer : after transaction page
 router.get('/transaction_complete', (req, res) => {
 	sess = req.session;
+	userId = res.locals.user.id
 	//send into sql
 	console.log("cart", sess["mycart"])
-	let cartId = Date.now()/1000;
+	let cartId = Date.now() / 1000;
 
 	sess["myCart"].forEach(cartItem => {
 		let insertData = {
@@ -115,17 +116,17 @@ router.get('/transaction_complete', (req, res) => {
 			quantity: cartItem.qty,
 			customqn: cartItem.customqn,
 			custom: cartItem.custom,
-			userid: 0,
+			userid: res.locals.user.id,
 			timestamp: cartId
 		}
 		console.log("insertData==>", insertData);
-		Cart.create(insertData).then(success =>{
+		Cart.create(insertData).then(success => {
 			console.log("Receipt created==>", success)
 			sess["myCart"] = []
 		}).catch(err => {
 			console.error('Unable to connect to the database:', err);
 		});
-		
+
 	});
 
 
