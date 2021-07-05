@@ -1,13 +1,14 @@
 <div class="login-register-area pt-20 pb-100">
     <div class="container">
         <div class="row">
-            {{#if deals}}
+
             <div class="col-lg-7 col-md-12 ml-auto mr-auto">
                 <div class="login-register-wrapper">
                     <div class="login-register-tab-list nav">
                         <a data-toggle="tab" href="#lg2">
                             <h4 style="color:rgb(230, 19, 19); font-size: 30px;"> ⚡ FLASH DEALS ⚡ </h4>
                             <br>
+                            {{#if deals}}
                             <h5 style="text-align: center; font-weight:bold; font-size: 18px;">Ends in</h5>
                             <p id="time" style="text-align: center; font-size: 30px; margin-top: 0px;"></p>
                         </a>
@@ -21,12 +22,15 @@
                     </div>
                     <br><br>
                     {{/each}}
+                    {{else}}
+                    <br>
+                    <h5 style="text-align: center; font-weight:bold; font-size: 16px;">There are no flash deals today!</h5>
+                    {{/if}}
                 </div>
             </div>
         </div>
     </div>
 </div>
-{{/if}}
 <script>
     // Set the date we're counting down to
     var countDownDate = new Date("July 06, 2021 00:00:00").getTime();
