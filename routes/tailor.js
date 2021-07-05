@@ -1517,23 +1517,33 @@ router.get('/adddeal', ensureAuthenticated, (req, res) => {
 	res.render('tailor/adddeal', { title: "Add Flash Deal" });
 });
 
-router.post('/adddeal', ensureAuthenticated, (req, res) => {
-    let pname = req.body.pname;
-    let discountp = req.body.discountp;
-	let originalp = req.body.originalp;
-	let dstartdate =  req.body.dstartdate;
-    let dexpirydate =  req.body.dexpirydate;
+router.get('/adddeal', ensureAuthenticated, (req, res) => {
+	// Check if user is a tailor, cos i need the shopname
+	// i think you should add this part into your other codes too
+	if (typeof req.user != "undefined") {
+		user_status = res.locals.user.usertype;
+	}
+	if (user_status == "tailor"){
+		// btw do create at least 1 tailor account + 1 product before you can see
+		Catalouge.findAll({
+			where: { storename: res.locals.user.shopname },
+			raw: true
+		})
+			.then(shopprod => {
+				console.log(shopprod);
+				res.render('tailor/adddeal', { 
+					title: "Add Flash Deal",
+					shopprod: shopprod // Shop Products 
+				});
+			})
+		
+	}
+	else {
+		alertMessage(res, 'danger', 'Please register as a tailor to add a flash deal.', 'fas fa-sign-in-alt', true);
+		res.redirect('/');
+	}
 
-    Deal.create({
-        pname,
-        discountp,
-		originalp,
-        dstartdate,
-        dexpirydate,
-
-    }).then((deals) => {
-        res.redirect('/tailor/tailordeals');
-    }).catch(err => console.log(err))
+	
 });
 
 // tailor: update deal
