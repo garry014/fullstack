@@ -26,6 +26,8 @@ const JWT_SECRET = 'secret super'
 const jwt = require('jsonwebtoken');
 const validator = require("email-validator");
 const Regex = require("regex");
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
@@ -66,16 +68,16 @@ router.post('/addproduct', ensureAuthenticated, urlencodedParser, (req, res) => 
 	// 	errors.push({ msg: 'Name should be at least 3 character.' });
 	// }
 	if (isNumeric(price) == false) {
-		errors.push({ msg: 'Please enter a valid number between 0 to 2000.' });
+		errors.push({ msg: 'Please enter a valid price between 0 to 2000.' });
 	}
 	else if (price > 2000) {
-		errors.push({ msg: 'Please enter a valid number between 0 to 2000.' });
+		errors.push({ msg: 'Please enter a valid price between 0 to 2000.' });
 	}
 	if (isNumeric(discount) == false) {
-		errors.push({ msg: 'Please enter a valid number between 0 to 100.' });
+		errors.push({ msg: 'Please enter a valid discount between 0 to 100.' });
 	}
 	else if (discount > 100) {
-		errors.push({ msg: 'Please enter a valid number between 0 to 100.' });
+		errors.push({ msg: 'Please enter a valid discount between 0 to 100.' });
 	}
 	if (question != "") {
 		if (q1category == "") {
@@ -249,16 +251,16 @@ router.put('/editproduct/:id', ensureAuthenticated, urlencodedParser, (req, res)
 
 	// Validation
 	if (isNumeric(price) == false) {
-		errors.push({ msg: 'Please enter a valid number between 0 to 2000.' });
+		errors.push({ msg: 'Please enter a valid price between 0 to 2000.' });
 	}
 	else if (price > 2000) {
-		errors.push({ msg: 'Please enter a valid number between 0 to 2000.' });
+		errors.push({ msg: 'Please enter a valid price between 0 to 2000.' });
 	}
 	if (isNumeric(discount) == false) {
-		errors.push({ msg: 'Please enter a valid number between 0 to 100.' });
+		errors.push({ msg: 'Please enter a valid discount between 0 to 100.' });
 	}
 	else if (discount > 100) {
-		errors.push({ msg: 'Please enter a valid number between 0 to 100.' });
+		errors.push({ msg: 'Please enter a valid discount between 0 to 100.' });
 	}
 	if (question != "") {
 		if (q1category == "") {
