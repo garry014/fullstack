@@ -4,6 +4,7 @@
 const Catalouge = require('../models/Catalouge');
 const Review = require('../models/Review');
 const User = require('../models/User');
+const Deal = require('../models/Deal');
 
 // Handlebars Helpers
 const alertMessage = require('../helpers/messenger');
