@@ -18,6 +18,7 @@ const { OAuth2Client, IdTokenClient } = require('google-auth-library');
 const client = new OAuth2Client(IdTokenClient);
 const bcrypt = require('bcryptjs');
 const alertMessage = require('./helpers/messenger');
+const { formatDate } = require('./helpers/hbs');
 
 
 // for facebook create user 
@@ -69,7 +70,9 @@ const http = require("http").createServer(app);
 
 // Handlebars Middleware
 app.engine('handlebars', exphbs({
+	formatDate: formatDate,
 	defaultLayout: 'main' // Specify default template views/layout/main.handlebar 
+
 }));
 app.set('view engine', 'handlebars');
 
