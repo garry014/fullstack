@@ -5,6 +5,8 @@
 const Catalouge = require('../models/Catalouge');
 const Productchoices = require('../models/Productchoices');
 const User = require('../models/User');
+const Voucher = require('../models/Voucher');
+const Deal = require('../models/Deal');
 
 // Handlebars Helpers
 const alertMessage = require('../helpers/messenger');
