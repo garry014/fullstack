@@ -776,4 +776,24 @@ router.get('/delete/:id', ensureAuthenticated, (req, res) => {
 	});
 });
 
+//kaijie
+// customer: flash deals
+router.get('/flashdeals', (req, res) => {
+	Deal.findAll({
+        where: {
+        },
+        order: [
+            ['pname', 'ASC']
+        ],
+        raw: true,
+    })
+        .then((deals) => {
+            res.render('customer/flashdeals', {
+		title: "Flash Deals",
+                deals : deals
+            });
+        })
+        .catch(err => console.log(err));
+});
+
 module.exports = router;
