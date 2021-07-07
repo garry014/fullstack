@@ -120,8 +120,8 @@
                                         <button type="submit"><span>Confirm</span></button>
                                     </div>
                                 </form> --}}
-                                <a href="/transaction_complete"><button class="btn-hover checkout-btn"
-                                        method="post" type="submit">Confirm</button></a>
+                                <a href="/transaction_complete"><button class="btn-hover checkout-btn" method="post"
+                                        type="submit">Confirm</button></a>
 
                             </div>
                         </div>
@@ -214,6 +214,7 @@
                             <div class="your-order-top">
                                 <ul>
                                     <li>Product</li>
+                                    <li>Quantity</li>
                                     <li>Total</li>
                                 </ul>
                             </div>
@@ -221,11 +222,13 @@
                                 {{#each sess.myCart}}
                                 <ul>
                                     {{!-- <span>{{this.itemId}}</span> --}}
-                                    <li><span class="order-middle-left">{{this.itemname}}
-                                            {{link text=" Remove" url="/deleteSessItem/" id=this.itemId}}
-                                            {{!-- <a href="/deleteSessItem/{{this.itemId}}"><i
-                                                    class="fa fa-times"></i></a> --}}
+                                    
+                                    <li><span class="order-middle-left">{{link text='<i class="fa fa-times"></i>' url="/deleteSessItem/"
+                                            id=this.itemId}} {{this.itemname}}
+                                            {{!-- {{link text='<i class="fa fa-times"></i>' url="/deleteSessItem/"
+                                            id=this.itemId}} --}}
                                         </span>
+                                        <span class="order-quantity">{{this.qty}}</span>
                                         <span class="order-price">{{this.subtotal}}</span>
                                     </li>
                                     <li style="margin-left:10px;">{{this.customqn}}</li>
@@ -236,11 +239,12 @@
                                     <li>Cart is empty!</li>
                                 </ul>
                                 {{/each}}
-                                <ul>
+                                {{!-- <ul>
                                     <li><span class="order-middle-left"><a href=><i class="fa fa-times"></i></a></span>
                                         <span class="order-price"></span>
                                     </li>
-                                </ul>
+                                </ul> --}}
+                                
 
                                 <div class="your-order-total">
                                     <ul>
@@ -259,7 +263,7 @@
                             </div>
                         </div>
                         <script>
-                        <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID"> // Replace YOUR_CLIENT_ID with your sandbox client ID
+                            <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID"> // Replace YOUR_CLIENT_ID with your sandbox client ID
                         </script>
 
 
@@ -271,8 +275,8 @@
                         <script>
                             $('#datepicker').datepicker({
                                 format: 'dd/mm/yyyy',
-                                value: new Date().toLocaleDateString('EN-SG'),
-                                uiLibrary: 'bootstrap4',
+                            value: new Date().toLocaleDateString('EN-SG'),
+                            uiLibrary: 'bootstrap4',
                             });
 
                             function initPayPalButton() {
