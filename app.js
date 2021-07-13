@@ -347,7 +347,11 @@ io.on("connection", function(socket){
 		io.to(socketId).emit("new_upload", data);
 	});
 });
-// This route maps the root URL to any path defined in main.js
+
+global.start_newchat = function(data){ 
+	var socketId = users[data.receiver];
+	io.to(socketId).emit("start_newchat", data);
+};
 
 global.send_notification = function(recipient, category, message, hyperlink){ 
 	// Create object to send to client side

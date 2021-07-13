@@ -365,6 +365,7 @@ router.get('/purchasehistory', (req, res) => {
 
 // FOR DESIGNING PURPOSES ONLY
 router.get('/design', (req, res) => {
+	send_notification("recipient", "category", "message", "hyperlink")
 	res.render('customer/testaudio', { title: "Add product" });
 });
 
@@ -391,6 +392,7 @@ router.post('/chatwith/:name', ensureAuthenticated, (req, res) => {
 			res.redirect('/c/inbox/'+chats[0].id);
 		}
 		else{
+			
 			Chat.create({
 				sender: currentuser,
 				recipient: req.params.name,
@@ -398,6 +400,9 @@ router.post('/chatwith/:name', ensureAuthenticated, (req, res) => {
 				recipientstatus: "Unread"
 			})
 			.then((chat) =>{
+				// Send res.locals.photo, id
+				const data = {receiver: req.params.name, sender: currentuser, photo: req.user.dataValues.photo, id: chat.id};
+				start_newchat(data);
 				res.redirect('/c/inbox/'+chat.id);
 			})
 			.catch(err => {

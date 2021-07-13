@@ -31,7 +31,7 @@
                     </div>
                 </div>
             </div>
-            <div class="inbox_chat">
+            <div id="inbox_chat" class="inbox_chat">
                 {{#if chats}}
                 {{#each chats}}
                     {{#ifCond id '==' ../id}}
@@ -404,7 +404,7 @@
                     </div>
                 </div>
             </div>
-            <div class="inbox_chat">
+            <div id="inbox_chat1" class="inbox_chat">
                 {{#if chats}}
                 {{#each chats}}
                     {{#ifCond id '==' ../id}}
@@ -493,7 +493,7 @@
                 {{/if}}
             </div>
         </div>
-<!-- not done lol -->
+<!-- UI to display on small screens -->
 
 <ul id="users"></ul>
 
@@ -526,7 +526,7 @@
 
     //////////////////////// Socket IO ////////////////////////////////
     var io = io();
-    var rphoto = {{{json rphoto}}};
+    var rphoto = "{{rphoto}}";
 
     io.on("user_connected", function (username) {
         var html = "";
@@ -600,6 +600,31 @@
         setTimeout(function () {
             window.location.reload(true);
         }, 1000);
+
+    });
+
+    io.on("start_newchat", function (data) {
+        console.log("start_newchat is working");
+        const atag = document.createElement('a');
+        atag.href="/c/inbox/" + data.id;
+        const div = document.createElement('div');
+        div.className = 'chat_list';
+        div.innerHTML = `<div class="chat_people">
+                                    <div class="chat_img"> <img src="/uploads/user/${data.photo}" style="border-radius: 50%;"> </div>
+                                <div class="chat_ib">
+                                    <h5>${data.sender}</h5>
+                                    <p>
+                                                <i>This chat is currently empty.</i>
+                                    </p>
+                                </div>
+                            </div>`;
+
+
+        // something wrong with the appendchild
+        atag.appendChild(div);
+        document.getElementById('inbox_chat').appendChild(atag);
+        document.getElementById('inbox_chat1').appendChild(atag);
+        autoScrollDown();
 
     });
 </script>

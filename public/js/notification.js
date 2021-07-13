@@ -1,6 +1,6 @@
 //////////////////////// Socket IO ////////////////////////////////
-var io = io();
+// var io = io();
 
-io.on("send_notification", function (data) {
-    console.log(data);
-});
+// io.on("send_notification", function (data) {
+//     console.log(data);
+// });
