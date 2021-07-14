@@ -4,6 +4,7 @@
 const Catalouge = require('../models/Catalouge');
 const Review = require('../models/Review');
 const User = require('../models/User');
+const Deal = require('../models/Deal');
 
 // Handlebars Helpers
 const alertMessage = require('../helpers/messenger');
@@ -831,6 +832,26 @@ router.get('/delete/:id', ensureAuthenticated, (req, res) => {
 			res.redirect('/clogout');
 		}
 	});
+});
+
+//kaijie
+// customer: flash deals
+router.get('/flashdeals', (req, res) => {
+	Deal.findAll({
+        where: {
+        },
+        order: [
+            ['pname', 'ASC']
+        ],
+        raw: true,
+    })
+        .then((deals) => {
+            res.render('customer/flashdeals', {
+		title: "Flash Deals",
+                deals : deals
+            });
+        })
+        .catch(err => console.log(err));
 });
 
 module.exports = router;

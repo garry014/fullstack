@@ -95,13 +95,16 @@
 
                     <div class="pro-pagination-style text-center mt-30">
                         <ul>
-                            <!-- The count not increasing -->
-                            <li><a class="prev" href="/viewshops/{{storename}}/1"><i class="fa fa-angle-double-left"></i></a></li>
-                            {{#times totalpage}}
+                            {{#paginate pagination type="previous"}}
+                            {{#unless disabled}}<li><a class="prev" href="/viewshops/{{../storename}}/1"><i class="fa fa-angle-double-left"></i></a></li>{{/unless}}
+                            {{/paginate}}
                             <!--<li><a class="active" href="../1">1</a></li>-->
-                            <li><a href="">{{pageInc totalpage}}</a></li>
-                            {{/times}}
-                            <li><a class="next" href="/viewshops/{{storename}}/{{nextpage}}"><i class="fa fa-angle-double-right"></i></a></li>
+                            {{#paginate pagination type="middle" limit=totalpage}}
+                            <li><a {{#if active}}class="active"{{/if}} href="/viewshops/{{../storename}}/{{n}}">{{n}}</a></li>
+                            {{/paginate}}
+                            {{#paginate pagination type="next"}}
+                            {{#unless disabled}}<li><a href="/viewshops/{{../storename}}/{{n}}"><i class="fa fa-angle-double-right"></i></a></li>{{/unless}}
+                            {{/paginate}}
                         </ul>
                     </div>
                 </div>

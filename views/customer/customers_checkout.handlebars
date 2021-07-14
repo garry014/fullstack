@@ -1,3 +1,10 @@
+<!--For Bootstrap datepicker-->
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT" crossorigin="anonymous">
+    </script>
+<link href="https://unpkg.com/gijgo@1.9.11/css/gijgo.min.css" rel="stylesheet" type="text/css" />
+<script src="https://unpkg.com/gijgo@1.9.11/js/gijgo.min.js" type="text/javascript"></script>
+
 <div class="breadcrumb-area pt-35 pb-35 bg-gray-3">
     <div class="container">
         <div class="breadcrumb-content text-center">
@@ -22,54 +29,54 @@
                                 <div class="billing-info mb-20">
                                     <label for="firstname">FirstName</label>
                                     <input type="text" name="first-name" placeholder="First Name"
-                                        value="{{request.form.firstname }}">
+                                        value="{{user_details.firstname}}">
                                 </div>
                             </div>
                             <div class="col-lg-6 col-md-6">
                                 <div class="billing-info mb-20">
                                     <label for="lastname">LastName</label>
                                     <input type="text" name="last-name" placeholder="Last Name"
-                                        value="{{request.form.lastname }}">
+                                        value="{{user_details.lastname}}">
                                 </div>
                             </div>
                             <div class="col-lg-12">
                                 <div class="billing-info mb-20">
                                     <label for="Address1">Address Line 1</label>
                                     <input type="text" name="Address-Line-1" placeholder="Address "
-                                        value="{{request.form.AddressLine1 }}">
+                                        value="{{user_details.address1 }}">
                                 </div>
                             </div>
                             <div class="col-lg-12">
                                 <div class="billing-info mb-20">
                                     <label for="Address2">Address Line 2</label>
                                     <input type="text" name="Address-Line-2" placeholder="Address-Line-2"
-                                        value="{{request.form.AddressLine2 }}">
+                                        value="{{user_details.address2 }}">
                                 </div>
                             </div>
                             <div class="col-lg-12">
                                 <div class="billing-info mb-20">
                                     <label for="city">City</label>
-                                    <input type="text" name="city" placeholder="city" value="{{request.form.city }}">
+                                    <input type="text" name="city" placeholder="city" value="{{user_details.city }}">
                                 </div>
                             </div>
                             <div class="col-lg-12">
                                 <div class="billing-info mb-20">
                                     <label for="postal_code">Postal Code</label>
                                     <input type="text" name="postal-code" placeholder="Postal Code"
-                                        value="{{request.form.postal_code }}">
+                                        value="{{user_details.postalcode}}">
                                 </div>
                             </div>
                             <div class="col-lg-12">
                                 <div class="billing-info mb-20">
                                     <label for="Email">Email</label>
-                                    <input type="text" name="email" placeholder="email" value="{{request.form.email }}">
+                                    <input type="text" name="email" placeholder="email" value="{{user_details.email}}">
                                 </div>
                             </div>
                             <div class="col-lg-12">
                                 <div class="billing-info mb-20">
                                     <label for="phone_number">Phone Number</label>
                                     <input type="text" name="phone_number" placeholder="phone_number"
-                                        value="{{request.form.phone_number }}">
+                                        value="{{user_details.phoneno}}">
                                 </div>
                             </div>
                         </div>
@@ -85,36 +92,37 @@
                         <div class="additional-info-wrap">
                             <div class="col-lg-12">
                                 <div class="billing-info mb-20">
-                                    <label for="order_notes">Additional Information</label>
-                                    <input type="text" name="order_notes" placeholder="order_notes"
-                                        value="{{request.form.order_notes }}">
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="billing-info mb-20">
-                                    <label for="delivery_options">Delivery Options</label>
-                                    <input type="text" name="delivery_options" placeholder="delivery_options"
-                                        value="{{request.form.delivery_options }}">
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="billing-info mb-20">
-                                    <label for="delivery_time">Delivery Time</label>
-                                    <input type="text" name="delivery_time" placeholder="delivery_time"
-                                        value="{{request.form.delivery_time }}">
+                                    <label class="font-italic">Delivery Time</label>
+                                    <p>Choose your preferred delivery time</p>
+                                    <select id="dTime" name="dTime" value="dTime">
+                                        <option value="">0900 to 1000</option>
+                                        <option value="2">1000 to 1100</option>
+                                        <option value="3">1100 to 1200</option>
+                                        <option value="4">1200 to 1300</option>
+                                        <option value="5">1300 to 1400</option>
+                                        <option value="6">1400 to 1500</option>
+                                        <option value="7">1500 to 1600</option>
+                                        <option value="8">1600 to 1700</option>
+                                        <option value="9">1700 to 1800</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-lg-12">
                                 <div class="billing-info mb-20">
                                     <label for="delivery_date">Delivery Date</label>
-                                    <input type="text" name="delivery_date" placeholder="delivery_date"
-                                        value="{{request.form.delivery_date }}">
+                                    <input id="datepicker" width="200" name="delivery_date" placeholder="delivery_date"
+                                        value="{{request.form.delivery_date }}" readonly />
                                 </div>
                             </div>
                             <div class="checkout-account-toggle open-toggle2 mb-30">
-                                <a href="user/transaction_complete"><button class="btn-hover checkout-btn"
+                                {{!-- <form id="details_form" method="post" action="/transaction_complete">
+                                    <div class="button-box">
+                                        <button type="submit"><span>Confirm</span></button>
+                                    </div>
+                                </form> --}}
+                                <a href="/transaction_complete"><button class="btn-hover checkout-btn" method="post"
                                         type="submit">Confirm</button></a>
-                                
+
                             </div>
                         </div>
                     </form>
@@ -206,17 +214,21 @@
                             <div class="your-order-top">
                                 <ul>
                                     <li>Product</li>
+                                    <li>Quantity</li>
                                     <li>Total</li>
                                 </ul>
                             </div>
-                             <div class="your-order-middle">
+                            <div class="your-order-middle">
                                 {{#each sess.myCart}}
                                 <ul>
                                     {{!-- <span>{{this.itemId}}</span> --}}
-                                    <li><span class="order-middle-left">{{this.itemname}}
-                                        {{link text="   Remove" url="/deleteSessItem/" id=this.itemId}}
-                                        {{!-- <a href="/deleteSessItem/{{this.itemId}}"><i class="fa fa-times"></i></a> --}}
+                                    
+                                    <li><span class="order-middle-left">{{link text='<i class="fa fa-times"></i>' url="/deleteSessItem/"
+                                            id=this.itemId}} {{this.itemname}}
+                                            {{!-- {{link text='<i class="fa fa-times"></i>' url="/deleteSessItem/"
+                                            id=this.itemId}} --}}
                                         </span>
+                                        <span class="order-quantity">{{this.qty}}</span>
                                         <span class="order-price">{{this.subtotal}}</span>
                                     </li>
                                     <li style="margin-left:10px;">{{this.customqn}}</li>
@@ -227,11 +239,12 @@
                                     <li>Cart is empty!</li>
                                 </ul>
                                 {{/each}}
-                                <ul>
+                                {{!-- <ul>
                                     <li><span class="order-middle-left"><a href=><i class="fa fa-times"></i></a></span>
                                         <span class="order-price"></span>
                                     </li>
-                                </ul>
+                                </ul> --}}
+                                
 
                                 <div class="your-order-total">
                                     <ul>
@@ -249,44 +262,53 @@
                                 <div id="paypal-button-container"></div>
                             </div>
                         </div>
-                        <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID"> // Replace YOUR_CLIENT_ID with your sandbox client ID
+                        <script>
+                            <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID"> // Replace YOUR_CLIENT_ID with your sandbox client ID
                         </script>
+
 
                         <div id="paypal-button-container"></div>
 
                         <!-- Add the checkout buttons, set up the order and approve the order -->
-                        <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=SGD" data-sdk-integration-source="button-factory"></script>
-                          <script>
+                        <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=SGD"
+                            data-sdk-integration-source="button-factory"></script>
+                        <script>
+                            $('#datepicker').datepicker({
+                                format: 'dd/mm/yyyy',
+                            value: new Date().toLocaleDateString('EN-SG'),
+                            uiLibrary: 'bootstrap4',
+                            });
+
                             function initPayPalButton() {
-                              paypal.Buttons({
-                                style: {
-                                  shape: 'rect',
-                                  color: 'gold',
-                                  layout: 'vertical',
-                                  label: 'checkout',
+                                paypal.Buttons({
+                                    style: {
+                                        shape: 'rect',
+                                        color: 'gold',
+                                        layout: 'vertical',
+                                        label: 'checkout',
 
-                                },
+                                    },
 
-                                createOrder: function(data, actions) {
-                                  return actions.order.create({
-                                    purchase_units: [{"amount":{"currency_code":"SGD","value":1}}]
-                                  });
-                                },
+                                    createOrder: function (data, actions) {
+                                        return actions.order.create({
+                                            purchase_units: [{ "amount": { "currency_code": "SGD", "value": 1 } }]
+                                        });
+                                    },
 
-                                onApprove: function(data, actions) {
-                                  return actions.order.capture().then(function(details) {
-                                    window.location.replace("/transaction_complete");
-                                  });
-                                },
+                                    onApprove: function (data, actions) {
+                                        return actions.order.capture().then(function (details) {
+                                            window.location.replace("/transaction_complete");
+                                        });
+                                    },
 
-                                onError: function(err) {
-                                  console.log(err);
-                                }
-                              }).render('#paypal-button-container');
+                                    onError: function (err) {
+                                        console.log(err);
+                                    }
+                                }).render('#paypal-button-container');
                             }
                             initPayPalButton();
-                          </script>
-                        
+                        </script>
+
                     </div>
                 </div>
             </div>

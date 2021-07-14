@@ -19,6 +19,8 @@ const client = new OAuth2Client(IdTokenClient);
 const bcrypt = require('bcryptjs');
 const alertMessage = require('./helpers/messenger');
 const generator = require('generate-password');
+const { formatDate } = require('./helpers/hbs');
+
 
 // for facebook create user 
 // const urlParams = queryString.parse(window.location.search);
@@ -68,17 +70,10 @@ const app = express();
 const http = require("http").createServer(app);
 
 // Handlebars Middleware
-/*
-* 1. Handlebars is a front-end web templating engine that helps to create dynamic web pages using variables
-* from Node JS.
-*
-* 2. Node JS will look at Handlebars files under the views directory
-*
-* 3. 'defaultLayout' specifies the main.handlebars file under views/layouts as the main template
-*
-* */
 app.engine('handlebars', exphbs({
+	formatDate: formatDate,
 	defaultLayout: 'main' // Specify default template views/layout/main.handlebar 
+
 }));
 app.set('view engine', 'handlebars');
 
@@ -154,6 +149,25 @@ Handlebars.registerHelper('getToday', function () {
 Handlebars.registerHelper("pageInc", function (page) {
 	return page + 1;
 });
+Handlebars.registerHelper('checklength', function (v1, v2, options) {
+	'use strict';
+	   if (v1.length>v2) {
+		 return options.fn(this);
+	  }
+	  return options.inverse(this);
+});
+
+Handlebars.registerHelper('subString', function(passedString) {
+    var theString = passedString.substring(0,70);
+    return new Handlebars.SafeString(theString)
+});
+
+Handlebars.registerHelper('json', function(context) {
+    return JSON.stringify(context);
+});
+
+var paginate = require('handlebars-paginate');
+Handlebars.registerHelper('paginate', paginate);
 
 // Handlebars.registerHelper('ifIncludes', function (location,path) {
 // 	debugger
@@ -259,30 +273,30 @@ const Chat = require('./models/Chat');
 const Message = require('./models/Message');
 const Notification = require('./models/Notifications');
 
-function getToday() {
+function getToday(){
 	// Get Date
-	var currentdate = new Date();
-	const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+	var currentdate = new Date(); 
+	const monthNames = ["January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December"];
 	var datetime = currentdate.getDate() + " "
-		+ monthNames[currentdate.getMonth()] + " "
-		+ currentdate.getFullYear() + " "
-		+ currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+			+ monthNames[currentdate.getMonth()]  + " " 
+			+ currentdate.getFullYear() + " "  
+			+ currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
 	return datetime;
 }
 
 io.use(sharedsession(session));
 // add listener for new connection
-io.on("connection", function (socket) {
+io.on("connection", function(socket){
 	console.log("'\x1b[36m%s\x1b[0m'", "user connected: ", socket.id);
 	var currentuser = socket.handshake.session.username;
 	users[currentuser] = socket.id;
-
+	
 
 	socket.on('disconnect', () => {
 		console.log('user disconnected: ', socket.id);
 	});
 
-	socket.on("send_message", function (data) {
+	socket.on("send_message", function(data){
 		// send event to receiver
 		var socketId = users[data.receiver];
 
@@ -300,9 +314,36 @@ io.on("connection", function (socket) {
 		}).catch(err => {
 			console.error('Unable to connect to the database:', err);
 		});
+
+		Chat.findOne({
+			where: { id: data.chatid },
+			raw: true
+		})
+		.then((chat) => {
+			if(chat.sender == currentuser){
+				Chat.update({
+					senderstatus: "Read",
+					recipientstatus: "Unread" 
+				}, {
+					where: { id: data.chatid }
+				})
+				.catch(err => console.log(err));
+			}
+			else{
+				Chat.update({
+					recipientstatus: "Read",
+					senderstatus: "Unread"
+				}, {
+					where: { id: data.chatid }
+				})
+				.catch(err => console.log(err));
+			}
+
+		})
+		.catch(err => console.log(err));
 	});
 
-	socket.on("send_upload", function (data) {
+	socket.on("send_upload", function(data){
 		// send event to receiver
 		data["sender"] = currentuser;
 		var socketId = users[data.receiver];
@@ -310,9 +351,13 @@ io.on("connection", function (socket) {
 		io.to(socketId).emit("new_upload", data);
 	});
 });
-// This route maps the root URL to any path defined in main.js
 
-global.send_notification = function (recipient, category, message, hyperlink) {
+global.start_newchat = function(data){ 
+	var socketId = users[data.receiver];
+	io.to(socketId).emit("start_newchat", data);
+};
+
+global.send_notification = function(recipient, category, message, hyperlink){ 
 	// Create object to send to client side
 	var data = {
 		"recipient": recipient,

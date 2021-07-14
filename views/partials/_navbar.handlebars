@@ -21,7 +21,7 @@
 
                             <li><a href="">My Courses</a>
                             </li>
-                            <li><a href="">Flash Deals</a>
+                            <li><a href="/customer/flashdeals">Flash Deals</a>
                             </li>
 
                             <li><a href="/faq">Help </a></li>
@@ -98,7 +98,7 @@
                         </div>
                     </div>
                     <div class="same-style header-wishlist">
-                        <a href="/inbox/0"><i class="pe-7s-chat"></i></a>
+                        <a href="/c/inbox/0"><i class="pe-7s-chat"></i></a>
                     </div>
                     <div class="same-style cart-wrap">
                         <button class="icon-cart">
@@ -147,21 +147,3 @@
         }
     </script> --}}
 </header>
-{{!-- <script>
-    const button = document.getElementById(‘signout_button’);
-    button.onclick = () => {
-        var logout = function () {
-            var auth2 = gapi.auth2.getAuthInstance();
-            auth2.signOut().then(function () {
-                console.log('User signed out.');
-                auth2.disconnect();
-            });
-            auth2.disconnect()
-        }
-    }
-    // implement FB log out button 
-    FB.logout(function(response) {
-
-  // user is now logged out
-});
-</script> --}}

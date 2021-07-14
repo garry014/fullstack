@@ -5,6 +5,8 @@
 const Catalouge = require('../models/Catalouge');
 const Productchoices = require('../models/Productchoices');
 const User = require('../models/User');
+const Voucher = require('../models/Voucher');
+const Deal = require('../models/Deal');
 
 // Handlebars Helpers
 const alertMessage = require('../helpers/messenger');
@@ -26,6 +28,7 @@ const validator = require("email-validator");
 const Regex = require("regex");
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
+
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 const sgMail = require('@sendgrid/mail');
 
@@ -66,16 +69,16 @@ router.post('/addproduct', ensureAuthenticated, urlencodedParser, (req, res) => 
 	// 	errors.push({ msg: 'Name should be at least 3 character.' });
 	// }
 	if (isNumeric(price) == false) {
-		errors.push({ msg: 'Please enter a valid number between 0 to 2000.' });
+		errors.push({ msg: 'Please enter a valid price between 0 to 2000.' });
 	}
 	else if (price > 2000) {
-		errors.push({ msg: 'Please enter a valid number between 0 to 2000.' });
+		errors.push({ msg: 'Please enter a valid price between 0 to 2000.' });
 	}
 	if (isNumeric(discount) == false) {
-		errors.push({ msg: 'Please enter a valid number between 0 to 100.' });
+		errors.push({ msg: 'Please enter a valid discount between 0 to 100.' });
 	}
 	else if (discount > 100) {
-		errors.push({ msg: 'Please enter a valid number between 0 to 100.' });
+		errors.push({ msg: 'Please enter a valid discount between 0 to 100.' });
 	}
 	if (question != "") {
 		if (q1category == "") {
@@ -191,7 +194,7 @@ router.get('/editproduct/:id', ensureAuthenticated, (req, res) => {
 		raw: true
 	})
 		.then(pdetails => {
-			if (pdetails) {
+			if(pdetails){
 				if (pdetails.storename != shopname) {
 					alertMessage(res, 'danger', 'You shall not pass!', 'fas fa-exclamation-triangle', true);
 					res.redirect('/viewshops');
@@ -213,7 +216,7 @@ router.get('/editproduct/:id', ensureAuthenticated, (req, res) => {
 								.catch(err => {
 									console.error('Unable to connect to the database:', err);
 								});
-
+	
 						}
 						else {
 							res.render('tailor/editproduct', {
@@ -249,16 +252,16 @@ router.put('/editproduct/:id', ensureAuthenticated, urlencodedParser, (req, res)
 
 	// Validation
 	if (isNumeric(price) == false) {
-		errors.push({ msg: 'Please enter a valid number between 0 to 2000.' });
+		errors.push({ msg: 'Please enter a valid price between 0 to 2000.' });
 	}
 	else if (price > 2000) {
-		errors.push({ msg: 'Please enter a valid number between 0 to 2000.' });
+		errors.push({ msg: 'Please enter a valid price between 0 to 2000.' });
 	}
 	if (isNumeric(discount) == false) {
-		errors.push({ msg: 'Please enter a valid number between 0 to 100.' });
+		errors.push({ msg: 'Please enter a valid discount between 0 to 100.' });
 	}
 	else if (discount > 100) {
-		errors.push({ msg: 'Please enter a valid number between 0 to 100.' });
+		errors.push({ msg: 'Please enter a valid discount between 0 to 100.' });
 	}
 	if (question != "") {
 		if (q1category == "") {
@@ -432,12 +435,12 @@ router.get('/deleteProduct/:id', ensureAuthenticated, (req, res) => {
 			})
 				.then((pDetails) => {
 					alertMessage(res, 'info', 'Successfully deleted item.', 'far fa-trash-alt', true);
-					res.redirect('/viewshops/' + pdetails.storename);
+					res.redirect('/viewshops/' + pdetails.storename + '/1');
 				})
 		}
 		else {
 			alertMessage(res, 'danger', 'Do you have a badge????', 'fas fa-exclamation-triangle', true);
-			res.redirect('/viewshops/' + pdetails.storename);
+			res.redirect('/viewshops/' + pdetails.storename + '/1');
 		}
 	})
 });
@@ -1406,6 +1409,249 @@ router.get('/tlogoutsuccess', (req, res) => {
 router.get('/tlogout', (req, res) => {
 	req.logout();
 	res.redirect('../tailor/tlogoutsuccess');
+});
+
+//kaijie
+// tailor: view vouchers
+router.get('/vouchers', ensureAuthenticated, (req, res) => {
+    Voucher.findAll({
+        where: {
+        },
+        order: [
+            ['code', 'ASC']
+        ],
+        raw: true,
+    })
+        .then((vouchers) => {
+            res.render('tailor/vouchers', {
+				title: "Vouchers List",
+                vouchers : vouchers
+            });
+        })
+        .catch(err => console.log(err));
+});
+
+// tailor: add voucher
+router.get('/addVoucher', ensureAuthenticated, (req, res) => {
+	res.render('tailor/addvoucher', { title: "Add Voucher" });
+});
+
+router.post('/addVoucher', (req, res) => {
+    let code = req.body.code;
+    let description = req.body.description;
+    let discount = req.body.discount;
+    let minpurchase = req.body.minpurchase;
+    let quantity = req.body.quantity;
+	let vstartdate =  req.body.vstartdate;
+    let vexpirydate =  req.body.vexpirydate;
+
+    Voucher.create({
+        code,
+        description,
+        discount,
+        minpurchase,
+        quantity,
+        vstartdate,
+		vexpirydate,
+
+    }).then((vouchers) => {
+        res.redirect('/tailor/vouchers');
+    }).catch(err => console.log(err))
+});
+
+// tailor: update voucher
+router.get('/updateVoucher/:id', ensureAuthenticated, (req, res) => {
+    Voucher.findOne({
+        where: {
+            id: req.params.id
+        },
+		raw:true
+    }).then((vouchers) => {
+        res.render('tailor/updatevoucher', {
+			title: "Update voucher",
+            vouchers : vouchers
+        });
+    }).catch(err => console.log(err));
+});
+
+router.put('/updateVoucher/:id', ensureAuthenticated, (req, res) => {
+    let code = req.body.code;
+    let description = req.body.description;
+    let discount = req.body.discount;
+    let minpurchase = req.body.minpurchase;
+    let quantity = req.body.quantity;
+	let vstartdate =  req.body.vstartdate;
+    let vexpirydate =  req.body.vexpirydate;
+   
+    Voucher.update({
+        code,
+        description,
+        discount,
+        minpurchase,
+        quantity,
+        vstartdate,
+		vexpirydate,
+    }, {
+        where: {
+            id: req.params.id
+        }
+    }).then(() => {
+        res.redirect('/tailor/vouchers');
+    }).catch(err => console.log(err));
+});
+
+// tailor: delete voucher
+router.get('/deleteVoucher/:id', ensureAuthenticated,(req, res) => {
+    let voucherID = req.params.id;
+	let userID = req.user.id;
+    Voucher.findOne({
+        where: {
+            id: voucherID,
+        }
+    }).then((vouchers) => {
+        if (vouchers != null) {
+            Voucher.destroy({
+                where: {
+                    id: voucherID
+                }
+            }).then((vouchers) => {
+                alertMessage(res, 'info', 'Voucher deleted successfully.', 'far fa-trash-alt', true);
+                res.redirect('/tailor/vouchers');
+            })
+        } else {
+            alertMessage(res, 'danger', 'Unauthorised access to voucher', 'fas fa-exclamation-circle', true);
+            res.redirect('/logout');
+        }
+    }).catch(err => console.log(err)); 
+});
+
+// tailor: view deals
+router.get('/tailordeals', ensureAuthenticated, (req, res) => {
+	Deal.findAll({
+        where: {
+        },
+        order: [
+            ['pname', 'ASC']
+        ],
+        raw: true,
+    })
+        .then((deals) => {
+            res.render('tailor/tailordeals', {
+				title: "Deals List",
+                deals : deals
+            });
+        })
+        .catch(err => console.log(err));
+});
+
+// tailor: add deal
+router.get('/adddeal', ensureAuthenticated, (req, res) => {
+	res.render('tailor/adddeal', { title: "Add Flash Deal" });
+});
+
+router.get('/adddeal', ensureAuthenticated, (req, res) => {
+	// Check if user is a tailor, cos i need the shopname
+	// i think you should add this part into your other codes too
+	if (typeof req.user != "undefined") {
+		user_status = res.locals.user.usertype;
+	}
+	if (user_status == "tailor"){
+		// btw do create at least 1 tailor account + 1 product before you can see
+		Catalouge.findAll({
+			where: { storename: res.locals.user.shopname },
+			raw: true
+		})
+			.then(shopprod => {
+				console.log(shopprod);
+				res.render('tailor/adddeal', { 
+					title: "Add Flash Deal",
+					shopprod: shopprod // Shop Products 
+				});
+			})
+		
+	}
+	else {
+		alertMessage(res, 'danger', 'Please register as a tailor to add a flash deal.', 'fas fa-sign-in-alt', true);
+		res.redirect('/');
+	}
+
+	
+});
+
+// tailor: update deal
+router.get('/updatedeal/:id', ensureAuthenticated, (req, res) => {
+	Deal.findOne({
+        where: {
+            id: req.params.id
+        },
+		raw:true
+    }).then((deals) => {
+        res.render('tailor/updatedeal', {
+			title: "Update deal",
+            deals : deals
+        });
+    }).catch(err => console.log(err));
+});
+
+router.put('/updatedeal/:id', ensureAuthenticated, (req, res) => {
+    let pname = req.body.pname;
+    let discountp = req.body.discountp;
+	let originalp = req.body.originalp;
+	let dstartdate =  req.body.dstartdate;
+    let dexpirydate =  req.body.dexpirydate;
+   
+    Deal.update({
+        pname,
+        discountp,
+		originalp,
+        dstartdate,
+        dexpirydate,
+    }, {
+        where: {
+            id: req.params.id
+        }
+    }).then(() => {
+        res.redirect('/tailor/tailordeals');
+    }).catch(err => console.log(err));
+});
+
+// tailor: delete deal
+router.get('/deletedeal/:id', ensureAuthenticated, (req, res) => {
+    let dealID = req.params.id;
+    Deal.findOne({
+        where: {
+            id: dealID,
+        }
+    }).then((deals) => {
+        if (deals != null) {
+            Deal.destroy({
+                where: {
+                    id: dealID
+                }
+            }).then((deals) => {
+                alertMessage(res, 'info', 'Deal deleted successfully.', 'far fa-trash-alt', true);
+                res.redirect('/tailor/tailordeals');
+            })
+        } else {
+            alertMessage(res, 'danger', 'Unauthorised access to deal', 'fas fa-exclamation-circle', true);
+            res.redirect('/logout');
+        }
+    }).catch(err => console.log(err)); 
+});
+
+// tailor: view sales
+router.get('/sales', (req, res) => {
+	res.render('tailor/sales', { title: "Sales Chart" });
+});
+
+// tailor: change target
+router.get('/target', (req, res) => {
+	res.render('tailor/target', { title: "Change Target" });
+});
+
+// tailor: view orders
+router.get('/orders', (req, res) => {
+	res.render('tailor/orders', { title: "Orders List" });
 });
 
 module.exports = router;
