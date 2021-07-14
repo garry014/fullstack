@@ -125,7 +125,7 @@
         {{#ifCond id '!=' 0}}
         <div class="mesgs">
             <div class="heading_msg">
-                <b>{{recipient}}</b>
+                <b>{{recipient}} <span id="user_status" style="color: red;">(Offline)</span></b>
 
                 {{#ifCond chatstatus '!=' "archive"}}
                 <a href="/archive/{{id}}" title="Mark as archive" style="float: right;"><i class="fa fa-archive"></i>
@@ -511,12 +511,17 @@
 {{/each}}
 
 <script>
+    var recipient = "{{recipient}}";
     function autoScrollDown() {
         $('.msg_history').scrollTop($('.msg_history')[0].scrollHeight);
     }
 
     window.onload = function () {
         autoScrollDown();
+        io.emit("check_status", {
+            recipient: recipient,
+            sender: '{{currentuser}}'
+        });
     }
 
     if (window.history.replaceState) {
@@ -545,7 +550,7 @@
 
         // Send message to server
         io.emit("send_message", {
-            receiver: '{{recipient}}',
+            receiver: recipient,
             message: message,
             chatid: {{id}}
         });
@@ -589,7 +594,7 @@
 
     function sendUpload() {
         io.emit("send_upload", {
-            receiver: '{{recipient}}',
+            receiver: recipient,
             upload: "Yolo"
         });
 
@@ -619,12 +624,27 @@
                                 </div>
                             </div>`;
 
-
-        // something wrong with the appendchild
         atag.appendChild(div);
         document.getElementById('inbox_chat').appendChild(atag);
         document.getElementById('inbox_chat1').appendChild(atag);
         autoScrollDown();
 
+    });
+
+    io.on("update_userDC", function (user_dced) {
+        // update user status once user is offline.
+        if (recipient == user_dced){
+            document.getElementById("user_status").innerText = "(Offline)";
+            document.getElementById("user_status").style.color = "red";
+        }
+    });
+
+    io.on("update_userCN", function (user_cn) {
+        // update user status once user is online.
+        console.log("should be updated");
+        if (recipient == user_cn){
+            document.getElementById("user_status").innerText = "(Online)";
+            document.getElementById("user_status").style.color = "green";
+        }
     });
 </script>
