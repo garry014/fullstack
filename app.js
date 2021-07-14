@@ -284,16 +284,30 @@ function getToday(){
 	return datetime;
 }
 
+function getKeyByValue(object, value) {
+	return Object.keys(object).find(key => object[key] === value);
+}
+
 io.use(sharedsession(session));
 // add listener for new connection
 io.on("connection", function(socket){
 	console.log("'\x1b[36m%s\x1b[0m'", "user connected: ", socket.id);
 	var currentuser = socket.handshake.session.username;
-	users[currentuser] = socket.id;
-	
+	users[currentuser] = socket.id;	
+	io.sockets.emit("update_userCN", currentuser);
 
 	socket.on('disconnect', () => {
-		console.log('user disconnected: ', socket.id);
+		console.log("\x1b[31m", 'user disconnected: ', socket.id);
+		usernameDC = getKeyByValue(users, socket.id);
+		delete users[usernameDC];
+		io.sockets.emit("update_userDC", usernameDC);
+	});
+
+	socket.on("check_status", function(data){
+		// send event to receiver
+		if (data.recipient in users){
+			io.to(users[data.sender]).emit("update_userCN", data.recipient);	
+		}
 	});
 
 	socket.on("send_message", function(data){
@@ -350,13 +364,13 @@ io.on("connection", function(socket){
 
 		io.to(socketId).emit("new_upload", data);
 	});
+
 });
 
 global.start_newchat = function(data){ 
 	var socketId = users[data.receiver];
 	io.to(socketId).emit("start_newchat", data);
 };
-
 global.send_notification = function(recipient, category, message, hyperlink){ 
 	// Create object to send to client side
 	var data = {
