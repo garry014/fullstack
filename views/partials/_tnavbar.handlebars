@@ -11,10 +11,11 @@
             <div class="col-xl-8 col-lg-8 d-none d-lg-block">
                 <div class="main-menu">
                     <nav>
-                    <ul>
-                    {{#if (eq user.usertype "tailor")}}
-                            <li><a href="/viewshops/{{user.shopname}}/1">View My Shop <i class="fa fa-angle-down"></i></a>
-                            <ul class="submenu">
+                        <ul>
+                            {{#if (eq user.usertype "tailor")}}
+                            <li><a href="/viewshops/{{user.shopname}}/1">View My Shop <i
+                                        class="fa fa-angle-down"></i></a>
+                                <ul class="submenu">
                                     <li><a href="/tailor/addproduct">Add Products</a></li>
                                     <li><a href="">Change Target</a></li>
                                     <li><a href="">Add Deals</a></li>
@@ -31,8 +32,8 @@
                                     <li><a href="/tailor/addvoucher">Add Vouchers</a></li>
                                 </ul>
                             </li>
-                             <li><a href="">Orders</a></li>
-                             <li><a href="/tailor/viewcourse">Courses <i class="fa fa-angle-down"></i></i></a>
+                            <li><a href="">Orders</a></li>
+                            <li><a href="/tailor/viewcourse">Courses <i class="fa fa-angle-down"></i></i></a>
                                 <ul class="submenu">
                                     <li><a href="/tailor/createcourse">Create Courses</a></li>
                                     <li><a href="/tailor/viewcourse">View My Courses</a></li>
@@ -41,10 +42,10 @@
                             </li>
 
                             <li><a href="/faq">Help </a></li>
-                    {{else}}
-                    <li><a href="/tailor/tailorlogin">Welcome to TailorNow, sign in to continue.</a></li> 
-                    {{/if}}
-                    </ul>
+                            {{else}}
+                            <li><a href="/tailor/tailorlogin">Welcome to TailorNow, sign in to continue.</a></li>
+                            {{/if}}
+                        </ul>
                     </nav>
                 </div>
             </div>
@@ -111,9 +112,11 @@
                     </div>
                     <div class="same-style account-satting">
                         <a class="account-satting-active" href="#">{{#ifCond user.photo '==' null}}<i
-                                class="pe-7s-user-female"></i>{{/ifCond}}{{#ifCond user.photo '!=' null}}<img
+                                class="pe-7s-user-female"></i>{{/ifCond}}{{#ifCond user.photo '!=' null}}{{#ifCond
+                            user.usertype '!=' "tailor"}}<i class="pe-7s-user-female"></i>{{else}}<img
                                 src="/uploads/user/{{user.photo}}" alt="Profile Pic" width="25" height="25"
-                                style="border-radius: 50%;">{{/ifCond}}</a>
+                                style="border-radius: 50%;">{{/ifCond}}{{/ifCond}}</a>
+
                         <div class="account-dropdown">
                             <ul>
                                 {{#if (eq user.usertype "tailor")}}

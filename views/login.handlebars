@@ -1,0 +1,135 @@
+<div class="breadcrumb-area pt-35 pb-35 bg-gray-3">
+    <div class="container">
+        <div class="breadcrumb-content text-center">
+            <ul>
+                <li>
+                    <a href="index.html">Home</a>
+                </li>
+                <li class="active"> login </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="login-register-area pt-100 pb-100">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-7 col-md-12 ml-auto mr-auto">
+                <div class="login-register-wrapper">
+                    <div class="login-register-tab-list nav">
+                        <a class="active" data-toggle="tab" href="#lg1">
+                             {{#if (eq useracctype "Customer")}}
+                            <h4> login Customer</h4>
+                            {{/if}}
+                            {{#if (eq useracctype "Rider")}}
+                            <h4> login Rider</h4>
+                            {{/if}}
+                             {{#if (eq useracctype "Tailor")}}
+                            <h4> login Tailor</h4>
+                            {{/if}}
+                        </a>
+                    </div>
+                    {{#if (eq useracctype "Customer")}}
+                    <div class="tab-content">
+                        <div id="lg1" class="tab-pane active">
+                            <div class="login-form-container">
+                                <div class="login-register-form">
+                                    <form method="post" action="/customer/login">
+                                        <input type="text" name="username" placeholder="Username" class="form-control"
+                                            required>
+                                        <input type="password" name="password" placeholder="Password"
+                                            class="form-control" required>
+                                        <input type="hidden" name="usertype" placeholder="Usertype" class="form-control"
+                                            value="customer">
+                                        <div class="button-box">
+                                            <div class="login-toggle-btn">
+                                                {{!-- <input type="checkbox">
+                                                <label>Remember me</label> --}}
+                                                <a href="../customer/forgetpassword">Forgot Password?</a>
+                                            </div>
+                                            <br>
+                                            <div class="card social-block">
+                                                <div class="card-body">
+                                                    <a class="btn btn-block btn-social btn-google" href="/auth/google"
+                                                        role="button">
+                                                        <i class="fab fa-google"></i>
+                                                        Login with Google
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <br>
+                                            <div class="card social-block">
+                                                <div class="card-body">
+                                                    <a class="btn btn-block btn-social btn-facebook"
+                                                        href="/auth/facebook" role="button">
+                                                        <i class="fab fa-facebook"></i>
+                                                        Login with Facebook
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <br>
+                                            <button type="submit"><span>Login</span></button>
+                                    </form>
+                                    {{!-- {% if error %}
+                                    <p class="error"><strong>Error:</strong> {{ error }}
+                                        {% endif %} --}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{/if}}
+                     {{#if (eq useracctype "Rider")}}
+                    <div class="tab-content">
+                        <div id="lg1" class="tab-pane active">
+                            <div class="login-form-container">
+                                <div class="login-register-form">
+                                    <form method="post" action="/rider/login">
+                                        <input type="text" name="username" placeholder="Username" class="form-control" required>
+                                        <input type="password" name="password" placeholder="Password" class="form-control" required>
+                                         <input type="hidden" name="usertype" placeholder="Usertype"
+                                            class="form-control" value="rider" >
+                                        <div class="button-box">
+                                            <div class="login-toggle-btn">
+                                                {{!-- <input type="checkbox">
+                                                <label>Remember me</label> --}}
+                                                <a href="../rider/forgetpassword">Forgot Password?</a>
+                                            </div>
+                                            <button type="submit"><span>Login</span></button>
+                                    </form>
+                                    {{!-- {% if error %}
+                                        <p class="error"><strong>Error:</strong> {{ error }}
+                                    {% endif %} --}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{/if}}
+                    {{#if (eq useracctype "Tailor")}}
+                    <div class="tab-content">
+                        <div id="lg1" class="tab-pane active">
+                            <div class="login-form-container">
+                                <div class="login-register-form">
+                                    <form action="/tailor/login" method="post">
+                                        <input type="text" name="username" placeholder="Username"
+                                            value="{{request.form.username }}">
+                                        <input type="password" name="password" placeholder="Password"
+                                            value="{{request.form.password }}">
+                                        <input type="hidden" name="usertype" placeholder="Usertype" class="form-control"
+                                            value="tailor">
+                                        <div class="button-box">
+                                            <div class="login-toggle-btn">
+                                                {{!-- <input type="checkbox">
+                                                <label>Remember me</label> --}}
+                                                <a href="../tailor/forgetpassword">Forgot Password?</a>
+                                            </div>
+                                            <button type="submit"><span>Login</span></button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

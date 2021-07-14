@@ -18,7 +18,9 @@ const JWT_SECRET = 'secret super'
 const jwt = require('jsonwebtoken');
 const validator = require("email-validator");
 const Regex = require("regex");
-
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
+const sgMail = require('@sendgrid/mail');
 
 // riders: home page 
 router.get('/homerider', (req, res) => {
@@ -27,7 +29,7 @@ router.get('/homerider', (req, res) => {
 
 // riders: login page 
 router.get('/riderlogin', (req, res) => {
-	res.render('rider/riderlogin');
+	res.render('login');
 });
 
 router.post('/login', (req, res, next) => {
@@ -120,7 +122,12 @@ router.post('/rideregister', (req, res) => {
 			usertype
 		});
 	} else {
-		User.findOne({ where: { username: req.body.username, email: req.body.email, usertype: 'rider' } })
+		User.findOne({
+			where: {
+				usertype:'rider',
+				[Op.or]: [{ email: req.body.email }, { username: req.body.username }]
+			},
+		})
 			.then(Rider => {
 				if (Rider) {
 					res.render('rider/rideregister', {
@@ -368,9 +375,35 @@ router.post('/forgetpassword', (req, res, next) => {
 		const token = jwt.sign(payload, secret, { expiresIn: '15m' });
 		const link = `http://localhost:5000/rider/resetpassword/${user.id}/${token}`;
 		console.log('\n\n' + link + '\n\n');
+		sendEmail(user.id, user.email, token);
 		res.redirect('../rider/rreset');
 	}).catch(err => console.log(err));
 });
+
+function sendEmail(id, email, token) {
+	sgMail.setApiKey('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');
+	// Template('d-a254e8e3c94d469bb1299db777d9bd2b');
+	const message = {
+		to: email,
+		from: 'sekkiyukine1000@gmail.com',
+		subject: 'Reset Password Email',
+		text: 'please work.',
+		html: `Please click on this link to reset password.<br><br>
+Please <a href="http://localhost:5000/rider/resetpassword/${id}/${token}"><strong>Reset</strong></a>
+your Password.`
+	};
+	return new Promise((resolve, reject) => {
+		sgMail.send(message)
+			.then(msg => {
+				console.log(msg);
+				resolve(msg)
+			})
+			.catch(err => {
+				console.log('email err --->', err);
+				reject(err)
+			});
+	});
+}
 
 router.get('/rinvalid', (req, res) => {
 	res.render('rider/rinvalidemail');

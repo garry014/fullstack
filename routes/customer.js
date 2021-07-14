@@ -23,12 +23,11 @@ const { v4: uuidv4 } = require('uuid');
 const validator = require("email-validator");
 const Regex = require("regex");
 const { username } = require('../config/db');
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
+const sgMail = require('@sendgrid/mail');
+const { Template } = require('ejs');
 const regex = /^(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.[@$!%?&])[A-Za-z\d@$!%?&]{8,}$/;
-
-// customer: login page 
-// router.get('custlogin', (req, res) => {
-// 	res.render('customer/custlogin', {title: "Login"});
-// });
 
 function getToday() {
 	// Get Date
@@ -49,7 +48,7 @@ router.get('/homecust', (req, res) => {
 });
 
 router.get('/custlogin', (req, res) => {
-	res.render('customer/custlogin')
+	res.render('login')
 });
 
 router.post('/login', (req, res, next) => {
@@ -152,7 +151,13 @@ router.post('/custregister', (req, res) => {
 			usertype
 		});
 	} else {
-		User.findOne({ where: { email: req.body.email, usertype: 'customer' } })
+		User.findOne({
+			where: {
+				usertype: 'customer',
+				[Op.or]: [{ email: req.body.email }, { username: req.body.username }]
+			},
+			// include the extra table here  
+		})
 			.then(Customer => {
 				if (Customer) {
 					res.render('customer/custregister', {
@@ -257,7 +262,9 @@ router.put('/custaccount/:id', ensureAuthenticated, (req, res) => {
 	let currentpassword = req.body.currentpassword;
 	let newpassword = req.body.newpassword;
 	let confirmpassword = req.body.confirmpassword;
+	let email = req.body.email;
 	const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
 
 	//validation for phone no.
 	if (! /^[0-9]{8}$/.test(req.body.phoneno)) {
@@ -279,6 +286,25 @@ router.put('/custaccount/:id', ensureAuthenticated, (req, res) => {
 			'Please upload a valid image file.', 'fas fa-exclamation-circle', false);
 		errors.push(1);
 	}
+
+	// validation for email
+	// if (validator.validate(req.body.email) == false) {
+	// 	alertMessage(res, 'danger',
+	// 		'Please enter valid email.', 'fas fa-exclamation-circle', false);
+	// 	errors.push(1);
+	// } else {
+	// 	User.findOne({
+	// 		where: {
+	// 			email: req.body.email, usertype: 'customer'
+	// 		}
+	// 	})
+	// 		.then(Customer => {
+	// 			if (Customer) {
+	// 				alertMessage(res, 'danger', 'This email address has already been used.', 'fas fa-exclamation-circle', false);
+	// 				errors.push(1);
+	// 			} 
+	// 		});
+	// }
 
 	// check if the current password matches the database hash 
 	// if (!req.body.currentpassword == false) {
@@ -315,6 +341,7 @@ router.put('/custaccount/:id', ensureAuthenticated, (req, res) => {
 			'New Passwords do not match.', 'fas fa-exclamation-circle', false);
 		errors.push(1);
 	}
+	console.log("errrrrrooooorrrrr", errors.length);
 
 	if (errors.length > 0) {
 		res.redirect('/customer/custaccount/' + req.params.id);
@@ -373,6 +400,7 @@ router.put('/custaccount/:id', ensureAuthenticated, (req, res) => {
 				city,
 				postalcode,
 				phoneno,
+				email
 			}, {
 				where: {
 					id: req.params.id
@@ -415,9 +443,35 @@ router.post('/forgetpassword', (req, res, next) => {
 		const token = jwt.sign(payload, secret, { expiresIn: '15m' });
 		const link = `http://localhost:5000/customer/resetpassword/${user.id}/${token}`;
 		console.log('\n\n' + link + '\n\n');
+		sendEmail(user.id, user.email, token);
 		res.redirect('../customer/creset');
 	}).catch(err => console.log(err));
 });
+
+function sendEmail(id, email, token) {
+	sgMail.setApiKey('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');
+	// Template('d-a254e8e3c94d469bb1299db777d9bd2b');
+	const message = {
+		to: email,
+		from: 'sekkiyukine1000@gmail.com',
+		subject: 'Reset Password Email',
+		text: 'please work.',
+		html: `Please click on this link to reset password.<br><br>
+Please <a href="http://localhost:5000/customer/resetpassword/${id}/${token}"><strong>Reset</strong></a>
+your Password.`
+	};
+	return new Promise((resolve, reject) => {
+		sgMail.send(message)
+			.then(msg => {
+				console.log(msg);
+				resolve(msg)
+			})
+			.catch(err => {
+				console.log('email err --->', err);
+				reject(err)
+			});
+	});
+}
 
 router.get('/cinvalid', (req, res) => {
 	res.render('customer/cinvalidemail');
@@ -525,10 +579,12 @@ router.post('/resetpassword/:id/:token', (req, res, next) => {
 					})
 			}
 		} catch (error) {
-			res.send(error.message);
+			res.redirect('/404');
 		}
 
-	}).catch(err => console.log(err));
+	}).catch((err) => {
+		res.redirect('/404');
+	});
 
 });
 router.get('/clogoutsuccess', (req, res) => {
@@ -538,6 +594,7 @@ router.get('/clogoutsuccess', (req, res) => {
 router.get('/clogout', (req, res) => {
 	req.logout();
 	res.redirect('../customer/clogoutsuccess');
+
 });
 
 

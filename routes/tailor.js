@@ -24,8 +24,10 @@ const JWT_SECRET = 'secret super'
 const jwt = require('jsonwebtoken');
 const validator = require("email-validator");
 const Regex = require("regex");
-
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
+const sgMail = require('@sendgrid/mail');
 
 function isNumeric(value) {
 	return /^\d+$/.test(value);
@@ -658,7 +660,7 @@ router.put('/updatecourse/:id', (req, res) => {
 	//validation----------------------------------------------
 
 	//um the s--- is not updating but at least it's retaining the other info
-	
+
 	if (errors.length == 0) {
 		console.log("es");
 		Course.update({
@@ -677,13 +679,13 @@ router.put('/updatecourse/:id', (req, res) => {
 			res.redirect('/tailor/viewcourse');
 			// videos
 		}).catch(err => console.log(err));
-			
+
 	} else if (errors.length > 0) {
 		res.redirect('/tailor/updatecourse/' + req.params.id);
 
-	} 
-	
-	
+	}
+
+
 });
 
 
@@ -764,7 +766,7 @@ router.post('/addcontent/:id', ensureAuthenticated, (req, res) => {
 	console.log(errors);
 	//error msg not displaying, (id has some issues? may be fixed) i hate this lololol. 
 	//should be redirecting correctly, but erroor msg not showing 
-	 
+
 	if (errors.length == 0) {
 		console.log("here1");
 		Video.create({
@@ -777,7 +779,7 @@ router.post('/addcontent/:id', ensureAuthenticated, (req, res) => {
 		}).catch(err => console.log(err))
 	} else if (errors.length > 0) {
 		console.log("here2");
-		res.redirect('/tailor/addcontent/' +req.params.id);
+		res.redirect('/tailor/addcontent/' + req.params.id);
 		// res.render('tailor/addcontent' , {
 		// 	errors: errors,
 		// 	title: "Add Content1",
@@ -853,7 +855,7 @@ router.get('/tailorschedule', (req, res) => {
 });
 
 router.get('/tailorlogin', (req, res) => {
-	res.render('tailor/tailorlogin')
+	res.render('login')
 });
 
 router.post('/login', (req, res, next) => {
@@ -955,7 +957,12 @@ router.post('/tailoregister', (req, res) => {
 			usertype
 		});
 	} else {
-		User.findOne({ where: { username: req.body.username, email: req.body.email, usertype: 'tailor' } })
+		User.findOne({
+			where: {
+				usertype:'tailor',
+				[Op.or]: [{ email: req.body.email }, { username: req.body.username }]
+			},
+		})
 			.then(Tailor => {
 				if (Tailor) {
 					res.render('tailor/tailoregister', {
@@ -1214,9 +1221,35 @@ router.post('/forgetpassword', (req, res, next) => {
 		const token = jwt.sign(payload, secret, { expiresIn: '15m' });
 		const link = `http://localhost:5000/tailor/resetpassword/${user.id}/${token}`;
 		console.log('\n\n' + link + '\n\n');
+		sendEmail(user.id, user.email, token);
 		res.redirect('../tailor/treset');
 	}).catch(err => console.log(err));
 });
+
+function sendEmail(id, email, token) {
+	sgMail.setApiKey('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');
+	// Template('d-a254e8e3c94d469bb1299db777d9bd2b');
+	const message = {
+		to: email,
+		from: 'sekkiyukine1000@gmail.com',
+		subject: 'Reset Password Email',
+		text: 'please work.',
+		html: `Please click on this link to reset password.<br><br>
+Please <a href="http://localhost:5000/tailor/resetpassword/${id}/${token}"><strong>Reset</strong></a>
+your Password.`
+	};
+	return new Promise((resolve, reject) => {
+		sgMail.send(message)
+			.then(msg => {
+				console.log(msg);
+				resolve(msg)
+			})
+			.catch(err => {
+				console.log('email err --->', err);
+				reject(err)
+			});
+	});
+}
 
 router.get('/tinvalid', (req, res) => {
 	res.render('tailor/tinvalidemail');

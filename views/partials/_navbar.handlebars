@@ -78,13 +78,15 @@
                     </div>
                     <div class="same-style account-satting">
                         <a class="account-satting-active" href="#">{{#ifCond user.photo '==' null}}<i
-                                class="pe-7s-user-female"></i>{{/ifCond}}{{#ifCond user.photo '!=' null}}<img
+                                class="pe-7s-user-female"></i>{{/ifCond}}{{#ifCond user.photo '!=' null}}{{#ifCond
+                            user.usertype '!=' "customer"}}<i class="pe-7s-user-female"></i>{{else}}<img
                                 src="/uploads/user/{{user.photo}}" alt="Profile Pic" width="25" height="25"
-                                style="border-radius: 50%;">{{/ifCond}}</a>
+                                style="border-radius: 50%;">{{/ifCond}}{{/ifCond}}</a>
+
                         <div class="account-dropdown">
                             <ul>
                                 {{#if (eq user.usertype "customer")}}
-                                <li>{{user.username}}</li>
+                                <li>{{user.firstname}}{{user.lastname}}</li>
                                 {{!-- user account problem --}}
                                 <li><a href="/customer/custaccount/{{user.id}}">Edit Profile</a></li>
                                 <li><a href="/customer/clogout">Log Out</a></li>
@@ -130,7 +132,6 @@
             </div>
         </div>
     </div>
-
     {{!--
     <script>
         var action = 0;
@@ -146,3 +147,21 @@
         }
     </script> --}}
 </header>
+{{!-- <script>
+    const button = document.getElementById(‘signout_button’);
+    button.onclick = () => {
+        var logout = function () {
+            var auth2 = gapi.auth2.getAuthInstance();
+            auth2.signOut().then(function () {
+                console.log('User signed out.');
+                auth2.disconnect();
+            });
+            auth2.disconnect()
+        }
+    }
+    // implement FB log out button 
+    FB.logout(function(response) {
+
+  // user is now logged out
+});
+</script> --}}

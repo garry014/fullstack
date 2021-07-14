@@ -18,7 +18,7 @@ const { OAuth2Client, IdTokenClient } = require('google-auth-library');
 const client = new OAuth2Client(IdTokenClient);
 const bcrypt = require('bcryptjs');
 const alertMessage = require('./helpers/messenger');
-
+const generator = require('generate-password');
 
 // for facebook create user 
 // const urlParams = queryString.parse(window.location.search);
@@ -152,7 +152,7 @@ Handlebars.registerHelper('getToday', function () {
 });
 
 Handlebars.registerHelper("pageInc", function (page) {
-	return page+1;
+	return page + 1;
 });
 
 // Handlebars.registerHelper('ifIncludes', function (location,path) {
@@ -345,7 +345,7 @@ passport.use(new GoogleStrategy({
 	callbackURL: "http://localhost:5000/auth/google/homecust"
 },
 	function (accessToken, refreshToken, profile, cb) {
-		User.findOne({ where: { google_id: profile.id, usertype: 'customer' } })
+		User.findOne({ where: { username: profile.id, google_id: profile.id, usertype: 'customer' } })
 			.then(Customer => {
 				if (Customer) {
 					cb(null, Customer);
@@ -354,12 +354,16 @@ passport.use(new GoogleStrategy({
 					console.log(profile);
 					let firstname = profile.displayName.split(' ')[0];
 					let lastname = profile.displayName.split(' ')[1];
-					let password = '12345678Aa!'
+					var password = generator.generate({
+						length: 10,
+						numbers: true
+					});
+					// console.log('passsssssworrrdddd',password);
 					bcrypt.genSalt(10, (err, salt) => {
 						bcrypt.hash(password, salt, (err, hash) => {
 							if (err) throw err;
 							password = hash;
-							User.create({ username: profile.displayName, firstname: firstname, lastname: lastname, google_id: profile.id, usertype: 'customer', password: password})
+							User.create({ username: profile.id, firstname: firstname, lastname: lastname, google_id: profile.id, usertype: 'customer', password: password })
 								.then(user => {
 									cb(null, user);
 								})
@@ -376,7 +380,6 @@ app.get("/auth/google", passport.authenticate("google", { scope: ['profile'] }))
 
 app.get("/auth/google/homecust", passport.authenticate("google", { failureRedirect: "/customer/custlogin" }),
 	function (req, res) {
-		alertMessage(res, 'success', 'Default password is 12345678Aa! Please change your password.', 'fas fa-sign-in-alt', true);
 		res.redirect('/customer/homecust')
 	}
 )
@@ -398,12 +401,15 @@ passport.use(new FacebookStrategy({
 				else {
 					let firstname = profile.displayName.split(' ')[0];
 					let lastname = profile.displayName.split(' ')[1];
-					let password = '12345678Aa!'
+					var password = generator.generate({
+						length: 10,
+						numbers: true
+					});
 					bcrypt.genSalt(10, (err, salt) => {
 						bcrypt.hash(password, salt, (err, hash) => {
 							if (err) throw err;
 							password = hash;
-							User.create({ username: profile.displayName, firstname: firstname, lastname: lastname, facebook_id: profile.id, usertype: 'customer',password:password})
+							User.create({ username: profile.id, firstname: firstname, lastname: lastname, facebook_id: profile.id, usertype: 'customer', password: password })
 								.then(user => {
 									// alertMessage(res, 'success', user.username + ' Please proceed to login', 'fas fa-sign-in-alt', true);
 									// res.redirect('customer/homecust');
@@ -424,7 +430,6 @@ app.get('/auth/facebook/homecust',
 		failureRedirect: '/customer/custlogin'
 	}),
 	function (req, res) {
-		alertMessage(res, 'success', 'Default password is 12345678Aa! Please change your password.', 'fas fa-sign-in-alt', true);
 		res.redirect('/customer/homecust')
 	}
 );

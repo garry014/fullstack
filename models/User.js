@@ -60,7 +60,10 @@ const User = db.define('User', {
 	},
 	google_id: {
 		type: Sequelize.STRING
-	}
+	},
+	verified: {
+		type: Sequelize.BOOLEAN
+		}
 	
 });
 
