@@ -34,6 +34,9 @@ const BillingDetails = db.define('BillingDetails', {
     },
     deliverydate: {
         type: Sequelize.DATE
+    },
+    shopname :{
+        type: Sequelize.STRING
     }
 });
 
