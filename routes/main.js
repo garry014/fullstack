@@ -158,6 +158,13 @@ router.post('/transaction_complete', (req, res) => {
 // Billing information details
 router.post('/customers_checkout', (req, res) => {
 	var user_details;
+	sess = req.session;
+	var storename = "";
+	if (sess["myCart"][0] != undefined){
+		storename = sess["myCart"][0].storename;
+	}
+	
+
 	if (typeof req.user != "undefined") {
 		user_details = res.locals.user;
 		let insertcustdata = {
@@ -171,7 +178,8 @@ router.post('/customers_checkout', (req, res) => {
 			email: user_details.email,
 			phoneno: user_details.phoneno,
 			deliverytime: req.body.dTime,
-			deliverydate: moment(req.body.delivery_date, 'DD/MM/YYYY')
+			deliverydate: moment(req.body.delivery_date, 'DD/MM/YYYY'),
+			shopname: storename
 		}
 		console.log("create========>", insertcustdata);
 		BillingDetails.create(insertcustdata)
