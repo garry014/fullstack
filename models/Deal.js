@@ -1,20 +1,21 @@
 const Sequelize = require('sequelize');
 const db = require('../config/DBConfig');
 const Deal = db.define('deals', {
-    pname: {
+    catid: {
         type: Sequelize.STRING
     },
     discountp: {
         type: Sequelize.DECIMAL(10,2)
     },
-    originalp: {
-        type: Sequelize.DOUBLE
-    },
+    
     dstartdate: {
-        type: Sequelize.STRING
+        type: Sequelize.DATE
     },
     dexpirydate: {
-        type: Sequelize.STRING  
+        type: Sequelize.DATE  
     },
+    userID:{
+        type: Sequelize.INTEGER
+    }
 });
 module.exports = Deal;
