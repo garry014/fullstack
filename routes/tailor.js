@@ -28,6 +28,7 @@ const validator = require("email-validator");
 const Regex = require("regex");
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
+const moment = require('moment');
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 const sgMail = require('@sendgrid/mail');
@@ -1437,26 +1438,60 @@ router.get('/addVoucher', ensureAuthenticated, (req, res) => {
 });
 
 router.post('/addVoucher', (req, res) => {
+	let errors = [];
     let code = req.body.code;
     let description = req.body.description;
     let discount = req.body.discount;
     let minpurchase = req.body.minpurchase;
     let quantity = req.body.quantity;
-	let vstartdate =  req.body.vstartdate;
-    let vexpirydate =  req.body.vexpirydate;
+	//let vstartdate =  req.body.vstartdate;
+	let vstartdate = moment(req.body.vstartdate, 'DD/MM/YYYY');
+    let vexpirydate = moment(req.body.vexpirydate, 'DD/MM/YYYY');
 
-    Voucher.create({
-        code,
-        description,
-        discount,
-        minpurchase,
-        quantity,
-        vstartdate,
-		vexpirydate,
+	if (req.body.code.length < 5) {
+		errors.push({ msg: "Code must be at least 5 characters." });
+	}
+	if (req.body.description.length < 10) {
+		errors.push({ msg: "Description must be at least 10 characters." });
+	}
+	if (isNumeric(req.body.discount) == false) {
+		errors.push({ msg: "Discount can only contain numbers." });
+	}
+	if (req.body.discount < 0) {
+		errors.push({ msg: "Discount has to be more than $0." });
+	}
+	if (isNumeric(req.body.minpurchase) == false) {
+		errors.push({ msg: "Minimum purchase can only contain numbers." });
+	}
+	if (req.body.minpurchase < 0) {
+		errors.push({ msg: "Minimum purchase has to be more than $0." });
+	}
+	if (isNumeric(req.body.quantity) == false) {
+		errors.push({ msg: "Quantity can only contain numbers." });
+	}
+	if (req.body.quantity < 0) {
+		errors.push({ msg: "Quantity has to be more than $0." });
+	}
+	if (errors.length > 0) {
+		res.render('tailor/addvoucher', {
+			errors: errors,
+			title: "Add Voucher",
+		});
 
-    }).then((vouchers) => {
-        res.redirect('/tailor/vouchers');
-    }).catch(err => console.log(err))
+	} else if (errors.length == 0) {
+		Voucher.create({
+			code,
+			description,
+			discount,
+			minpurchase,
+			quantity,
+			vstartdate,
+			vexpirydate,
+
+		}).then((vouchers) => {
+			res.redirect('/tailor/vouchers');
+		}).catch(err => console.log(err))
+	}
 });
 
 // tailor: update voucher
@@ -1480,8 +1515,8 @@ router.put('/updateVoucher/:id', ensureAuthenticated, (req, res) => {
     let discount = req.body.discount;
     let minpurchase = req.body.minpurchase;
     let quantity = req.body.quantity;
-	let vstartdate =  req.body.vstartdate;
-    let vexpirydate =  req.body.vexpirydate;
+	let vstartdate = moment(req.body.vstartdate, 'DD/MM/YYYY');
+    let vexpirydate = moment(req.body.vexpirydate, 'DD/MM/YYYY');
    
     Voucher.update({
         code,
@@ -1529,25 +1564,40 @@ router.get('/deleteVoucher/:id', ensureAuthenticated,(req, res) => {
 router.get('/tailordeals', ensureAuthenticated, (req, res) => {
 	Deal.findAll({
         where: {
+			userID: res.locals.user.id
         },
-        order: [
-            ['pname', 'ASC']
-        ],
-        raw: true,
+        raw: true
     })
         .then((deals) => {
-            res.render('tailor/tailordeals', {
-				title: "Deals List",
-                deals : deals
-            });
+			console.log(deals)
+			const arr = [];
+
+			for (var i =0; i<deals.length; i++){
+				arr.push(deals[i].catid);
+			}
+			console.log(arr)
+
+			Catalouge.findAll({
+				where: { id: arr }, 
+				raw: true
+			})
+			.then((shopprod) => {
+				console.log(shopprod)
+				res.render('tailor/tailordeals', {
+					title: "Deals List",
+					deals : deals,
+					shopprod: shopprod
+				});
+			})
+            
         })
         .catch(err => console.log(err));
 });
 
 // tailor: add deal
-router.get('/adddeal', ensureAuthenticated, (req, res) => {
-	res.render('tailor/adddeal', { title: "Add Flash Deal" });
-});
+// router.get('/adddeal', ensureAuthenticated, (req, res) => {
+// 	res.render('tailor/adddeal', { title: "Add Flash Deal" });
+// });
 
 router.get('/adddeal', ensureAuthenticated, (req, res) => {
 	// Check if user is a tailor, cos i need the shopname
@@ -1574,8 +1624,58 @@ router.get('/adddeal', ensureAuthenticated, (req, res) => {
 		alertMessage(res, 'danger', 'Please register as a tailor to add a flash deal.', 'fas fa-sign-in-alt', true);
 		res.redirect('/');
 	}
-
 	
+});
+
+router.post('/adddeal', ensureAuthenticated, (req, res) => {
+	let errors = [];
+	let pname = req.body.pname;
+    let discountp = req.body.discountp;
+	let dstartdate = moment(req.body.dstartdate, 'DD/MM/YYYY');
+    let dexpirydate =  moment(req.body.dexpirydate, 'DD/MM/YYYY');
+	let today = new Date();
+
+	if (isNumeric(req.body.discountp) == false) {
+		errors.push({ msg: "Discounted price can only contain numbers." });
+	}
+	if (req.body.discountp < 0) {
+		errors.push({ msg: "Discounted price has to be more than $0." });
+	}
+	if(dstartdate < today) {
+		errors.push({ msg: "Start date has to be today or later than today." });
+	}
+	if(dexpirydate < today) {
+		errors.push({ msg: "End date has to be today or later than today." });
+	}
+	if(dstartdate > dexpirydate) {
+		errors.push({ msg: "End date has to be later than stary date." });
+	}
+
+	if (errors.length > 0) {
+		Catalouge.findAll({
+			where: { storename: res.locals.user.shopname },
+			raw: true
+		})
+			.then(shopprod => {
+				console.log(shopprod);
+				res.render('tailor/adddeal', {
+					errors: errors, 
+					title: "Add Flash Deal",
+					shopprod: shopprod // Shop Products 
+				});
+			})
+	} else if (errors.length == 0) {
+		Deal.create({
+			catid : pname,
+			discountp,
+			dstartdate,
+			dexpirydate,
+			userID: res.locals.user.id
+
+		}).then((deals) => {
+			res.redirect('/tailor/tailordeals');
+		}).catch(err => console.log(err))
+	}
 });
 
 // tailor: update deal
@@ -1596,14 +1696,12 @@ router.get('/updatedeal/:id', ensureAuthenticated, (req, res) => {
 router.put('/updatedeal/:id', ensureAuthenticated, (req, res) => {
     let pname = req.body.pname;
     let discountp = req.body.discountp;
-	let originalp = req.body.originalp;
-	let dstartdate =  req.body.dstartdate;
-    let dexpirydate =  req.body.dexpirydate;
+	let dstartdate = moment(req.body.dstartdate, 'DD/MM/YYYY');
+    let dexpirydate = moment(req.body.dexpirydate, 'DD/MM/YYYY');
    
     Deal.update({
         pname,
         discountp,
-		originalp,
         dstartdate,
         dexpirydate,
     }, {
