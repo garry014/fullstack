@@ -17,10 +17,10 @@ const Voucher = db.define('vouchers', {
         type: Sequelize.DOUBLE
     },
     vstartdate: {
-        type: Sequelize.STRING
+        type: Sequelize.DATE
     },
     vexpirydate: {
-        type: Sequelize.STRING
+        type: Sequelize.DATE
     }
 });
 module.exports = Voucher;
