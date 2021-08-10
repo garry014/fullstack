@@ -834,22 +834,38 @@ router.get('/delete/:id', ensureAuthenticated, (req, res) => {
 	});
 });
 
+
 //kaijie
 // customer: flash deals
 router.get('/flashdeals', (req, res) => {
 	Deal.findAll({
         where: {
         },
-        order: [
-            ['pname', 'ASC']
-        ],
         raw: true,
     })
-        .then((deals) => {
-            res.render('customer/flashdeals', {
-		title: "Flash Deals",
-                deals : deals
-            });
+
+		.then((deals) => {
+			console.log(deals)
+			const arr = [];
+
+			for (var i =0; i<deals.length; i++){
+				arr.push(deals[i].catid);
+			}
+			console.log(arr)
+
+			Catalouge.findAll({
+				where: { id: arr }, 
+				raw: true
+			})
+			.then((shopprod) => {
+				console.log(shopprod)
+				res.render('customer/flashdeals', {
+					title: "Flash Deals",
+					deals : deals,
+					shopprod: shopprod
+				});
+			})
+            
         })
         .catch(err => console.log(err));
 });
