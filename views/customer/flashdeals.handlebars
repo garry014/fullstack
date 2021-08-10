@@ -15,16 +15,31 @@
                     </div>
                     {{#each deals}}
                     <div style="position: relative; text-align: center;">
-                        <img src="/img/suit.jpeg" style="width:50%;opacity: 0.8;">
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color:white; font-size:20px;font-weight: bold;">{{pname}}</div>
-                        <div style="position: absolute; top: 77%; left: 50%; transform: translate(-50%, -50%); color:white; opacity: 0.7; font-size:17px; text-decoration: line-through;">${{originalp}}</div>
-                        <div style="position: absolute; top: 88%; left: 50%; transform: translate(-50%, -50%); color: rgb(218, 34, 59); font-size:32px; font-weight: bold; text-shadow: 1px 0px rgb(235, 165, 137), 1px 2px rgb(235, 165, 137), 2px 2px rgb(235, 165, 137), 2px 3px khaki, 3px 3px khaki,3px 4px khaki;">${{discountp}}</div>
+                        {{!-- <img src="/img/suit.jpeg" style="width:50%;opacity: 0.8;"> --}}
+                        {{#each ../shopprod}}
+                        {{#ifCond id '==' ../catid}}
+                         <a href="/view/{{id}}">
+                            <img src="/uploads/products/{{image}}" style="width: 50%; height: 230px; opacity: 0.8;">
+                        </a>
+                        <div
+                            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color:white; font-size:20px;font-weight: bold; text-shadow: 1px 2px black;">
+                            {{name}}</div>
+                        <div
+                            style="position: absolute; top: 75%; left: 50%; transform: translate(-50%, -50%); color:white; opacity: 0.9; font-size:19px; text-decoration: line-through; text-shadow: 1px 1px black; font-weight: 700;">
+                            ${{money2dp price}}</div>
+                        
+                        {{/ifCond}}
+                        {{/each}}
+                        <div
+                            style="position: absolute; top: 88%; left: 50%; transform: translate(-50%, -50%); color: rgb(218, 34, 59); font-size:32px; font-weight: bold; text-shadow: 1px 0px rgb(235, 165, 137), 1px 2px rgb(235, 165, 137), 2px 2px rgb(235, 165, 137), 2px 3px khaki, 3px 3px khaki,3px 4px khaki;">
+                            ${{discountp}}</div>
                     </div>
                     <br><br>
                     {{/each}}
                     {{else}}
                     <br>
-                    <h5 style="text-align: center; font-weight:bold; font-size: 16px;">There are no flash deals today!</h5>
+                    <h5 style="text-align: center; font-weight:bold; font-size: 16px;">There are no flash deals today!
+                    </h5>
                     {{/if}}
                 </div>
             </div>
@@ -33,7 +48,7 @@
 </div>
 <script>
     // Set the date we're counting down to
-    var countDownDate = new Date("July 06, 2021 00:00:00").getTime();
+    var countDownDate = new Date("July 30, 2021 00:00:00").getTime();
 
     // Update the count down every 1 second
     var x = setInterval(function () {
