@@ -20,6 +20,7 @@ const bcrypt = require('bcryptjs');
 const alertMessage = require('./helpers/messenger');
 const generator = require('generate-password');
 const { formatDate } = require('./helpers/hbs');
+const moment = require('moment');
 
 
 // for facebook create user 
