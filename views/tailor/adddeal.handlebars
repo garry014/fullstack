@@ -41,7 +41,7 @@
                                             value="" required>
                                     </div>
                                     <br>
-                                    <label for="event">Event<span style="color: red;">*</span></label>
+                                    {{!-- <label for="event">Event<span style="color: red;">*</span></label>
                                     <div class="checkout-account">
                                         <input type="checkbox">
                                         <span>EVENT ONE</span>
@@ -63,9 +63,24 @@
                                     <div class="button-box">
                                         <button type="submit" class="btn btn-outline-info"
                                             style="font-size: 14px; font-weight: 420; padding-top: 8px; padding-bottom: 8px;padding-left: 28px; padding-right: 28px"><span>Confirm</span></button>
+                                    </div> --}}
+                                    <div class="billing-info mb-20">
+                                        <label for="name">Start Date</label>
+                                        <input id="datepicker" name="dstartdate" class="form-control"
+                                            type="text" value=" ">
+                                    </div>
+                                    <br>
+                                    <div class="billing-info mb-20">
+                                        <label for="name">End Date</label>
+                                        <input id="datepicker2" name="dexpirydate" class="form-control"
+                                            type="text" value=" ">
+                                    </div>
+                                    <br>
+                                    <div class="button-box">
+                                        <button type="submit" class="btn btn-outline-info"
+                                            style="font-size: 14px; font-weight: 420; padding-top: 8px; padding-bottom: 8px;padding-left: 28px; padding-right: 28px"><span>Confirm</span></button>
                                     </div>
                                 </form>
-                                
                             </div>
                         </div>
                     </div>
