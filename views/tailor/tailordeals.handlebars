@@ -18,14 +18,15 @@
             <tbody></tbody>
             <tr>
               {{#each deals}}
-                {{#each ../shopprod}}
-                {{#ifCond id '==' ../catid}}
-                <td class="product-name">{{name}}</td>
-                {{/ifCond}}
-                {{/each}}
+              {{#each ../shopprod}}
+              {{#ifCond id '==' ../catid}}
+              <td class="product-name">{{name}}</td>
+              {{/ifCond}}
+              {{/each}}
               <td class="product-discountp">${{discountp}}</td>
-              <td class="product-start_date">{{formatDate dstartdate 'DD MMM YYYY'}}</td>
-              <td class="product-end_date">{{formatDate dexpirydate 'DD MMM YYYY'}}</td>
+              <td class="product-start_date">{{formatTime dstartdate "DD/MM/YYYY"}}
+              </td>
+              <td class="product-end_date">{{formatTime dexpirydate "DD/MM/YYYY"}}</td>
               <td class="product-remove">
                 <a href="updatedeal/{{id}}"><i class="fa fa-pencil"></i></a>
                 <form action="#" method="POST" style="display: inline-block;">
