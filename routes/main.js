@@ -7,6 +7,7 @@ const User = require('../models/User.js');
 const Review = require('../models/Review.js');
 const Cart = require('../models/Cart');
 const BillingDetails = require('../models/BillingDetails');
+const Deal = require('../models/Deal');
 
 // Handlebars Helpers
 const alertMessage = require('../helpers/messenger');
@@ -896,18 +897,31 @@ router.get("/view/:id", (req, res) => {
 						avgRating = avgRating / reviews.length;
 					}
 					
-					res.render('customer/productview', {
-						title: pdetails.name + ' - ' + pdetails.storename,
-						pdetails: getDetails,
-						choicesArray: choicesArray,
-						discprice: discprice,
-						avgRating: avgRating,
-						reviews:reviews
+					Deal.findAll({
+						
+						raw: true
+					})
+						.then((deals) => {
+							var flashdeals = 0;
+							deals.forEach(d => {
+								if (d.catid == pdetails.id){
+									flashdeals = d.discountp;
+								}
+							});
+							res.render('customer/productview', {
+								title: pdetails.name + ' - ' + pdetails.storename,
+								pdetails: getDetails,
+								choicesArray: choicesArray,
+								discprice: discprice,
+								avgRating: avgRating,
+								reviews:reviews,
+								deals: flashdeals
+							});
+					})
+					.catch(err => {
+						console.error('Unable to connect to the database:', err);
 					});
 				})
-				.catch(err => {
-					console.error('Unable to connect to the database:', err);
-				});
 			}
 			else {
 				return res.redirect('/404');
