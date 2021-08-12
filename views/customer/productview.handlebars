@@ -33,13 +33,18 @@
                 <div class="product-details-content ml-70">
                     <h2>{{ pdetails.name }}</h2>
                     <div class="product-details-price">
-                        {{#ifCond pdetails.price '==' discprice}}
-                            <span>$ {{ money2dp pdetails.price }} </span>
+                        {{#ifCond deals '!=' 0}}
+                            <span>${{deals}}</span>
+                            <span class="old">${{money2dp pdetails.price}}</span>
                         {{else}}
-                            <span>$ {{ money2dp discprice }}</span>
-                            <span class="old">$ {{ money2dp pdetails.price }}</span>
+                            {{#ifCond pdetails.price '==' discprice}}
+                        
+                                <span>$ {{ money2dp pdetails.price }} </span>
+                            {{else}}
+                                <span>$ {{ money2dp discprice }}</span>
+                                <span class="old">$ {{ money2dp pdetails.price }}</span>
+                            {{/ifCond}}
                         {{/ifCond}}
-                            
                         
                     </div>
                     <div class="pro-details-rating-wrap">
