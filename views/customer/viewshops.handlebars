@@ -14,38 +14,48 @@
     <div class="container">
         <div class="row flex-row-reverse">
             <div class="col-lg-9">
-                <div class="shop-top-bar">
-                    <div class="select-shoing-wrap">
-
-                    </div>
-
-                </div>
+                
                 <div class="shop-bottom-area mt-35">
                     <div class="tab-content jump">
                         <div id="shop-1" class="tab-pane active">
+                            {{#if shops}}
+                                {{#if products}}
+                                <h3>Stores</h3>
+                                {{/if}}
+                            {{/if}}
                             <div class="row">
                                 <!-- Start of Product List -->
-                                {{#each shopdetails}}
+                                {{#each shops}}
                                 <div class="col-xl-6 col-md-6 col-lg-6 col-sm-6">
                                     <div class="product-wrap mb-25 scroll-zoom">
                                         <div class="product-img">
-                                            <a href="/viewshops/{{shopname}}/1">
+                                            <a href="/viewshops/{{storename}}/1">
+                                                {{#each ../shopdetails}}
+                                                {{#ifCond shopname '==' ../storename}}
                                                 <img class="default-img" src="/uploads/user/{{photo}}" alt="">
+                                                {{/ifCond}}
+                                                {{/each}}
                                             </a>
-                                            <span class="pink">-30%</span>
+                                            {{#if discount}}
+                                            <span class="pink">-{{discount}}%</span>
+                                            {{/if}}
                                             <div class="product-action">
                                                 <div class="pro-same-action pro-quickview" style="width:100%;">
-                                                    <a title="Shop here" href="/viewshops/{{shopname}}/1"><i class="fa fa-eye"></i> Shop here</a>
+                                                    <a title="Shop here" href="/viewshops/{{storename}}/1"><i class="fa fa-eye"></i> Shop here</a>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="product-content text-center">
-                                            <span style="font-weight: bold; font-size: 18px;"><a href="/viewshops/{{shopname}}">{{shopname}}</a></span><br>
-                                            {{address1}} {{address2}}<br>
-                                            {{city}} {{postalcode}}<br>
+                                            {{#each ../shopdetails}}
+                                            {{#ifCond shopname '==' ../storename}}
+                                                <span style="font-weight: bold; font-size: 18px;"><a href="/viewshops/{{shopname}}/1">{{shopname}}</a></span><br>
+                                                {{address1}} {{address2}}<br>
+                                                {{city}} {{postalcode}}<br>
+                                            {{/ifCond}}
+                                            {{/each}}
                                             <!-- if else loop -->
                                             {{#each ../review}}
-                                            {{#ifCond storename '==' ../shopname}}
+                                            {{#ifCond storename '==' ../storename}}
                                                     {{#times avgRating}}<span class="fa fa-star" style="color: orange;"></span>{{/times}}{{#minusStars avgRating}}<span class="fa fa-star"></span>{{/minusStars}}{{avgRating}} stars
                                             {{/ifCond}} 
                                             {{/each}}
@@ -56,6 +66,53 @@
                             </div>
                         </div>
                     </div>
+
+                    
+                    <!-- If on search = product -->
+                    {{#if products}}
+                    <b><h3>Products</h3></b>
+                    {{#each products}}
+                    <div id="shop-2" class="tab-pane active">
+                            <div class="shop-list-wrap mb-30 scroll-zoom">
+                                <div class="row">
+                                    <div class="col-xl-4 col-lg-5 col-md-5 col-sm-6">
+                                        <div class="product-wrap">
+                                            <div class="product-img">
+                                                <a href="/view/{{id}}">
+                                                    <img class="default-img" src="/uploads/products/{{image}}" alt="" width="100">
+                                                    <img class="hover-img" src="/uploads/products/{{image}}" alt="">
+                                                </a>
+                                                {{#ifCond discount '>' 0}}<span class="pink">-{{discount}}%</span>{{/ifCond}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-8 col-lg-7 col-md-7 col-sm-6">
+                                        <div class="shop-list-content">
+                                            <h3><a href="/view/{{id}}">{{name}}</a></h3>
+                                            from {{storename}}
+                                            <div class="product-list-price">
+                                                <span>$ {{calculatedisc price discount}}</span> {{#ifCond discount '>' 0}}<i>(after {{discount}}% discount)</i>{{/ifCond}}
+                                            </div>
+                                           
+                                            <p>{{#if description}}
+                                                    {{#checklength description 70}}
+                                                    {{subString description}}...
+                                                    {{else}}
+                                                    {{description}}
+                                                    {{/checklength}}
+                                                {{/if}}</p>
+                                            <div class="shop-list-btn btn-hover">
+                                                <a href="/view/{{id}}">View Item</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {{/each}}
+                    {{/if}}
+
+                    {{#if shops}}
                     <div class="pro-pagination-style text-center mt-30">
                         <ul>
                             <!--
@@ -65,15 +122,20 @@
                             <li><a class="next" href="#"><i class="fa fa-angle-double-right"></i></a></li>-->
                         </ul>
                     </div>
+                    {{else}}
+                        {{#unless products}}
+                        Sorry, no search results found. Please change your search term or/and criteria.
+                        {{/unless}}
+                    {{/if}}
                 </div>
             </div>
             <div class="col-lg-3">
                 <div class="sidebar-style mr-30">
                    <div class="sidebar-widget">
-                        <h4 class="pro-sidebar-title">Search Stores</h4>
+                        <h4 class="pro-sidebar-title">Search Stores & Products</h4>
                         <div class="pro-sidebar-search mb-50 mt-25">
                             <form class="pro-sidebar-search-form" id="searchForm" name="searchForm" method="post">
-                                <input type="text" name="search" placeholder="Store Name">
+                                <input type="text" name="search" placeholder="Find store or product" value="{{search}}">
                                 <button type="submit">
                                     <i class="pe-7s-search"></i>
                                 </button>
@@ -87,42 +149,31 @@
 
                                 <li>
                                     <div class="sidebar-widget-list-left">
-                                        <input type="checkbox" value="sales" name="cbList" id="sales" method="post" onChange="this.form.submit()" > <label for="sales"><a>On Sales</a></label>
+                                        <input type="checkbox" value="sales" name="cbList" id="sales" method="post" onChange="this.form.submit()" {{setChecked cbList 'sales'}}> <label for="sales"><a>On Sales</a></label>
                                         <span class="checkmark"></span>
                                     </div>
                                 </li>
-                                <li>
-                                    <div class="sidebar-widget-list-left">
-                                        <input type="checkbox" value="altering" id="altering" name="cbList" onChange="this.form.submit()" ><label for="altering"><a>Altering Services</a></label>
-                                        <span class="checkmark"></span>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div class="sidebar-widget-list-left">
-                                        <input type="checkbox" value="tapering" id="tapering" name="cbList" onChange="this.form.submit()"><label for="tapering"><a>Tapering Services</a></label>
-                                        <span class="checkmark"></span>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div class="sidebar-widget-list-left">
-                                        <input type="checkbox" value="suits" id="suits" name="cbList" onChange="this.form.submit()" checked><label for="suits"><a>Customised Suits</a></label>
-                                        <span class="checkmark"></span>
-                                    </div>
-                                </li>
+                                
                             </ul>
                         </div>
                     </div>
+                    <br>
+                    <div class="sidebar-widget">
+                        <h4 class="pro-sidebar-title">Filter By Overall Reviews</h4>
+                        <br>
+                        <select id="starsFilter" name="starsFilter" onChange="this.form.submit()">
+                            <option value="" selected></option>
+                            <option value="1" {{setDropdownlist starsFilter '1'}}>1 Star</option>
+                            <option value="2" {{setDropdownlist starsFilter '2'}}>2 Stars</option>
+                            <option value="3" {{setDropdownlist starsFilter '3'}}>3 Stars</option>
+                            <option value="4" {{setDropdownlist starsFilter '4'}}>4 Stars</option>
+                            <option value="5" {{setDropdownlist starsFilter '5'}}>5 Stars</option>
+                        </select>
+                        <br><a href="/viewshops">Clear All Search and Filters</a>
+                    </div>
                     <div class="sidebar-widget mt-45">
-                        <h4 class="pro-sidebar-title">Filter By Price </h4>
-                        <div class="price-filter mt-10">
-                            <div class="price-slider-amount">
-                                <input type="text" id="amount" name="price"  placeholder="Add Your Price" style="pointer-events:none;"/>
-                            </div>
-                            <div id="slider-range"></div>
-                            <a href="javascript:{}" onclick="document.getElementById('searchForm').submit();"><i class="fa fa-filter"></i> Filter Now</a>
-                        </div>
-                        </form>
-                        <br><br><a href="/viewshops">Clear All Search and Filters</a>
+                        
+                        
                     </div>
 
                 </div>
