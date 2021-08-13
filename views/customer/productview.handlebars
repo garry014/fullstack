@@ -157,10 +157,13 @@
                                                     {{/minusStars}}
                                                     
                                                 </div>
-                                                <a href="/customer/updatereview/{{../pdetails.id}}/{{id}}"><i class="fa fa-pencil" title="Update this Review"></i></a>
+                                                
                                             </div>
                                             <div class="review-left">
+                                                {{#ifCond ../user.username '==' username}}
+                                                <a href="/customer/updatereview/{{../pdetails.id}}/{{id}}"><i class="fa fa-pencil" title="Update this Review"></i></a>
                                                 <a href="/customer/deletereview/{{../pdetails.id}}/{{id}}"><i class="fa fa-times" title="Delete this Review"></i></a>
+                                                {{/ifCond}}
                                             </div>
                                         </div>
                                         <div class="review-bottom">
