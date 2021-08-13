@@ -722,32 +722,27 @@ router.get('/archive/:id', ensureAuthenticated, (req, res) => {
 
 // Customer View Shops
 router.get('/viewshops', (req, res) => {
-	User.findAll({
-		where: { usertype: "tailor" },
-		attributes: ['address1', 'address2', 'city', 'postalcode', 'shopname', 'photo'],
+	
+	Catalouge.findAll({
+		// Extract only the distinct storename, (groupby storename) to get max discount
+		attributes: [
+			[Sequelize.fn('DISTINCT', Sequelize.col('storename')) ,'storename'],
+			[Sequelize.fn('MAX', Sequelize.col('discount')), 'discount']
+		],
+		group: ["storename"],
 		raw: true
 	})
-	.then((shopdetails) => {
-		Catalouge.findAll({
-			// Get all DB values
-			// run a for loop to extract only the distinct storename, max discount
-			// attributes: [
-			// 	[Sequelize.fn('DISTINCT', Sequelize.col('storename')) ,'storename'],
-			// ]
-		})
-			.then((shops) => {
-				if (shops) {
-					// Review average.
-
-					const shop = [];
-					for (var s in shops) {
-						shop.push(shops[s].dataValues);
-					};
-	
-					// shop.forEach(shopItem => {
-					// 	console.log(shopItem);
-					// });
-					
+		.then((shops) => {
+			if (shops) {
+				// Review average.
+				console.log(shops);
+				
+				User.findAll({
+					where: { usertype: "tailor" },
+					attributes: ['address1', 'address2', 'city', 'postalcode', 'shopname', 'photo'],
+					raw: true
+				})
+				.then((shopdetails) => {
 					// Review Ratings Calculation
 					Review.findAll({
 						attributes: ['storename', [Sequelize.fn('AVG', Sequelize.col('stars')), 'avgRating']],
@@ -759,25 +754,147 @@ router.get('/viewshops', (req, res) => {
 							review[i].avgRating = parseFloat(review[i].avgRating);
 						}
 
-						console.log(review);
-						console.log(shopdetails);
+						// console.log(review);
+						// console.log(shopdetails);
 						res.render('customer/viewshops', {
 							title: "View Shops",
 							shopdetails: shopdetails,
-							shop: shop,
+							shops: shops,
 							review: review
 						});
 					})
+					.catch(err => {
+						console.error('Unable to connect to the database:', err);
+					});
+				})
+				.catch(err => {
+					console.error('Unable to connect to the database:', err);
+				});
+				
 
+			}
+			else {
+				res.render('customer/viewshops', { title: "View Shops" });
+			}
+		})
+});
+
+// Customer View Shops - On search request.
+router.post('/viewshops', (req, res) => {
+	let { search, cbList, starsFilter } = req.body;
+	console.log("'\x1b[36m%s\x1b[0m'", "search: ", search);
+
+	Catalouge.findAll({
+		// Filter the required items 
+		attributes: [
+			[Sequelize.fn('DISTINCT', Sequelize.col('storename')) ,'storename'],
+			[Sequelize.fn('MAX', Sequelize.col('discount')), 'discount']
+		],
+		where: 
+			Sequelize.or(
+				//{name: Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('name')), 'LIKE', '%' + search + '%')},
+				{storename: Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('storename')), 'LIKE', '%' + search + '%')}
+			),
+		group: ["storename"],
+		raw: true
+	})
+		.then((shops) => {
+			if (shops) {
+				// If shop does not have discounted item, filter out.
+				if (cbList != undefined && cbList.includes('sales')){
+					shops = shops.filter(function(item) {
+						return item.discount > 0;
+					})
 				}
-				else {
-					res.render('customer/viewshops', { title: "View Shops" });
-				}
-			})
-			.catch(err => {
-				console.error('Unable to connect to the database:', err);
-			});
-	});
+
+				User.findAll({
+					where: { usertype: "tailor" },
+					attributes: ['address1', 'address2', 'city', 'postalcode', 'shopname', 'photo'],
+					raw: true
+				})
+				.then((shopdetails) => {
+					// Review Ratings Calculation
+					Review.findAll({
+						attributes: ['storename', [Sequelize.fn('AVG', Sequelize.col('stars')), 'avgRating']],
+						group: 'storename',
+						raw: true
+					})
+					.then((review) => {
+						for(var i=0; i<review.length; i++){
+							review[i].avgRating = parseFloat(review[i].avgRating);
+							for(var s=0; s<shops.length; s++){
+								if (review[i].storename == shops[s].storename){
+									shops[s].avgRating = parseFloat(review[i].avgRating);
+								}
+							}
+						}
+						
+						console.log(shops);
+						if (starsFilter != ""){
+							shops = shops.filter(function(item) {
+								return (item.avgRating >= parseInt(starsFilter) && item.avgRating < parseInt(starsFilter)+1);
+							})
+						}
+
+						// Filter products
+						if(search != ""){
+							Catalouge.findAll({
+								// Filter the required items 
+								where: 
+									Sequelize.or(
+										{name: Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('name')), 'LIKE', '%' + search + '%')}
+									),
+								raw: true
+							})
+							.then ((products) => {
+								if (cbList != undefined && cbList.includes('sales')){
+									products = products.filter(function(product) {
+										return product.discount > 0;
+									})
+								}
+								console.log(products);
+								res.render('customer/viewshops', {
+									title: "View Shops",
+									shopdetails: shopdetails,
+									shops: shops,
+									review: review,
+									search: search,
+									cbList: cbList,
+									starsFilter: starsFilter,
+									products: products
+								});
+							})
+							.catch(err => {
+								console.error('Unable to connect to the database:', err);
+							});
+						}
+						else {
+							// if search is not empty.
+							res.render('customer/viewshops', {
+								title: "View Shops",
+								shopdetails: shopdetails,
+								shops: shops,
+								review: review,
+								search: search,
+								cbList: cbList,
+								starsFilter: starsFilter
+							});
+						}
+					})
+					.catch(err => {
+						console.error('Unable to connect to the database:', err);
+					});
+				})
+				.catch(err => {
+					console.error('Unable to connect to the database:', err);
+				});
+				
+
+			}
+			else {
+				res.render('customer/viewshops', { title: "View Shops" });
+			}
+		})
 });
 
 
