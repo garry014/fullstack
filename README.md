@@ -1,1 +1,2 @@
-# This is an <h1> tag
+## Full-Stack Development
+#### by Amelia, Kaijie, Stacey, Patrick & Gary
