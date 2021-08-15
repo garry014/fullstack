@@ -69,6 +69,9 @@ router.get('/', (req, res) => {
 	if (!("myCart" in sess)) {
 		// if dont have key, add key and initialize with empty array to fill in items to cart
 		sess["myCart"] = []
+		sess["quantity"] = [{ cart_qty: 0 }]
+		sess["myBillingDetails"] = null
+		sess["cartTotal"] = 0;
 	}
 
 	sess["cartSize"] = sess["myCart"].length;
@@ -103,12 +106,21 @@ router.get('/customers_checkout', (req, res) => {
 	res.render('customer/customers_checkout', { title: "customers_checkout", sess: sess, user_details: user_details })
 })
 // Customer : after transaction page
+// paypal
 router.get('/transaction_complete', (req, res) => {
 	sess = req.session;
 	userId = res.locals.user.id
 	//send into sql
 	console.log("cart", sess["mycart"])
 	let cartId = Date.now() / 1000;
+	sess["myBillingDetails"].carttimestamp = cartId;
+	BillingDetails.create(sess["myBillingDetails"])
+	.then(success => {
+		console.log("Billing details generated ====>", success);
+		console.log("did it managed to send through", success);
+	}).catch(err => {
+		console.error('Unable to connect to the database:', err);
+	});
 
 	sess["myCart"].forEach(cartItem => {
 		let insertData = {
@@ -124,6 +136,7 @@ router.get('/transaction_complete', (req, res) => {
 		Cart.create(insertData).then(success => {
 			console.log("Receipt created==>", success)
 			sess["myCart"] = []
+			res.locals.cartTotalQuantity = 0;
 		}).catch(err => {
 			console.error('Unable to connect to the database:', err);
 		});
@@ -134,64 +147,111 @@ router.get('/transaction_complete', (req, res) => {
 	res.render('customer/transaction_complete', { title: "transaction_complete" })
 })
 
-router.post('/transaction_complete', (req, res) => {
-	sess = req.session;
-	//send into sql
-	//change sql table from cart to billing details
-	console.log("Billing Details", sess["mycart"])
-	sess["myCart"].forEach(cartItem => {
-		Cart.create({
-			name: cartItem.itemname,
-			price: cartItem.price,
-			quantity: cartItem.qty,
-			customqn: cartItem.customqn,
-			custom: cartItem.custom
-		}).catch(err => {
-			console.error('Unable to connect to the database:', err);
-		});
-		sess["myCart"] = []
-	});
 
-
-	res.render('customer/transaction_complete', { title: "transaction_complete" })
-})
 
 // Billing information details
 router.post('/customers_checkout', (req, res) => {
+	let errors = [];
+	let { firstNamee, lastNamee, Addressline1, Addressline2, city, postalcode, email, phonenumber, dTime, deliverydate } = req.body;
 	var user_details;
 	sess = req.session;
-	var storename = "";
-	if (sess["myCart"][0] != undefined){
-		storename = sess["myCart"][0].storename;
-	}
-	
 
+	// If click cancel
+	if(sess["myBillingDetails"] != null){
+		sess["myBillingDetails"] = null;
+		res.redirect('/customers_checkout');
+		console.log("delete myBillingDetails")
+		
+
+		return
+	}
 	if (typeof req.user != "undefined") {
 		user_details = res.locals.user;
-		let insertcustdata = {
-			firstname: user_details.firstname,
-			lastname: user_details.lastname,
-			username: user_details.username,
-			address1: user_details.address1,
-			address2: user_details.address2,
-			city: user_details.city,
-			postalcode: user_details.postalcode,
-			email: user_details.email,
-			phoneno: user_details.phoneno,
-			deliverytime: req.body.dTime,
-			deliverydate: moment(req.body.delivery_date, 'DD/MM/YYYY'),
-			shopname: storename
-		}
-		console.log("create========>", insertcustdata);
-		BillingDetails.create(insertcustdata)
-			.then(success => {
-				res.redirect('/customers_checkout');
+		// Checks if values is there
 
-				console.log("Billing details generated ====>", success);
-				console.log("did it managed to send through", success);
-			}).catch(err => {
-				console.error('Unable to connect to the database:', err);
+		if (firstNamee == "") {
+			errors.push({
+				msg: 'Name is not there'
 			});
+		}
+		if (lastNamee == "") {
+			errors.push({
+				msg: 'Name is not there'
+			});
+		}
+		if (req.body.Addressline1 == "") {
+			errors.push({
+				msg: 'Address1 is not there'
+			});
+		}
+		if (req.body.Addressline2 == "") {
+			errors.push({
+				msg: 'Address2 is not there'
+			});
+		}
+		if (req.body.city == "") {
+			errors.push({
+				msg: 'City is not there'
+			});
+		}
+		if (! /^[0-9]{6}$/.test(req.body.postalcode)) {
+			errors.push({
+				msg: 'Postal Code must be at least 6 characters'
+			});
+		}
+		if (req.body.email == "") {
+			errors.push({
+				msg: 'email is not there'
+			});
+		}
+		if (req.body.phonenumber == "") {
+			errors.push({
+				msg: 'Phone number is not there'
+			});
+		}
+		if (req.body.dTime == "") {
+			errors.push({
+				msg: 'Delivery time is not there'
+			});
+		}
+		if (req.body.deliverydate == "") {
+			errors.push({
+				msg: "delivery error is not there"
+			});
+		}
+		if (errors.length > 0) {
+			res.render('customer/customers_checkout', {
+				errors: errors,
+				firstNamee,
+				lastNamee,
+				Addressline1,
+				Addressline2,
+				city,
+				postalcode,
+				email,
+				phonenumber,
+				dTime,
+				deliverydate
+
+			});
+		} else {
+			console.log("All the billing details filled correctly")
+			
+			sess["myBillingDetails"] = {
+				firstname: req.body.firstNamee,
+				lastname: req.body.lastNamee,
+				address1: req.body.Addressline1,
+				address2: req.body.Addressline2,
+				city: req.body.city,
+				postalcode: req.body.postalcode,
+				email: req.body.email,
+				phoneno: req.body.phonenumber,
+				deliverytime: req.body.dTime,
+				deliverydate: moment(req.body.deliverydate, 'DD/MM/YYYY'),
+				carttimestamp: 0
+			}
+			res.redirect('/customers_checkout');
+		}
 	}
 });
 
@@ -204,8 +264,10 @@ deleteCartItem = (inItemId, sess) => {
 	}
 	console.log("delete after myCart==>",  sess["myCart"])
 	let i = 0;
+	sess["cartTotal"] = 0;
 	for (let item of sess["myCart"]) {
 		item.itemId = i;
+		sess["cartTotal"] += item.subtotal
 		++i;
 	}
 
@@ -216,49 +278,13 @@ router.get('/deleteSessItem/:id', (req, res) => {
 	console.log(sess["myCart"]);
 	console.log("req.param==>", req.params);
 	deleteCartItem(req.params.id, sess);
-	// You create a new array (A)
-	// var newArray = []
 
-	// for (var item in sess["myCart"]) {
-	// 	newArray.push(sess["myCart"][item]);
-	// }
 
-	// ///
-	// for (var item in newArray) {
-	// 	if (newArray[item].itemId == req.params.id) {
-	// 		newArray[item].splice("");
-
-	// 		// You give the array A the values of sess["mycart"]
-	// 		// For loop to check if itemId == id
-	// 		// Pass back values to session
-	// 		console.log(newArray);
-	// 	}
-	// }
 
 
 	res.redirect('/customers_checkout');
 });
-// retrieving the data from amelia ( test ) 
-router.post("/transaction_complete", (req, res) => {
-	let { fname, lname, addressline1, addressline2, City, PostalCode, Email, phone_number } = req.body
 
-	console.log("test", fname)
-
-	if (!("cdetails" in acct)) {
-		acct["cdetails"] = []
-	}
-	acct["cdetails"].push({
-		"fname": fname,
-		"lname": lname,
-		"addressline1": addressline1,
-		"addressline2": addressline2,
-		"city": City,
-		"PostalCode": PostalCode,
-		"Email": Email,
-		"phone_number": phone_number,
-
-	})
-});
 
 router.post("/view/:id", (req, res) => {
 	// let backURL = req.header('Referer') ||'/'
@@ -272,9 +298,17 @@ router.post("/view/:id", (req, res) => {
 		// if dont have key, add key and initialize with empty array to fill in items to cart
 		sess["myCart"] = []
 	}
+	if (!("myBillingDetails" in sess)) {
+		sess["myBillingDetails"] = null
+	}
+
+	if (!("quantity" in sess)) {
+		sess["quantity"] = ["0"];
+	}
 	sess["myCart"].push({
 		"itemId": 0,
 		"itemname": itemname,
+		"id": id,
 		"price": price,
 		"storename": storename,
 		"qty": qty,
@@ -282,10 +316,12 @@ router.post("/view/:id", (req, res) => {
 		"customqn": (customqn) ? customqn : "Nil",
 		"custom": custom
 	})
-	// update card item ID
+	// update cart item ID
 	let i = 0;
+	sess["cartTotal"] = 0;
 	for (let item of sess["myCart"]) {
 		item.itemId = i;
+		sess["cartTotal"] += item.subtotal
 		++i;
 	}
 
