@@ -103,7 +103,9 @@
                     <div class="same-style cart-wrap">
                         <button class="icon-cart">
                             <i class="fas fa-shopping-cart"></i>
-                            <span class="count-style">02</span>
+                            {{sess.myCart.count}}
+                            
+                            <span class="count-style">{{cartTotalQuantity}}</span>
                         </button>
                         <div class="shopping-cart-content">
                             <ul>
