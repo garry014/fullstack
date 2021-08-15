@@ -288,7 +288,7 @@ router.get('/deleteSessItem/:id', (req, res) => {
 
 router.post("/view/:id", (req, res) => {
 	// let backURL = req.header('Referer') ||'/'
-	let { itemname, price, storename, qty, customqn, custom } = req.body;
+	let { itemname, id, price, storename, qty, customqn, custom } = req.body;
 
 	console.log("form: ", itemname)
 	sess = req.session;
