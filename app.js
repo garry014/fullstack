@@ -215,6 +215,10 @@ app.use(function (req, res, next) {
 	if (typeof req.user != "undefined") {
 		res.locals.user = req.user.dataValues || null;
 	}
+	//session
+	if (typeof req.sess != "undefined") {
+		res.locals.sess = req.sess.dataValues || null;
+	}
 	// Navbar
 	if (req.path.includes('/customer')) {
 		res.locals.useracctype = 'Customer';
@@ -237,6 +241,14 @@ app.use(function (req, res, next) {
 			.then((noti) => {
 				res.locals.noti = noti;
 			});
+	}
+	if (req.session.myCart && req.session.myCart.length > 0){
+		console.log("session got stuff");
+		res.locals.cartTotalQuantity = req.session.myCart.length;
+	}
+	else {
+		console.log("none");
+		res.locals.cartTotalQuantity = 0;
 	}
 	next();
 });
