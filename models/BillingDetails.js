@@ -37,6 +37,11 @@ const BillingDetails = db.define('BillingDetails', {
     },
     shopname :{
         type: Sequelize.STRING
+    },
+    carttimestamp:{
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        // defaultValue : 10
     }
 });
 
