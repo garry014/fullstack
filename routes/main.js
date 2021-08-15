@@ -378,6 +378,7 @@ router.get('/purchasehistory', (req, res) => {
 				}	
 				cartInfo["itemId"] = itemId;
 				cartInfo["itemname"] = cartItem.name;
+				cartInfo["id"] = cartItem.id;
 				cartInfo["qty"] = cartItem.quantity;
 				cartInfo["price"] = cartItem.price;
 				cartInfo["subtotal"] = cartItem.quantity * cartItem.price;
