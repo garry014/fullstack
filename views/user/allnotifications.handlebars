@@ -5,45 +5,41 @@
                 <div class="contact-title mb-30">
                     <h2>View all notification</h2>
                 </div>
-
-
-
-                {{#each noti}}
-                    {{this.id}}
-                {{/each}}
+                {{#if notifications}}
                 <!--NEW NOTIFICATIONS-->
-                <div onclick="location.href='/manage_ads';"
-                    style="background: #ebebeb; border-radius: 3px; padding: 5px 10px 5px 12px; border-bottom: 1px solid black; cursor: pointer;">
+                {{#each notifications}}
+                {{#ifCond status '==' "Unread"}}
+                <div onclick="location.href='/{{hyperlink}}';" class="notification-inner">
 
                     <div style="position: relative; float: right;">
-                        <a href="/noti/delete/75"><i class="fa fa-times" title="Delete this notification"></i></a>
+                        <a href="/deleteNoti/{{id}}"><i class="fa fa-times" title="Delete this notification"></i></a>
                     </div>
-                    Your order has been picked up by the rider, and its on your way!
+                    {{message}}
                     <div style="font-size:10px">
                         <i class="fa fa-rss"></i>
-                        13 May 11:15AM
+                        {{time}}
                     </div>
-
                 </div>
+                
 
-
-
-
-                <div onclick="location.href='/manage_ads';"
-                    style="border-radius: 3px; padding: 5px 10px 5px 12px; border-bottom: 1px solid black; cursor: pointer;">
+                {{else}}
+                <!-- Alr Read Notifications -->
+                <div onclick="location.href='/{{hyperlink}}';" class="notification-read">
                     <div style="position: relative; float: right;">
-                        <a href="/noti/delete/72"><i class="fa fa-times" title="Delete this notification"></i></a>
+                        <a href="/deleteNoti/{{id}}"><i class="fa fa-times" title="Delete this notification"></i></a>
                     </div>
-                    Your order has been completed by the tailor, we are assigning a rider now.
+                    {{message}}
                     <div style="font-size:10px">
                         <i class="fa fa-rss"></i>
-                        13 May 11:13AM
+                        {{time}}
                     </div>
                 </div>
+                {{/ifCond}}
+                {{/each}}
 
-
-
-               
+                {{else}}
+                There is currently no notifications.
+                {{/if}}
 
 
 
