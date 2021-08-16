@@ -67,7 +67,11 @@
                         <div class="pro-details-size-color  ">
                             <div class="pro-details-color-wrap">
                                 <input type="text" name="itemname" value="{{pdetails.name}}" hidden>
-                                <input type="text" name="price" value="{{money2dp discprice}}" hidden>
+                                {{#ifCond deals '!=' 0}}
+                                <input type="text" name="price" value="{{money2dp deals}}" hidden>
+                                {{else}}
+                                    <input type="text" name="price" value="{{money2dp discprice}}" hidden>
+                                {{/ifCond}}
                                 <input type="text" name="storename" value="{{pdetails.storename}}" hidden>
                                 <input type="text" id="customqn" name="customqn" value="{{pdetails.customqn}}" hidden>
                             </div>
