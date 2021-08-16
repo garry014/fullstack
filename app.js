@@ -139,7 +139,7 @@ Handlebars.registerHelper('minusStars', function (n, block) {
 });
 
 Handlebars.registerHelper('money2dp', function (distance) {
-	return distance.toFixed(2);
+	return parseFloat(distance).toFixed(2);
 });
 
 Handlebars.registerHelper("calculatedisc", function (price, discount) {
