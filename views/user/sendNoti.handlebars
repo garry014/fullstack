@@ -1,0 +1,87 @@
+<center><h2>Send Notifications</h2></center>
+<form action="/sendnotifications" method="post" style="padding-bottom: 20px;">
+    <div>
+        <div class="sendnoti-boxup">
+            <div class="sendnoti-box-left">
+                <label for="users_avail">Available Users</label>
+                <select name="users_avail" size="8" id="users_avail" multiple="multiple" style="border: 2px solid #a749ff;">
+                    {{#each userdetails}}
+                    {{#ifCond usertype '!=' "admin"}}
+                    <option value="{{username}}">{{username}} ({{usertype}})</option>
+                    {{/ifCond}}
+                    {{/each}}
+                </select>
+                <button type="button" onclick="selectLeftAll()" class="btn btn-info">Select All</button> 
+            </div>
+
+            <div class="sendnoti-box-center">
+                <span onclick="moveRight()"><i class="fa fa-arrow-circle-right" style="font-size:28px"></i></span><br>
+                <span onclick="moveLeft()"><i class="fa fa-arrow-circle-left" style="font-size:28px;"></i></span>
+            </div>
+            
+            <div class="sendnoti-box-right">
+                <label for="users_selected">Selected Users</label>
+                <select name="users_selected" size="8" id="users_selected" multiple="multiple" style="border: 2px solid #73AD21;">
+                    
+                </select>
+            </div>
+        </div>
+    </div><br><br><br><br><br><br><br><br><br><br>
+    <div class="notitext-div">
+            <label for="notitext">Notification Text</label><br>
+            <textarea name="notitext" id="notitext" cols="30" rows="3" required>{{notitext}}</textarea><br>
+            <label for="link" style="padding-left:25px;">URL Associated</label>
+            <input name="link" id="link" type="text" value="{{link1}}">
+        </div>
+   
+    <button type="submit" value="Submit" class="btn btn-success">Submit</button>
+</form>
+
+<script>
+    function moveRight() {
+        var leftlist = document.getElementById("users_avail");
+        
+        while(leftlist.selectedIndex >= 0){
+            var selItem = leftlist.selectedIndex;
+            if (selItem == -1) {
+                window.alert("You must first select an item on the left side.")
+            } else {
+                var rightlist = document.getElementById("users_selected");
+                var newOption = leftlist[selItem].cloneNode(true);
+
+                leftlist.removeChild(leftlist[selItem]);
+                newOption.selected = true;
+                rightlist.appendChild(newOption);
+            }
+        }
+        
+    }
+
+    //document.getElementById('users_avail').onchange = moveRight;
+
+    function moveLeft() {
+        var rightlist = document.getElementById("users_selected");
+
+        while(rightlist.selectedIndex >= 0){
+            var selItem = rightlist.selectedIndex;
+            if (selItem == -1) {
+                window.alert("You must first select an item on the right side.")
+            } else {
+                var leftlist = document.getElementById("users_avail");
+                var newOption = rightlist[selItem].cloneNode(true);
+
+                rightlist.removeChild(rightlist[selItem]);
+                leftlist.appendChild(newOption);
+            }
+        }
+    }
+
+    //document.getElementById('users_selected').onchange = moveLeft;
+
+    function selectLeftAll(){
+        var leftlist = document.getElementById("users_avail");
+        for (var i = 0; i < leftlist.length; i++){
+            leftlist.options[i].selected = 'selected';
+        }
+    }
+</script>
