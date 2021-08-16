@@ -1,0 +1,43 @@
+<div class="search-content" id="notificationsContent">
+    {{#if notifications}}
+    {{#each notifications}}
+    {{#ifCond status '==' "Unread"}}
+    <!-- Unread Notifications -->
+    <div onclick="location.href='/{{hyperlink}}';" class="notification-inner" id='notification-unread'>
+        <div style="position: relative; float: right;">
+            <a href="/deleteNoti/{{id}}"><i class="fa fa-times" title="Delete this notification"></i></a>
+        </div>
+        {{message}}
+        <div style="font-size:10px">
+            <i class="fa fa-rss"></i>
+            {{time}}
+        </div>
+    </div>
+    
+    
+    {{else}}
+    <!-- Read Notifications -->
+    <div onclick="location.href='/{{hyperlink}}';" class="notification-read">
+        <div style="position: relative; float: right;">
+            {{!-- <form action="/deleteNoti/{{id}}" id="deleteNoti_{{id}}">
+                <!-- Need current URL before posting -->
+                <script>document.write(`<input type="hidden" id="previousURL" name="previousURL" value="${window.location.pathname}">`);
+                </script>
+                
+            </form> --}}
+            <a href="/deleteNoti/{{id}}"><i class="fa fa-times" title="Delete this notification"></i></a>
+        </div>
+        {{message}}
+        <div style="font-size:10px">
+            <i class="fa fa-rss"></i>
+            {{time}}
+        </div>
+    </div>
+    {{/ifCond}}
+    {{/each}}
+
+    {{else}}
+    There is currently no notifications.
+    {{/if}}
+    <center><a href="/notification">See All</a></center>
+</div>

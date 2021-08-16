@@ -273,7 +273,7 @@ app.use(function (req, res, next) {
 		res.locals.cartTotalQuantity = req.session.myCart.length;
 	}
 	else {
-		console.log("none");
+		//console.log("none");
 		res.locals.cartTotalQuantity = 0;
 	}
 	next();
