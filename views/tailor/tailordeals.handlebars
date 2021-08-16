@@ -10,6 +10,7 @@
               <tr>
                 <th>Product</th>
                 <th>Discounted Price</th>
+                <th>Event</th>
                 <th>Start Date</th>
                 <th>End Date</th>
                 <th>Action</th>
@@ -24,9 +25,10 @@
               {{/ifCond}}
               {{/each}}
               <td class="product-discountp">${{discountp}}</td>
-              <td class="product-start_date">{{formatTime dstartdate "DD/MM/YYYY"}}
+              <td class="product-event">{{event}}</td>
+              <td class="product-start_date">{{formatDate dstartdate 'DD MMM YYYY'}}
               </td>
-              <td class="product-end_date">{{formatTime dexpirydate "DD/MM/YYYY"}}</td>
+              <td class="product-end_date">{{formatDate dexpirydate 'DD MMM YYYY'}}</td>
               <td class="product-remove">
                 <a href="updatedeal/{{id}}"><i class="fa fa-pencil"></i></a>
                 <form action="#" method="POST" style="display: inline-block;">
@@ -67,12 +69,13 @@
       </div>
     </div>
     {{else}}
-    You do not have any flash deals.
+    <div style="margin-left:16px;">You do not have any flash deals.</div>
     {{/if}}
     <div class="row">
       <div class="col-lg-12">
+        <br>
         <div class="cart-shiping-update-wrapper" style="float:right;">
-          <div class="cart-clear">
+          <div class="cart-clear" style="margin-left:-227px;">
             <a href="adddeal">Add Deal</a>
           </div>
         </div>
