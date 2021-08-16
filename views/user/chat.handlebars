@@ -35,8 +35,8 @@
                 {{#if chats}}
                 {{#each chats}}
                     {{#ifCond id '==' ../id}}
-                    <div class="chat_list active_chat">
-                        <div class="chat_people">
+                    <div id="active_chat" class="chat_list active_chat">
+                        <div id="chat_people_{{id}}" class="chat_people">
                             {{#ifCond ../currentuser "==" recipient}}
                                 {{#each ../photodetails}}
                                 {{#if (eq ../sender username) }}
@@ -55,8 +55,8 @@
                                 {{/each}}
                             {{/ifCond}}
                             <div class="chat_ib">
-                                <h5>{{#ifCond ../currentuser "==" recipient}}{{sender}}{{else}}{{recipient}}{{/ifCond}}</h5>
-                                <p id="messagePreview">
+                                <h5>{{#ifCond ../currentuser "==" recipient}}{{sender}}{{else}}{{recipient}}{{/ifCond}} <span class="chat_date">{{timestamp}}</span></h5> 
+                                <p id="messagePreview_{{id}}">
                                     {{#ifCond message "!=" null}}
                                         {{#ifCond message "==" 0}}
                                             <i>This chat is currently empty.</i>
@@ -75,9 +75,9 @@
                         </div>
                     </div>
                     {{else}}
-                    <a href="/c/{{../chatstatus}}/{{id}}">
+                    <a id="chat_{{id}}" href="/c/{{../chatstatus}}/{{id}}">
                         <div class="chat_list">
-                            <div class="chat_people">
+                            <div id="chat_people_{{id}}" class="chat_people">
                                 {{#ifCond ../currentuser "==" recipient}}
                                     {{#each ../photodetails}}
                                     {{#if (eq ../sender username) }}
@@ -96,8 +96,9 @@
                                     {{/each}}
                                 {{/ifCond}}
                                 <div class="chat_ib">
-                                    <h5>{{#ifCond ../currentuser "==" recipient}}{{sender}}{{else}}{{recipient}}{{/ifCond}}</h5>
-                                    <p>{{#ifCond message "!=" null}}
+                                    <h5>{{#ifCond ../currentuser "==" recipient}}{{sender}}{{else}}{{recipient}}{{/ifCond}} <span class="chat_date">{{timestamp}}</span></h5>
+                                    <p id="messagePreview_{{id}}">
+                                        {{#ifCond message "!=" null}}
                                             {{#ifCond message "==" 0}}
                                                 <i>This chat is currently empty.</i>
                                             {{else}}
@@ -125,44 +126,60 @@
         {{#ifCond id '!=' 0}}
         <div class="mesgs">
             <div class="heading_msg">
-                <b>{{recipient}} <span id="user_status" style="color: red;">(Offline)</span></b>
+                <div class="header-box-left">
+                    
+                    <div class="thumb" style="background-image: url('/uploads/user/{{rphoto}}');" title="Portrait: 400x800"></div>
+                </div>
+                <div class="header-box-center">
+                    <b>{{recipient}} 
+                    <br><span id="user_status" style="color: red; display: none;">(Offline)</span></b>
+                </div>
+                <div class="header-box-right">
+                    {{#unless isBlocked}}
+                    <form action="/inbox/delete/{{id}}" method="POST" style="display: inline-block; float: right;">
+                        <button type="button" style="border:none; background: none; display: inline-block;"
+                            data-toggle="modal" data-target="#myModal_2"><i class="fa fa-trash-o" style="font-size: 18px;"
+                                title="Delete this chat"></i> </button>
+                        <!-- The Modal for Delete -->
+                        <div class="modal" id="myModal_2" aria-hidden="true" style="display: none;">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
 
-                {{#ifCond chatstatus '!=' "archive"}}
-                <a href="/archive/{{id}}" title="Mark as archive" style="float: right;"><i class="fa fa-archive"></i>
-                    Archive</a>
-                {{/ifCond}}
+                                    <!-- Modal Header -->
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Delete Confirmation</h4>
+                                        <button type="button" class="close" data-dismiss="modal">×</button>
+                                    </div>
 
+                                    <!-- Modal body -->
+                                    <div class="modal-body">
+                                        Are you sure you want to delete the chat with {{recipient}}?
+                                    </div>
 
-                <form action="/inbox/delete/{{id}}" method="POST" style="display: inline-block; float: right;">
-                    <button type="button" style="border:none; background: none; display: inline-block;"
-                        data-toggle="modal" data-target="#myModal_2"><i class="fa fa-trash-o" style="font-size: 18px;"
-                            title="Delete this chat"></i></button>
-                    <!-- The Modal for Delete -->
-                    <div class="modal" id="myModal_2" aria-hidden="true" style="display: none;">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
+                                    <!-- Modal footer -->
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                        <button type="submit" value="Delete" class="btn btn-danger">Delete</button>
+                                    </div>
 
-                                <!-- Modal Header -->
-                                <div class="modal-header">
-                                    <h4 class="modal-title">Delete Confirmation</h4>
-                                    <button type="button" class="close" data-dismiss="modal">×</button>
                                 </div>
-
-                                <!-- Modal body -->
-                                <div class="modal-body">
-                                    Are you sure you want to delete the chat with {{recipient}}?
-                                </div>
-
-                                <!-- Modal footer -->
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                    <button type="submit" value="Delete" class="btn btn-danger">Delete</button>
-                                </div>
-
                             </div>
                         </div>
-                    </div>
-                </form>
+                    </form>
+
+                    {{#ifCond chatstatus '!=' "archive"}}
+                        <a href="/archive/{{id}}" title="Mark as archive" style="float: right; color: #ad8423"><i class="fa fa-archive"></i> 
+                        </a>
+                    {{/ifCond}}
+                    {{/unless}}
+
+                    {{#if isBlocked}}
+                    <a href="/inbox/unblock/{{id}}" title="Unblock this user." style="float: right; color: green; padding-right: 5px;"><i class="fa fa-check"></i></a>
+                    {{else}}
+                    <a href="/inbox/block/{{id}}" title="Block this user." style="float: right; color: red; padding-right: 5px;"><i class="fa fa-ban"></i></a>
+                    {{/if}}
+                </div>
+                
 
 
             </div>
@@ -252,6 +269,9 @@
             </div>
             <div class="type_msg">
                 <div class="input_msg_write">
+                    {{#if isBlocked}}
+                    <span style="font-size:18px;">User blocked.</span> 
+                    {{else}}
                     <!-- Send Text -->
                     <form onsubmit="return sendMessage();" class="contact-form-style">
                         <input autocomplete="off" class="write_msg" id="message" name="message"
@@ -368,6 +388,7 @@
                         </div>
                     </div>
                     <!-- End of Audio Modal -->
+                    {{/if}}
                 </div>
             </div>
         </div>
@@ -409,7 +430,7 @@
                 {{#each chats}}
                     {{#ifCond id '==' ../id}}
                     <div class="chat_list active_chat">
-                        <div class="chat_people">
+                        <div id="chat_people_{{id}}" class="chat_people">
                             {{#ifCond ../currentuser "==" recipient}}
                                 {{#each ../photodetails}}
                                 {{#if (eq ../sender username) }}
@@ -428,8 +449,8 @@
                                 {{/each}}
                             {{/ifCond}}
                             <div class="chat_ib">
-                                <h5>{{#ifCond ../currentuser "==" recipient}}{{sender}}{{else}}{{recipient}}{{/ifCond}}</h5>
-                                <p id="messagePreview">
+                                <h5>{{#ifCond ../currentuser "==" recipient}}{{sender}}{{else}}{{recipient}}{{/ifCond}} <span class="chat_date">{{timestamp}}</span></h5>
+                                <p id="messagePreview_{{id}}">
                                     {{#ifCond message "!=" null}}
                                         {{#ifCond message "==" 0}}
                                             <i>This chat is currently empty.</i>
@@ -450,7 +471,7 @@
                     {{else}}
                     <a href="/c/{{../chatstatus}}/{{id}}">
                         <div class="chat_list">
-                            <div class="chat_people">
+                            <div id="chat_people_{{id}}" class="chat_people">
                                 {{#ifCond ../currentuser "==" recipient}}
                                     {{#each ../photodetails}}
                                     {{#if (eq ../sender username) }}
@@ -469,8 +490,9 @@
                                     {{/each}}
                                 {{/ifCond}}
                                 <div class="chat_ib">
-                                    <h5>{{#ifCond ../currentuser "==" recipient}}{{sender}}{{else}}{{recipient}}{{/ifCond}}</h5>
-                                    <p>{{#ifCond message "!=" null}}
+                                    <h5>{{#ifCond ../currentuser "==" recipient}}{{sender}}{{else}}{{recipient}}{{/ifCond}} <span class="chat_date">{{timestamp}}</span></h5>
+                                    <p id="messagePreview_{{id}}">
+                                        {{#ifCond message "!=" null}}
                                             {{#ifCond message "==" 0}}
                                                 <i>This chat is currently empty.</i>
                                             {{else}}
@@ -510,8 +532,10 @@
 {{/if}}
 {{/each}}
 
+
 <script>
     var recipient = "{{recipient}}";
+    var chatStatus = "{{chatstatus}}";
     function autoScrollDown() {
         $('.msg_history').scrollTop($('.msg_history')[0].scrollHeight);
     }
@@ -522,28 +546,77 @@
             recipient: recipient,
             sender: '{{currentuser}}'
         });
+        setTimeout(function () {
+            document.getElementById("user_status").style.display= '';
+        }, 500);
     }
 
     if (window.history.replaceState) {
         window.history.replaceState(null, null, window.location.href);
     }
 
-
     //////////////////////// Socket IO ////////////////////////////////
-    var io = io();
+    //var io = io();
     var rphoto = "{{rphoto}}";
+    var sphoto = "{{user.photo}}";
+    // document.getElementById("chat_people_{{id}}").remove();
+    // document.getElementById("active_chat").remove();
 
-    io.on("user_connected", function (username) {
-        var html = "";
-        html += "<li><button onclick='onUserSelected(this.innerHTML);'>" + username + "</button></li>";
-
-        document.getElementById("users").innerHTML += html;
-    });
-
-    function onUserSelected(username) {
-        // save selected user in global var
-        receiver = username;
+    function getToday(){
+        // Get Date
+        var currentdate = new Date(); 
+        const monthNames = ["January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December"];
+        var datetime = currentdate.getDate() + " "
+                + monthNames[currentdate.getMonth()]  + " " 
+                + currentdate.getFullYear() + " "  
+                + currentdate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+        return datetime;
     }
+
+    function bumpChat(data){
+        console.log(data);
+        if(document.body.contains(document.getElementById("chat_"+data.chatid))){
+            document.getElementById("chat_"+data.chatid).remove();
+        }
+
+        const atag = document.createElement('a');
+        atag.id = "chat_" + data.chatid;
+        atag.href="/c/inbox/" + data.chatid;
+        const div = document.createElement('div');
+        div.className = 'chat_list';
+        // data.id for new msg to be change to data.chatid
+        if(data.message == undefined){
+            data.message = "<i>This chat is currently empty.</i>";
+        }
+        var tobePrinted = `<div id="chat_people_${data.chatid}" class="chat_people">
+                                    <div class="chat_img"> <img src="/uploads/user/${data.photo}" style="border-radius: 50%;"> </div>
+                                <div class="chat_ib">
+                                    <h5>${data.sender} <span class="chat_date">${data.timestamp}</span></h5>
+                                    <p>
+                                        ${data.message}
+                                    </p>
+                                </div>
+                            </div>`;
+        div.innerHTML = tobePrinted;
+        atag.appendChild(div);
+
+        if(document.body.contains(document.getElementById("chat_people_"+data.chatid))){
+            document.getElementById("chat_people_"+data.chatid).remove();
+        }
+        
+        if(data.chatid == {{id}}){
+            // in a current chat
+            console.log("current_chat runnning");
+            const active_chat = document.getElementById("active_chat");
+            active_chat.innerHTML = tobePrinted;
+            document.getElementById('inbox_chat').prepend(active_chat); 
+        }
+        else {
+            console.log("alternate path is running");
+            document.getElementById('inbox_chat').prepend(atag);
+        }
+    }
+
 
     function sendMessage() {
         var message = document.getElementById("message").value;
@@ -552,7 +625,8 @@
         io.emit("send_message", {
             receiver: recipient,
             message: message,
-            chatid: {{id}}
+            chatid: {{id}},
+            photo: sphoto
         });
 
         //append sender msg
@@ -564,17 +638,32 @@
         div.appendChild(idiv);
 
         document.getElementById('msg_history').appendChild(div);
-        document.getElementById("messagePreview").innerHTML = message;
-        document.getElementById("message").value = '';
-        autoScrollDown();
+        document.getElementById("messagePreview_{{id}}").innerHTML = message;
+        if(chatStatus == "archive"){
+            window.location.href = '/c/inbox/{{id}}';
+        }
+        else {
+            autoScrollDown();
+        }
 
+        document.getElementById("message").value = '';
+        
+        bumpChat({
+            sender: recipient,
+            message: message,
+            chatid: {{id}},
+            photo: rphoto,
+            timestamp: getToday()
+        });
         return false;
     }
 
     // listen from server
     io.on("new_message", function (data) {
-        console.log(data.chatid, {{id}});
-        if(data.chatid == {{id}}){
+        if(chatStatus == "archive"){
+                window.location.href = '/c/inbox/{{id}}';
+        }
+        else if(data.chatid == {{id}}){
             console.log("new_message is working");
             const div = document.createElement('div');
             div.className = 'incoming_msg';
@@ -587,9 +676,10 @@
                             </div>`;
 
             document.getElementById('msg_history').appendChild(div);
-            document.getElementById("messagePreview").innerHTML = data.message;
             autoScrollDown();
         }
+
+        bumpChat(data);
     });
 
     function sendUpload() {
@@ -609,34 +699,24 @@
     });
 
     io.on("start_newchat", function (data) {
-        console.log("start_newchat is working");
-        const atag = document.createElement('a');
-        atag.href="/c/inbox/" + data.id;
-        const div = document.createElement('div');
-        div.className = 'chat_list';
-        div.innerHTML = `<div class="chat_people">
-                                    <div class="chat_img"> <img src="/uploads/user/${data.photo}" style="border-radius: 50%;"> </div>
-                                <div class="chat_ib">
-                                    <h5>${data.sender}</h5>
-                                    <p>
-                                                <i>This chat is currently empty.</i>
-                                    </p>
-                                </div>
-                            </div>`;
-
-        atag.appendChild(div);
-        document.getElementById('inbox_chat').appendChild(atag);
-        document.getElementById('inbox_chat1').appendChild(atag);
-        autoScrollDown();
-
+        if("{{chatstatus}}" == "inbox"){
+            bumpChat(data);
+        }
     });
 
+    var newState = 0;
     io.on("update_userDC", function (user_dced) {
-        // update user status once user is offline.
-        if (recipient == user_dced){
-            document.getElementById("user_status").innerText = "(Offline)";
-            document.getElementById("user_status").style.color = "red";
-        }
+        // update user status AFTER waiting 3 secs, once user is offline.
+        newState = -1;
+        setTimeout(function () {
+            if (newState == -1) {
+                if (recipient == user_dced){
+                    document.getElementById("user_status").innerText = "(Offline)";
+                    document.getElementById("user_status").style.color = "red";
+                    document.getElementById("user_status").style.display= '';
+                }
+            }
+        }, 3000);
     });
 
     io.on("update_userCN", function (user_cn) {
@@ -645,6 +725,8 @@
         if (recipient == user_cn){
             document.getElementById("user_status").innerText = "(Online)";
             document.getElementById("user_status").style.color = "green";
+            document.getElementById("user_status").style.display= '';
+            newState = 0;
         }
     });
 </script>
