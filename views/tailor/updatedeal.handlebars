@@ -45,17 +45,32 @@
                                             </div>
                                             <br>
                                             <div class="billing-info mb-20">
+                                                <label for="name">Event</label>
+                                                <ul class="category-select-list">
+                                                    <li><input type="radio" id="New Store Opening" value="New Store Opening" name="event" {{radioCheck deals.event 'New Store Opening'}}><label for="New Store Opening" style="font-style: italic;">New Store Opening</label></li>
+                                                    <div>Start: <span style="color:red;"> 18 Aug 2021, </span>Wednesday (12:00AM)</div>
+                                                    <div>End: <span style="color:red;"> 18 Aug 2021, </span>Wednesday (11:59PM)</div>
+                                                    <br>
+                                                    <li><input type="radio" id="9.9 Flash Sales" value="9.9 Flash Sales" name="event" {{radioCheck deals.event 'event2'}}><label for="9.9 Flash Sales" style="font-style: italic;">9.9 Flash Sales</label></li>
+                                                    <div>Start: <span style="color:red;"> 09 Sep 2021, </span>Thursday (12:00AM)</div>
+                                                    <div>End: <span style="color:red;"> 09 Sep 2021, </span>Thursday (11:59PM)</div>
+                                                    <br>
+                                                    <li><input type="radio" id="10.10 Flash Sales" value="10.10 Flash Sales" name="event" {{radioCheck deals.event '10.10 Flash Sales'}}><label for="10.10 Flash Sales" style="font-style: italic;">10.10 Flash Sales</label></li>
+                                                    <div>Start: <span style="color:red;"> 10 Oct 2021, </span>Sunday (12:00AM)</div>
+                                                    <div>End: <span style="color:red;"> 10 Oct 2021, </span>Sunday (11:59PM)</div>
+                                                </ul>
+                                            </div>
+                                            {{!-- <div class="billing-info mb-20">
                                                 <label for="name">Start Date</label>
                                                 <input id="datepicker" name="dstartdate" class="form-control"
-                                                    type="text" value="{{formatDate deals.dstartdate 'DD/MM/YYYY'}}">
+                                                    type="text" value="{{formatTime deals.dstartdate 'DD/MM/YYYY'}}">
                                             </div>
                                             <br>
                                             <div class="billing-info mb-20">
                                                 <label for="name">End Date</label>
                                                 <input id="datepicker2" name="dexpirydate" class="form-control"
-                                                    type="text" value="{{formatDate deals.dexpirydate 'DD/MM/YYYY'}}">
-                                            </div>
-                                            <br>
+                                                    type="text" value="{{formatTime deals.dexpirydate 'DD/MM/YYYY'}}">
+                                            </div> --}}
                                             <div class="button-box">
                                                 <button type="submit" class="btn btn-outline-info"
                                                     style="font-size: 14px; font-weight: 420; padding-top: 8px; padding-bottom: 8px;padding-left: 28px; padding-right: 28px"><span>Confirm</span></button>
