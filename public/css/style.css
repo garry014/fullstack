@@ -16352,3 +16352,77 @@ textarea:focus {
 .purchaseTable{
   border: 1px solid grey;
 }
+
+.fa-star-half-empty:after, .fa-star-half-full:after, .fa-star-half-o:after {
+  content: "\f123";
+  transform: rotateY(-180deg);
+  display: inline-block;
+  left: 6px;
+  position: absolute;
+  top: 0;
+  color: #757575;
+  overflow: hidden;
+  width: 8px;
+} 
+
+.notification-inner {
+  background: #ebebeb; 
+  border-radius: 3px; 
+  padding: 5px 10px 5px 12px; 
+  border-bottom: 1px solid black; 
+  cursor: pointer;
+}
+
+.notification-inner:hover {
+  background: #EDF2FA;
+}
+
+.notification-read {
+  background: #FFFFFF;
+  border-radius: 3px; 
+  padding: 5px 10px 5px 12px; 
+  border-bottom: 1px solid black; 
+  cursor: pointer;
+}
+
+.notification-read:hover {
+  background: #EDF2FA;
+}
+
+.sendnoti-boxup{
+  padding:15px;
+}
+
+.sendnoti-box-left {
+  float:left;
+  padding: 0 10px 0 10px; 
+  width:45%;
+}
+
+.sendnoti-box-center{
+  padding-left: 5px;
+  float: left;
+}
+
+.sendnoti-box-right{
+  float: right;
+  padding: 0 10px 0 10px;
+  width: 45%;
+}
+
+.notitext-div {
+  display: inline;
+  margin-left: 25px;
+}
+
+.notitext-div textarea{
+  background-color: white;
+  margin-left: 25px;
+  width: 80%;
+}
+
+.notitext-div input{
+  background-color: white;
+  width: 55%;
+  margin: 0 25px 0 25px;
+}
