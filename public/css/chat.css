@@ -73,7 +73,7 @@ img{ max-width:100%;}
  }
  .received_withd_msg p {
   background: #ebebeb none repeat scroll 0 0;
-  border-radius: 3px;
+  border-radius: 10px;
   color: #646464;
   font-size: 14px;
   margin: 0;
@@ -89,15 +89,46 @@ img{ max-width:100%;}
 .received_withd_msg { width: 57%;}
 .mesgs {
   float: left;
-  padding: 30px 0 0 25px;
+  padding: 5px 0 0 15px;
   width: 70%;
 }
 
-.heading_msg{ padding:0px 29px 10px 20px; overflow:hidden; border-bottom:1px solid #c4c4c4;}
+.heading_msg{ 
+  padding:0px 19px 5px 5px; 
+  overflow:hidden; 
+  border-bottom:1px solid #c4c4c4;
+  width: 100%;
+}
+
+.header-box-left {
+  float:left; 
+  width:55px;
+}
+
+.header-box-center{
+  padding-left: 5px;
+  float: left;
+}
+
+.header-box-right{
+  float: right;
+  padding: 10px 0 10px 0;
+  font-size: 20px;
+}
+
+.thumb {
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  border: 3px solid #c99;
+  background-position: center center;
+  background-size: cover;
+  border-radius: 50%;
+}
 
 .sent_msg p {
   background: #05728f none repeat scroll 0 0;
-  border-radius: 3px;
+  border-radius: 10px;
   font-size: 14px;
   margin: 0; 
   color:#fff;
