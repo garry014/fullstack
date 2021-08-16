@@ -8,6 +8,7 @@ const Review = require('../models/Review.js');
 const Cart = require('../models/Cart');
 const BillingDetails = require('../models/BillingDetails');
 const Deal = require('../models/Deal');
+const Notification = require('../models/Notifications');
 
 // Handlebars Helpers
 const alertMessage = require('../helpers/messenger');
@@ -461,28 +462,34 @@ router.post('/chatwith/:name', ensureAuthenticated, (req, res) => {
 			res.redirect('/c/inbox/'+chats[0].id);
 		}
 		else{
-			
-			Chat.create({
-				sender: currentuser,
-				recipient: req.params.name,
-				senderstatus: "Read",
-				recipientstatus: "Unread"
-			})
-			.then((chat) =>{
-				// Send res.locals.photo, id
-				const data = {receiver: req.params.name, sender: currentuser, photo: req.user.dataValues.photo, id: chat.id};
-				start_newchat(data);
-				res.redirect('/c/inbox/'+chat.id);
-			})
-			.catch(err => {
-				console.error('Unable to connect to the database:', err);
-			});
+			if ((req.user.dataValues.username != req.params.name) && (req.user.dataValues.shopname != req.params.name)){
+				Chat.create({
+					sender: currentuser,
+					recipient: req.params.name,
+					senderstatus: "Read",
+					recipientstatus: "Unread"
+				})
+				.then((chat) =>{
+					// Send res.locals.photo, id
+					const data = {receiver: req.params.name, sender: currentuser, photo: req.user.dataValues.photo, chatid: chat.id};
+					start_newchat(data);
+					res.redirect('/c/inbox/'+chat.id);
+				})
+				.catch(err => {
+					console.error('Unable to connect to the database:', err);
+				});
+			}
+			else {
+				alertMessage(res, 'danger', 'Access Denied, you cannot send a message to yourself!', 'fas fa-exclamation-triangle', true);
+				res.redirect('back');
+			}
 		}
 	})
 	.catch(err => {
 		console.error('Unable to connect to the database:', err);
 	});
 });
+
 
 router.get('/c/:chat/:id', ensureAuthenticated, (req, res) => { 
 	if (typeof req.user != "undefined") {
@@ -496,7 +503,7 @@ router.get('/c/:chat/:id', ensureAuthenticated, (req, res) => {
 		req.session.username = currentuser;
 	}
 	var recipient = "";
-	const chatMsgs = [];
+	var isBlocked = false;
 	const chatids = [];
 	Chat.findAll({
 		where: {
@@ -524,6 +531,10 @@ router.get('/c/:chat/:id', ensureAuthenticated, (req, res) => {
 								}
 								else {
 									recipient = chats[c].recipient;
+								}
+
+								if ((chats[c].senderstatus == "blocked") || (chats[c].recipientstatus == "blocked")){
+									isBlocked = true;
 								}
 							}
 
@@ -572,29 +583,46 @@ router.get('/c/:chat/:id', ensureAuthenticated, (req, res) => {
 							raw: true
 						})
 							.then((messageInChat) => {
-								// Filter to get the biggest msg id FOR EACH chat id.
-								const idcheck = chatids.reduce((acc, curr) => (acc[curr] = 0, acc), {});
+								// Filter to get the greatest msg id FOR EACH chat id.
+								const idcheck = {};
+								for (var i in chatids){
+									idcheck[chatids[i]] = [0]
+								}
+								console.log(idcheck);
 								const checkedlist = [];
 								for (var msg in messageInChat) {
 									for (var i in idcheck) {
 										if (messageInChat[msg].chatId == i && !checkedlist.includes(messageInChat[msg].chatId)) {
-											idcheck[i] = messageInChat[msg].message;
+											idcheck[i][0] = messageInChat[msg].message;
+											idcheck[i].push(messageInChat[msg].timestamp);
 											checkedlist.push(messageInChat[msg].chatId);
 										}
 									}
 								}
-
+								
+								
+								// TO-DO: Filter chat id according to time.
 								var keys = Object.keys(idcheck);
 								for (var c in chats) {
 									keys.forEach(function (key) {
 										if (chats[c].id == key) {
-											chats[c]["message"] = idcheck[key];
+											chats[c]["message"] = idcheck[key][0];
+											if(idcheck[key][0] !== 0){
+												chats[c]["timestamp"] = idcheck[key][1];
+											}
 										}
 									});
+									
 								}
+								
+								// Sort by LIFO
+								chats.sort(function(a,b){
+									// Turn strings into dates, and then subtract them
+									// to get a value that is either negative, positive, or zero.
+									return new Date(b.timestamp) - new Date(a.timestamp);
+								});
 
-								// console.log(idcheck);
-								// console.log(chats);
+								console.log(chats);
 							})
 							.catch(err => {
 								console.error('Unable to connect to the database:', err);
@@ -630,6 +658,7 @@ router.get('/c/:chat/:id', ensureAuthenticated, (req, res) => {
 										messages: messages,
 										currentuser: currentuser,
 										recipient: recipient,
+										isBlocked: isBlocked,
 										id: req.params.id,
 										chatstatus: req.params.chat,
 										photodetails: photodetails,
@@ -642,15 +671,7 @@ router.get('/c/:chat/:id', ensureAuthenticated, (req, res) => {
 						}
 						else {
 							alertMessage(res, 'danger', 'Access Denied, you do not have permission to view message that is not yours.', 'fas fa-exclamation-triangle', true);
-							res.render('user/chat', {
-								title: "Chat",
-								chats: chats,
-								currentuser: currentuser,
-								recipient: recipient,
-								id: req.params.id,
-								chatstatus: req.params.chat,
-								photodetails: photodetails
-							});
+							res.redirect('/c/'+req.params.chat+'/0');
 						}
 					}
 					else {
@@ -749,6 +770,74 @@ router.post('/inbox/delete/:id', ensureAuthenticated, (req, res) => {
 	.catch(err => console.log(err));
 	alertMessage(res, 'success', 'Deleted message successfully!', 'fas fa-check-circle', true);
 	res.redirect('/c/inbox/0');
+});
+
+// Chat block
+router.get('/inbox/block/:id', ensureAuthenticated, (req, res) => {
+	Chat.findOne({
+		where: { id: req.params.id },
+		raw: true
+	})
+	.then((chat) => {
+		var blockedUser = "";
+		if(chat.sender == req.session.username){
+			blockedUser = chat.recipient;
+			Chat.update({
+				senderstatus: "blocked" 
+			}, {
+				where: { id: req.params.id }
+			})
+			.catch(err => console.log(err));
+		}
+		else{
+			blockedUser = chat.sender;
+			Chat.update({
+				recipientstatus: "blocked" 
+			}, {
+				where: { id: req.params.id }
+			})
+			.catch(err => console.log(err));
+		}
+
+		alertMessage(res, 'success', 'Successfully blocked ' + blockedUser, 'fas fa-check-circle', true);
+		res.redirect('/c/inbox/0');
+	})
+	.catch(err => console.log(err));
+	
+});
+
+// Chat unblock
+router.get('/inbox/unblock/:id', ensureAuthenticated, (req, res) => {
+	Chat.findOne({
+		where: { id: req.params.id },
+		raw: true
+	})
+	.then((chat) => {
+		var blockedUser = "";
+		if(chat.sender == req.session.username){
+			blockedUser = chat.recipient;
+			Chat.update({
+				senderstatus: "Read" 
+			}, {
+				where: { id: req.params.id }
+			})
+			.catch(err => console.log(err));
+		}
+		else{
+			blockedUser = chat.sender;
+			Chat.update({
+				recipientstatus: "Read" 
+			}, {
+				where: { id: req.params.id }
+			})
+			.catch(err => console.log(err));
+		}
+
+		alertMessage(res, 'success', 'Successfully unblocked ' + blockedUser, 'fas fa-check-circle', true);
+		res.redirect('/c/inbox/0');
+	})
+	.catch(err => console.log(err));
+	
 });
 
 // Chat Archive
@@ -1022,6 +1111,17 @@ router.get('/viewshops/:storename/:page', (req, res) => {
 						});
 					})
 			}
+			else {
+				title = 'View Items - ' + req.params.storename;
+				res.render('customer/viewstore', {
+					title: title,
+					storename: req.params.storename,
+					pagination: {
+						page: 1, // The current page the user is on
+						pageCount: 1  // The total number of available pages
+					}
+				});
+			}
 		})
 		.catch(err => {
 			console.error('Unable to connect to the database:', err);
@@ -1063,7 +1163,10 @@ router.get("/view/:id", (req, res) => {
 
 				Review.findAll({
 					where: { productid: req.params.id },
-					raw: true
+					raw: true,
+					order: [
+						['id', 'DESC'],
+					]
 				})
 				.then((reviews) => {
 					var avgRating = 0;
@@ -1108,6 +1211,102 @@ router.get("/view/:id", (req, res) => {
 		.catch(err => {
 			console.error('Unable to connect to the database:', err);
 		});
+});
+
+router.get('/deleteNoti/:id', ensureAuthenticated, (req, res) => {
+	Notification.findOne({
+		where: {
+			id: req.params.id
+		}
+	}).then((noti) => {
+		if (noti != null && noti.recipient == res.locals.user.username) {
+			Notification.destroy({
+				where: {
+					id: req.params.id
+				}
+			})
+			.then(()=>{
+				console.log(req.originalUrl);
+				
+				res.redirect('back');
+			});
+		}
+	});
+})
+
+// Send Notifications - Admin
+router.get('/createNotifications', ensureAuthenticated, (req, res) => {
+	if (typeof req.user != "undefined") {
+		if(req.user.dataValues.usertype == "admin"){
+			User.findAll({
+				attributes: ['username', 'usertype'],
+				order: [
+					['usertype', 'ASC'],
+					['username', 'DESC']
+				],
+				raw: true
+			})
+			.then((userdetails) => {
+				res.render('user/sendNoti', { 
+					title: "Send Notifications",
+					userdetails: userdetails
+				});
+			});
+		}
+		else {
+			alertMessage(res, 'danger', 'Access Denied, you do not have enough rights!', 'fas fa-exclamation-triangle', true);
+			res.redirect("/");
+		}
+	}
+});
+
+// POST: Send Notifications - Admin
+router.post('/sendnotifications', ensureAuthenticated, (req, res) => {
+	let {users_selected, notitext, link} = req.body;
+	var errors = [];
+	
+	if (users_selected == undefined){
+		errors.push({ msg: 'Please select at least one recipient.' });
+	}
+	if (notitext.length <= 3){
+		errors.push({ msg: 'Please type in a valid notification message.' });
+	}
+	if (link.length <=3){
+		errors.push({ msg: 'Please type in a valid link.' });
+	}
+
+	if (errors.length == 0){
+		if(typeof users_selected == "string"){
+			send_notification(users_selected, "category", notitext, link);
+		}
+		else {
+			for(var i in users_selected){
+				send_notification(users_selected[i], "category", notitext, link);
+			}
+		}
+		alertMessage(res, 'success', 'Success! Sent notifications to ' + users_selected, 'fas fa-check-circle', true);
+		res.redirect("/createNotifications");
+	}
+	else {
+		User.findAll({
+			attributes: ['username', 'usertype'],
+			order: [
+				['usertype', 'ASC'],
+				['username', 'DESC']
+			],
+			raw: true
+		})
+		.then((userdetails) => {
+			res.render('user/sendNoti', { 
+				title: "Send Notifications",
+				userdetails: userdetails,
+				errors: errors,
+				notitext: notitext,
+				link1: link
+			});
+		});
+	}
+	
 });
 
 // tailor : manage advertisement
