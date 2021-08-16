@@ -27,16 +27,20 @@
             <div class="col-xl-2 col-lg-2 col-md-6 col-8">
                 <div class="header-right-wrap">
                     <div class="same-style header-search">
+                        {{#if user.username}}
                         <button type="button" onclick="clear_new()" class="search-active"
                             style="border:none; background: none;">
 
                             <i class="fa fa-bell-o" style="font-size:20px"></i>
                             {{!-- New notification --}}
                             <span id="new_noti"
-                                style="position: absolute; top: -9px; right: -5px; background-color: #000; color: #fff; display: inline-block; width: 21px;height: 21px;border-radius: 100%;line-height: 21px;font-size: 12px; text-align: center;">01</span>
+                                style="position: absolute; top: -9px; right: -5px; background-color: #000; color: #fff; display: inline-block; width: 21px;height: 21px;border-radius: 100%;line-height: 21px;font-size: 12px; text-align: center;">{{unreadNoti}}</span>
 
 
                         </button>
+                        {{>_notifications}}
+                        {{/if}}
+                    </div>
                         <div class="search-content">
                             <!-- Unread Notifications -->
                             <div onclick="location.href='/manage_ads';"
@@ -134,4 +138,24 @@
             </div>
         </div>
     </div>
+    
+    <script>
+        var action = 0;
+
+        function clear_new() {
+            if ( action == 1 ) {
+                action = 2;
+                var elms = document.querySelectorAll("[id='notification-unread']");
+                for(var i = 0; i < elms.length; i++) {
+                    elms[i].style.background = "#FFFFFF";
+                }
+                document.getElementById("new_noti").innerText = '0';
+            } else {
+                action = 1;
+                io.emit("markAsRead_noti", "{{user.username}}");
+            }
+        }
+        
+        
+    </script>
 </header>
