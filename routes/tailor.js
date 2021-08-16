@@ -1632,9 +1632,14 @@ router.post('/adddeal', ensureAuthenticated, (req, res) => {
 	let errors = [];
 	let pname = req.body.pname;
     let discountp = req.body.discountp;
-	let dstartdate = moment(req.body.dstartdate, 'DD/MM/YYYY');
-    let dexpirydate =  moment(req.body.dexpirydate, 'DD/MM/YYYY');
-	let today = new Date();
+	let event = req.body.event;
+	var dstartdate = new Date();
+    var dexpirydate =  new Date();
+	// let dstartdate = moment(req.body.dstartdate, 'DD/MM/YYYY');
+    // let dexpirydate =  moment(req.body.dexpirydate, 'DD/MM/YYYY');
+	// let eventone = new Date(2021, 08, 12);
+	// const eventtwo = new Date('2021, 08, 12');
+	// const eventthree = new Date('2021, 08, 13');
 
 	if (isNumeric(req.body.discountp) == false) {
 		errors.push({ msg: "Discounted price can only contain numbers." });
@@ -1642,15 +1647,15 @@ router.post('/adddeal', ensureAuthenticated, (req, res) => {
 	if (req.body.discountp < 0) {
 		errors.push({ msg: "Discounted price has to be more than $0." });
 	}
-	if(dstartdate < today) {
-		errors.push({ msg: "Start date has to be today or later than today." });
-	}
-	if(dexpirydate < today) {
-		errors.push({ msg: "End date has to be today or later than today." });
-	}
-	if(dstartdate > dexpirydate) {
-		errors.push({ msg: "End date has to be later than stary date." });
-	}
+	// if(dstartdate < today) {
+	// 	errors.push({ msg: "Start date has to be today or later than today." });
+	// }
+	// if(dexpirydate < today) {
+	// 	errors.push({ msg: "End date has to be today or later than today." });
+	// }
+	// if(dstartdate > dexpirydate) {
+	// 	errors.push({ msg: "End date has to be later than stary date." });
+	// }
 
 	if (errors.length > 0) {
 		Catalouge.findAll({
@@ -1666,9 +1671,42 @@ router.post('/adddeal', ensureAuthenticated, (req, res) => {
 				});
 			})
 	} else if (errors.length == 0) {
+		if (event == "New Store Opening") {
+			dstartdate.setDate(15,7,2021);
+			dstartdate.setHours(8,0,0,0);
+			dexpirydate.setDate(15,7,2021);
+			dexpirydate.setHours(7,59,59,0);
+		}
+		else if (event == "9.9 Flash Sales") {
+			dstartdate.setDate(9);
+			dstartdate.setMonth(8);
+			dstartdate.setYear(2021);
+			// dstartdate.setHours(8);
+			// dstartdate.setMinutes(0);
+			// dstartdate.setSeconds(0);
+			dexpirydate.setDate(9);
+			dexpirydate.setMonth(8);
+			dexpirydate.setYear(2021);
+			// dexpirydate.setHours(7);
+			// dexpirydate.setMinutes(59);
+			// dexpirydate.setSeconds(59);
+			dstartdate.setHours(8,0,0,0);
+			dexpirydate.setHours(7,59,59,0);
+		}
+		else if (event == "10.10 Flash Sales") {
+			dstartdate.setDate(10);
+			dstartdate.setMonth(9);
+			dstartdate.setYear(2021);
+			dstartdate.setHours(8,0,0,0);
+			dexpirydate.setDate(10);
+			dexpirydate.setMonth(9);
+			dexpirydate.setYear(2021);
+			dexpirydate.setHours(7,59,59,0);
+		}
 		Deal.create({
 			catid : pname,
 			discountp,
+			event,
 			dstartdate,
 			dexpirydate,
 			userID: res.locals.user.id
@@ -1697,12 +1735,14 @@ router.get('/updatedeal/:id', ensureAuthenticated, (req, res) => {
 router.put('/updatedeal/:id', ensureAuthenticated, (req, res) => {
     let pname = req.body.pname;
     let discountp = req.body.discountp;
+	let event = req.body.event;
 	let dstartdate = moment(req.body.dstartdate, 'DD/MM/YYYY');
     let dexpirydate = moment(req.body.dexpirydate, 'DD/MM/YYYY');
    
     Deal.update({
         pname,
         discountp,
+		event,
         dstartdate,
         dexpirydate,
     }, {
