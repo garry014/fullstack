@@ -268,18 +268,6 @@ app.use(function (req, res, next) {
 		res.locals.useracctype = 'Tailor';
 	}
 
-	// Notifications
-	if (typeof req.user != "undefined") {
-		Notification.findAll({
-			limit: 3,
-			where: { recipient: req.user.dataValues.username },
-			order: [['id', 'DESC']],
-			raw: true
-		})
-			.then((noti) => {
-				res.locals.noti = noti;
-			});
-	}
 	if (req.session.myCart && req.session.myCart.length > 0){
 		console.log("session got stuff");
 		res.locals.cartTotalQuantity = req.session.myCart.length;
@@ -287,6 +275,39 @@ app.use(function (req, res, next) {
 	else {
 		console.log("none");
 		res.locals.cartTotalQuantity = 0;
+	}
+	next();
+});
+
+app.use(async function (req, res, next){
+	if(typeof req.user != "undefined") {
+		try {
+			let noti = await Notification.findAll({
+				//limit: 3,
+				where: { recipient: req.user.dataValues.username },
+				order: [['id', 'DESC']],
+				raw: true
+			});
+			if (req.path.includes('/notification')) { //if current page is notification
+				res.locals.notifications = noti;
+			}
+			else{
+				const slicedNoti = noti.slice(0, 3);
+				res.locals.notifications = slicedNoti;
+			}	
+
+			// Count Unread Notifications
+			var unreadnoti = 0;
+			for (var i=0; i<noti.length; i++){
+				if(noti[i].status == "Unread"){
+					unreadnoti++;
+				}
+			}
+			res.locals.unreadNoti = unreadnoti;
+		}
+		catch(err) {
+			console.log(err.message);
+		}
 	}
 	next();
 });
@@ -341,9 +362,11 @@ function getKeyByValue(object, value) {
 
 io.use(sharedsession(session));
 // add listener for new connection
+io.eio.pingTimeout = 60000;
 io.on("connection", function(socket){
 	console.log("'\x1b[36m%s\x1b[0m'", "user connected: ", socket.id);
 	var currentuser = socket.handshake.session.username;
+	// console.log(users);
 	users[currentuser] = socket.id;	
 	io.sockets.emit("update_userCN", currentuser);
 
@@ -351,7 +374,12 @@ io.on("connection", function(socket){
 		console.log("\x1b[31m", 'user disconnected: ', socket.id);
 		usernameDC = getKeyByValue(users, socket.id);
 		delete users[usernameDC];
+		console.log(users);
 		io.sockets.emit("update_userDC", usernameDC);
+		// if (attempt === max_socket_reconnects) {
+		// 	setTimeout(function(){ socket.socket.reconnect(); }, 5000);
+		// 	return console.log("Failed to reconnect. Lets try that again in 5 seconds.");
+		//   }
 	});
 
 	socket.on("check_status", function(data){
@@ -361,6 +389,7 @@ io.on("connection", function(socket){
 		}
 	});
 
+	// if both archive -> send msg 
 	socket.on("send_message", function(data){
 		// send event to receiver
 		var socketId = users[data.receiver];
@@ -416,21 +445,32 @@ io.on("connection", function(socket){
 		io.to(socketId).emit("new_upload", data);
 	});
 
+
+	////// Notifications IO handling ///////
+	// Mark all notifications under user as read
+	socket.on("markAsRead_noti", function(username){
+		Notification.update({
+			status: "Read"
+		}, {
+			where: {
+				recipient: username
+			}
+		}).then(() => {
+			console.log("markasread done");
+		})
+		.catch(err => console.log(err));
+	});
 });
 
 global.start_newchat = function(data){ 
 	var socketId = users[data.receiver];
+	data.timestamp = getToday();
 	io.to(socketId).emit("start_newchat", data);
 };
+
 global.send_notification = function(recipient, category, message, hyperlink){ 
 	// Create object to send to client side
-	var data = {
-		"recipient": recipient,
-		"category": category,
-		"message": message,
-		"hyperlink": hyperlink,
-		"timestamp": getToday()
-	}
+	console.log("send send");
 
 	Notification.create({
 		hyperlink: hyperlink,
@@ -439,13 +479,25 @@ global.send_notification = function(recipient, category, message, hyperlink){
 		recipient: recipient,
 		status: "Unread",
 		time: getToday()
-	}).catch(err => {
+	}).then((noti) =>{
+		var data = {
+			"id": noti.dataValues.id,
+			"recipient": recipient,
+			"category": category,
+			"message": message,
+			"hyperlink": hyperlink,
+			"timestamp": getToday()
+		}
+		setTimeout(function(){ 
+			var socketId = users[recipient];
+			console.log(users);
+			console.log(socketId);
+			io.to(socketId).emit("send_notification", data);
+		}, 2000);
+	})
+	.catch(err => {
 		console.error('Unable to connect to the database:', err);
 	});
-
-	var socketId = users[recipient];
-	console.log(socketId);
-	io.to(socketId).emit("send_notification", data);
 };
 
 // google login
