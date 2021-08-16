@@ -7,6 +7,10 @@ const Deal = db.define('deals', {
     discountp: {
         type: Sequelize.DECIMAL(10,2)
     },
+
+    event: {
+        type: Sequelize.STRING
+    },
     
     dstartdate: {
         type: Sequelize.DATE
