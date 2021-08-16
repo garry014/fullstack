@@ -103,6 +103,27 @@ router.get('/customers_checkout', (req, res) => {
 	sess = req.session;
 
 	console.log(sess["myCart"]);
+	Deal.findAll({
+						
+		raw: true
+	})
+		.then((deals) => {
+			sess["myCart"].forEach(cartItem => {
+				deals.forEach(d => {
+					if (d.catid == cartItem.productId){
+						cartItem.price = parseFloat(d.discountp);
+						cartItem.subtotal = cartItem.qty * cartItem.price
+					}
+				});
+			});
+
+			sess["cartTotal"] = 0;
+			for (let item of sess["myCart"]) {
+				item.itemId = i;
+				sess["cartTotal"] += item.subtotal
+				++i;
+			}
+		})
 	res.render('customer/customers_checkout', { title: "customers_checkout", sess: sess, user_details: user_details })
 })
 // Customer : after transaction page
@@ -305,6 +326,7 @@ router.post("/view/:id", (req, res) => {
 	if (!("quantity" in sess)) {
 		sess["quantity"] = ["0"];
 	}
+	var pdetails = sess["selectedItem"]
 	sess["myCart"].push({
 		"itemId": 0,
 		"itemname": itemname,
@@ -314,7 +336,8 @@ router.post("/view/:id", (req, res) => {
 		"qty": qty,
 		"subtotal": qty * price,
 		"customqn": (customqn) ? customqn : "Nil",
-		"custom": custom
+		"custom": custom,
+		"productId": pdetails.id
 	})
 	// update cart item ID
 	let i = 0;
