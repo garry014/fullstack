@@ -5,7 +5,7 @@
         <div class="breadcrumb-content text-center">
             <ul>
                 <li>
-                    <a href="/homecust">Home</a>
+                    <a href="/customer/homecust">Home</a>
                 </li>
                 <li>
                     <a href="/viewshops">View Shops</a>
@@ -64,7 +64,7 @@
                         {{ pdetails.description }}
                     </div>
                         <form class="contact-form-style" id="my_form" action="/view/{{pdetails.id}}" method="post">
-                        <div class="pro-details-size-color  ">
+                        <div class="pro-details-size-color">
                             <div class="pro-details-color-wrap">
                                 <input type="text" name="itemname" value="{{pdetails.name}}" hidden>
                                 {{#ifCond deals '!=' 0}}
@@ -142,7 +142,9 @@
                     <div class="row">
                         <div class="col-lg-8" style="margin: 0 auto;">
                             <div class="review-wrapper">
+                                {{#ifCond user.usertype '==' "customer"}}
                                 <a href="/customer/review/{{pdetails.id}}">Click here to leave a review</a>
+                                {{/ifCond}}
                                 <br><br>
                                 {{#each reviews}}
                                 <div class="single-review">
@@ -160,7 +162,6 @@
                                                     {{#minusStars stars}}
                                                         <span class="fa fa-star"></span>
                                                     {{/minusStars}}
-                                                    
                                                 </div>
                                                 
                                             </div>
