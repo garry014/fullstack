@@ -34,8 +34,8 @@ const { formatDate } = require('../helpers/hbs');
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 const sgMail = require('@sendgrid/mail');
 
-function isNumeric(value) {
-	return /^\d+$/.test(value);
+function isNumeric(n) {
+    return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
 router.get('/hometailor', (req, res) => {
@@ -66,27 +66,55 @@ router.post('/addproduct', ensureAuthenticated, urlencodedParser, (req, res) => 
 	let errors = [];
 	let { name, price, discount, description, question, q1category } = req.body;
 
-	// Validation
-	// if (name.length < 3) { 
-	// 	errors.push({ msg: 'Name should be at least 3 character.' });
-	// }
-	if (isNumeric(price) == false) {
-		errors.push({ msg: 'Please enter a valid price between 0 to 2000.' });
+	// Name Validation
+	if (!name) {
+		errors.push({ msg: 'Please input a name.' });
 	}
-	else if (price > 2000) {
-		errors.push({ msg: 'Please enter a valid price between 0 to 2000.' });
+	else if (name.length <= 3) { 
+		errors.push({ msg: 'Name should be at least 3 character.' });
 	}
-	if (isNumeric(discount) == false) {
-		errors.push({ msg: 'Please enter a valid discount between 0 to 100.' });
+
+	// Price Validation
+	const dpChecker = /^\-?[0-9]+(?:\.[0-9]{1,2})?$/;
+	if (! dpChecker.test(price)) {
+		errors.push({ msg: 'Please enter a valid price between 0 to 2000, with at most 2 decimal places. (Eg: 10.50)' });
 	}
-	else if (discount > 100) {
-		errors.push({ msg: 'Please enter a valid discount between 0 to 100.' });
+	else if (price <= 0) {
+		errors.push({ msg: 'Please enter a valid price between 0 to 2000. (Eg: 10.50)' });
 	}
+	else if (price > 2000){
+		errors.push({ msg: 'Please enter a valid price between 0 to 2000. (Eg: 10.50)' });
+	}
+	
+	// Discount Validation
+	if (! dpChecker.test(discount)) {
+		errors.push({ msg: 'Please enter a valid discount between 0 to 99, with no decimal places. (Eg: 10)' });
+	}
+	else if (discount < 0) {
+		errors.push({ msg: 'Please enter a valid discount between 0 to 99. (Eg: 10)' });
+	}
+	else if (discount > 99) {
+		errors.push({ msg: 'Please enter a valid discount between 0 to 99. (Eg: 10)' });
+	}
+
+	// Description
+	if (description.length > 2000){
+		errors.push({ msg: 'Please enter a description no more than 2000 characters.' });
+	}
+
+	// Customisable Questions
 	if (question != "") {
 		if (q1category == "") {
 			errors.push({ msg: 'Please select the category, either a textbox or dropdown menu.' });
 		}
 	}
+
+	if (q1category != "") {
+		if (question == "") {
+			errors.push({ msg: 'Please fill in a question to ask the customers.' });
+		}
+	}
+	
 	// Image Validation
 	if (!req.files) {
 		errors.push({ msg: 'Please upload an image file.' });
@@ -179,8 +207,8 @@ router.post('/addproduct', ensureAuthenticated, urlencodedParser, (req, res) => 
 			price: req.body.price,
 			discount: req.body.discount,
 			description: req.body.description,
-			q1: req.body.question,
-			q1category: req.body.q1category
+			question1: question,
+			q1category: q1category
 		});
 	}
 });
@@ -252,22 +280,52 @@ router.put('/editproduct/:id', ensureAuthenticated, urlencodedParser, (req, res)
 		var shopname = res.locals.user.shopname;
 	}
 
-	// Validation
-	if (isNumeric(price) == false) {
-		errors.push({ msg: 'Please enter a valid price between 0 to 2000.' });
+	// Name Validation
+	if (!name) {
+		errors.push({ msg: 'Please input a name.' });
 	}
-	else if (price > 2000) {
-		errors.push({ msg: 'Please enter a valid price between 0 to 2000.' });
+	else if (name.length <= 3) { 
+		errors.push({ msg: 'Name should be at least 3 character.' });
 	}
-	if (isNumeric(discount) == false) {
-		errors.push({ msg: 'Please enter a valid discount between 0 to 100.' });
+
+	// Price Validation
+	const dpChecker = /^\-?[0-9]+(?:\.[0-9]{1,2})?$/;
+	if (! dpChecker.test(price)) {
+		errors.push({ msg: 'Please enter a valid price between 0 to 2000, with at most 2 decimal places. (Eg: 10.50)' });
 	}
-	else if (discount > 100) {
-		errors.push({ msg: 'Please enter a valid discount between 0 to 100.' });
+	else if (price <= 0) {
+		errors.push({ msg: 'Please enter a valid price between 0 to 2000. (Eg: 10.50)' });
 	}
+	else if (price > 2000){
+		errors.push({ msg: 'Please enter a valid price between 0 to 2000. (Eg: 10.50)' });
+	}
+	
+	// Discount Validation
+	if (! dpChecker.test(discount)) {
+		errors.push({ msg: 'Please enter a valid discount between 0 to 99, with no decimal places. (Eg: 10)' });
+	}
+	else if (discount < 0) {
+		errors.push({ msg: 'Please enter a valid discount between 0 to 99. (Eg: 10)' });
+	}
+	else if (discount > 99) {
+		errors.push({ msg: 'Please enter a valid discount between 0 to 99. (Eg: 10)' });
+	}
+
+	// Description
+	if (description.length > 2000){
+		errors.push({ msg: 'Please enter a description no more than 2000 characters.' });
+	}
+
+	// Customisable Questions
 	if (question != "") {
 		if (q1category == "") {
 			errors.push({ msg: 'Please select the category, either a textbox or dropdown menu.' });
+		}
+	}
+
+	if (q1category != "") {
+		if (question == "") {
+			errors.push({ msg: 'Please fill in a question to ask the customers.' });
 		}
 	}
 
@@ -404,47 +462,6 @@ router.put('/editproduct/:id', ensureAuthenticated, urlencodedParser, (req, res)
 		});
 		res.redirect('/tailor/editproduct/' + req.params.id);
 	}
-});
-
-router.get('/deleteProduct/:id', ensureAuthenticated, (req, res) => {
-	if (typeof req.user != "undefined") {
-		var shopname = res.locals.user.shopname;
-	}
-	Catalouge.findOne({
-		where: {
-			id: req.params.id
-		}
-	}).then((pdetails) => {
-		if (pdetails != null && pdetails.storename == shopname) {
-			if (pdetails.customcat == "radiobtn") {
-				Productchoices.destroy({
-					where: {
-						catalougeId: req.params.id
-					}
-				});
-			}
-			fs.unlink("./public/uploads/products/" + pdetails.image, (err) => {
-				if (err) {
-					console.log("failed to delete local image:" + err);
-				} else {
-					console.log('successfully deleted local image');
-				}
-			});
-			Catalouge.destroy({
-				where: {
-					id: req.params.id
-				}
-			})
-				.then((pDetails) => {
-					alertMessage(res, 'info', 'Successfully deleted item.', 'far fa-trash-alt', true);
-					res.redirect('/viewshops/' + pdetails.storename + '/1');
-				})
-		}
-		else {
-			alertMessage(res, 'danger', 'Do you have a badge????', 'fas fa-exclamation-triangle', true);
-			res.redirect('/viewshops/' + pdetails.storename + '/1');
-		}
-	})
 });
 
 
