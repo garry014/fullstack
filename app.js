@@ -19,7 +19,7 @@ const client = new OAuth2Client(IdTokenClient);
 const bcrypt = require('bcryptjs');
 const alertMessage = require('./helpers/messenger');
 const generator = require('generate-password');
-const { formatDate } = require('./helpers/hbs');
+const { formatDate, radioCheck } = require('./helpers/hbs');
 const moment = require('moment');
 
 
@@ -73,6 +73,7 @@ const http = require("http").createServer(app);
 // Handlebars Middleware
 app.engine('handlebars', exphbs({
 	formatDate: formatDate,
+	radioCheck: radioCheck,
 	defaultLayout: 'main' // Specify default template views/layout/main.handlebar 
 
 }));
@@ -125,8 +126,15 @@ Handlebars.registerHelper('times', function (n, block) {
 
 Handlebars.registerHelper('minusStars', function (n, block) {
 	var accum = '';
-	for (var i = 0; i < 5 - n; ++i)
-		accum += block.fn(i);
+	if (n % 1 == 0){
+		for (var i = 0; i < 5 - n; ++i)
+			accum += block.fn(i);
+	}
+	else {
+		for (var i = 0; i < 4 - n; ++i)
+			accum += block.fn(i);
+	}
+	
 	return accum;
 });
 
@@ -169,6 +177,36 @@ Handlebars.registerHelper('json', function(context) {
 
 var paginate = require('handlebars-paginate');
 Handlebars.registerHelper('paginate', paginate);
+
+Handlebars.registerHelper ("setChecked", function (value, currentValue) {
+	if (typeof value == "object"){
+		if (value.includes(currentValue)){
+			return "checked";
+		}
+		else {
+			return "";
+		}
+	}
+	else if (typeof value == "string"){
+		if ( value == currentValue ) {
+			return "checked";
+		 } else {
+			return "";
+		 }
+	}
+	else{
+		return "";
+	}
+})
+
+Handlebars.registerHelper ("setDropdownlist", function (value, currentValue) {
+	if ( value == currentValue ) {
+		return "selected";
+	} else {
+		return "";
+	}
+	
+})
 
 // Handlebars.registerHelper('ifIncludes', function (location,path) {
 // 	debugger
