@@ -599,26 +599,32 @@ router.get('/clogout', (req, res) => {
 });
 
 
-// Review - GET
 router.get('/review/:id', ensureAuthenticated, (req, res) => {
-	Catalouge.findOne({
-		where: {
-			id: req.params.id
-		},
-		raw: true
-	})
-		.then((pdetails) => {
-			if (pdetails) {
-				res.render('customer/review', {
-					title: "Leave a review",
-					id: req.params.id,
-					pdetails: pdetails
-				});
-			}
-			else {
-				res.redirect('/404');
-			}
+	if(res.locals.user.usertype != "customer"){
+		alertMessage(res, 'danger', 'Failed to perform action, as you are not a valid customer.', 'fas fa-exclamation-triangle', true);
+		res.redirect('back');
+	}
+	else {
+		Catalouge.findOne({
+			where: {
+				id: req.params.id
+			},
+			raw: true
 		})
+			.then((pdetails) => {
+				if (pdetails) {
+					res.render('customer/review', {
+						title: "Leave a review",
+						id: req.params.id,
+						pdetails: pdetails
+					});
+				}
+				else {
+					res.redirect('/404');
+				}
+			})
+	}
+	
 });
 
 // Review - POST
@@ -628,6 +634,10 @@ router.post('/review/:id', ensureAuthenticated, (req, res) => {
 
 	if (stars == "") {
 		errors.push({ msg: 'Please select a rating.' });
+	}
+
+	if (review.length > 2000){
+		errors.push({msg: 'Please keep your review to 2000 characters or less.'})
 	}
 
 	if (errors.length == 0) {
@@ -671,39 +681,75 @@ router.post('/review/:id', ensureAuthenticated, (req, res) => {
 				console.error('Unable to connect to the database:', err);
 			});
 	}
+	else {
+		Catalouge.findOne({
+			where: {
+				id: req.params.id
+			},
+			raw: true
+		})
+		.then((pdetails) => {
+			if (pdetails) {
+				res.render('customer/review', {
+					errors: errors,
+					title: "Leave a review",
+					id: req.params.id,
+					pdetails: pdetails,
+					stars: stars,
+					review: review
+				});
+			}
+			else {
+				res.redirect('/404');
+			}
+		})
+	}
 
 });
 
 // Update Review - GET
 router.get('/updatereview/:itemid/:id', ensureAuthenticated, (req, res) => {
-	Catalouge.findOne({
-		where: {
-			id: req.params.itemid
-		},
-		raw: true
-	})
-		.then((pdetails) => {
-			Review.findOne({
-				where: {
-					id: req.params.id
-				},
-				raw: true
-			})
-				.then((review) => {
-					if (review) {
-						res.render('customer/editreview', {
-							title: "Update review",
-							itemid: req.params.itemid,
-							id: req.params.id,
-							pdetails: pdetails,
-							review: review
-						});
-					}
-					else {
-						res.redirect('/404');
-					}
-				})
+	if(res.locals.user.usertype != "customer"){
+		alertMessage(res, 'danger', 'Failed to perform action, as you are not a valid customer.', 'fas fa-exclamation-triangle', true);
+		res.redirect('back');
+	}
+	else {
+		Catalouge.findOne({
+			where: {
+				id: req.params.itemid
+			},
+			raw: true
 		})
+			.then((pdetails) => {
+				Review.findOne({
+					where: {
+						id: req.params.id
+					},
+					raw: true
+				})
+					.then((review) => {
+						if (review) {
+							if (review.username == res.locals.user.username){
+								res.render('customer/editreview', {
+									title: "Update review",
+									itemid: req.params.itemid,
+									id: req.params.id,
+									pdetails: pdetails,
+									review: review
+								});
+							}
+							else {
+								alertMessage(res, 'danger', 'You do not have permission to edit this review.', 'fas fa-exclamation-triangle', true);
+								res.redirect('back');
+							}
+							
+						}
+						else {
+							res.redirect('/404');
+						}
+					})
+			})
+	}
 });
 
 
@@ -716,59 +762,93 @@ router.put('/updatereview/:itemid/:id', ensureAuthenticated, (req, res) => {
 		errors.push({ msg: 'Please select a rating.' });
 	}
 
+	if (review.length > 2000){
+		errors.push({msg: 'Please keep your review to 2000 characters or less.'})
+	}
+
 	if (errors.length == 0) {
 		// Image Upload
 		Review.findOne({
+			where: {
+				id: req.params.id,
+				username: res.locals.user.username
+			},
+			raw: true
+		})
+			.then((reviews) => {
+				if(reviews){
+					var imageLink = reviews.photo;
+					if (req.files) {
+						fs.unlink("./public/uploads/review/" + imageLink, (err) => {
+							if (err) {
+								console.log("failed to delete local image:" + err);
+							} else {
+								console.log('successfully deleted local image');
+							}
+						});
+
+						var file = req.files.file;
+						var filename = file.name;
+						var filetype = file.mimetype.substring(6);
+						const newid = uuidv4(); // Generate unique file id
+
+						imageLink = newid + '.' + filetype;
+						if (fs.existsSync(imageLink)) {
+							fs.unlinkSync(imageLink);
+						}
+
+						file.mv('./public/uploads/review/' + filename, function (err) {
+							if (err) {
+								res.send(err);
+							}
+							else {
+								fs.rename('./public/uploads/review/' + filename, './public/uploads/review/' + imageLink, function (err) {
+									if (err) console.log('ERROR: ' + err);
+								});
+							}
+						});
+					}
+
+					Review.update({
+						photo: imageLink,
+						review: review,
+						stars: stars,
+						timestamp: getToday()
+					}, {
+						where: { id: req.params.id }
+					})
+						.catch(err => console.log(err));
+					alertMessage(res, 'info', 'Successfully updated review.', 'far fa-laugh-wink', true);
+					res.redirect('/view/' + req.params.itemid);
+				}
+				else {
+					alertMessage(res, 'danger', 'You do not have permission to edit this review.', 'fas fa-exclamation-triangle', true);
+					res.redirect('back');
+				}
+			})
+	}
+	else {
+		Catalouge.findOne({
 			where: {
 				id: req.params.id
 			},
 			raw: true
 		})
-			.then((reviews) => {
-				var imageLink = reviews.photo;
-				if (req.files) {
-					fs.unlink("./public/uploads/review/" + imageLink, (err) => {
-						if (err) {
-							console.log("failed to delete local image:" + err);
-						} else {
-							console.log('successfully deleted local image');
-						}
-					});
-
-					var file = req.files.file;
-					var filename = file.name;
-					var filetype = file.mimetype.substring(6);
-					const newid = uuidv4(); // Generate unique file id
-
-					imageLink = newid + '.' + filetype;
-					if (fs.existsSync(imageLink)) {
-						fs.unlinkSync(imageLink);
-					}
-
-					file.mv('./public/uploads/review/' + filename, function (err) {
-						if (err) {
-							res.send(err);
-						}
-						else {
-							fs.rename('./public/uploads/review/' + filename, './public/uploads/review/' + imageLink, function (err) {
-								if (err) console.log('ERROR: ' + err);
-							});
-						}
-					});
-				}
-
-				Review.update({
-					photo: imageLink,
-					review: review,
+		.then((pdetails) => {
+			if (pdetails) {
+				res.render('customer/review', {
+					errors: errors,
+					title: "Leave a review",
+					id: req.params.id,
+					pdetails: pdetails,
 					stars: stars,
-					timestamp: getToday()
-				}, {
-					where: { id: req.params.id }
-				})
-					.catch(err => console.log(err));
-				alertMessage(res, 'info', 'Successfully updated review.', 'far fa-laugh-wink', true);
-				res.redirect('/view/' + req.params.itemid);
-			})
+					review: review
+				});
+			}
+			else {
+				res.redirect('/404');
+			}
+		})
 	}
 });
 
@@ -776,7 +856,8 @@ router.put('/updatereview/:itemid/:id', ensureAuthenticated, (req, res) => {
 router.get('/deletereview/:itemid/:id', ensureAuthenticated, (req, res) => {
 	Review.findOne({
 		where: {
-			id: req.params.id
+			id: req.params.id,
+			username: res.locals.user.username
 		},
 		raw: true
 	})
@@ -801,39 +882,12 @@ router.get('/deletereview/:itemid/:id', ensureAuthenticated, (req, res) => {
 					})
 			}
 			else {
+				alertMessage(res, 'danger', 'You do not have permission to delete this review.', 'fas fa-exclamation-triangle', true);
 				res.redirect('/404');
 			}
 
 		})
 })
-
-// delete user account
-router.get('/delete/:id', ensureAuthenticated, (req, res) => {
-	let id = req.params.id;
-	// Select * from videos where videos.id=videoID and videos.userId=userID
-	User.findOne({
-		where: {
-			id: id,
-		},
-		attributes: ['id']
-	}).then((User) => {
-		// if record is found, user is owner of video
-		if (User != null) {
-			User.destroy({
-				where: {
-					id: id
-				}
-			}).then(() => {
-				alertMessage(res, 'info', 'Your account has been deleted.', 'far fa-trash-alt', true);
-				res.redirect('/customer/homecust');
-			}).catch(err => console.log(err));
-		} else {
-			alertMessage(res, 'danger', 'An error occurred. Please try again later.', 'fas fa-exclamation-circle', true);
-			res.redirect('/clogout');
-		}
-	});
-});
-
 
 //kaijie
 // customer: flash deals
