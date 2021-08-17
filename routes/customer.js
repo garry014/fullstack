@@ -970,7 +970,7 @@ router.get('/flashdeals', (req, res) => {
 				res.render('customer/flashdeals', {
 					title: "Flash Deals",
 					deals : deals,
-					shopprod: shopprod
+					shopprod: shopprod,
 				});
 			})
             
