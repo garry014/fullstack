@@ -1439,21 +1439,21 @@ router.get('/tlogout', (req, res) => {
 //kaijie
 // tailor: view vouchers
 router.get('/vouchers', ensureAuthenticated, (req, res) => {
-    Voucher.findAll({
-        where: {
-        },
-        order: [
-            ['code', 'ASC']
-        ],
-        raw: true,
-    })
-        .then((vouchers) => {
-            res.render('tailor/vouchers', {
+	Voucher.findAll({
+		where: {
+		},
+		order: [
+			['code', 'ASC']
+		],
+		raw: true,
+	})
+		.then((vouchers) => {
+			res.render('tailor/vouchers', {
 				title: "Vouchers List",
-                vouchers : vouchers
-            });
-        })
-        .catch(err => console.log(err));
+				vouchers: vouchers
+			});
+		})
+		.catch(err => console.log(err));
 });
 
 // tailor: add voucher
@@ -1463,14 +1463,15 @@ router.get('/addVoucher', ensureAuthenticated, (req, res) => {
 
 router.post('/addVoucher', (req, res) => {
 	let errors = [];
-    let code = req.body.code;
-    let description = req.body.description;
-    let discount = req.body.discount;
-    let minpurchase = req.body.minpurchase;
-    let quantity = req.body.quantity;
+	let code = req.body.code;
+	let description = req.body.description;
+	let discount = req.body.discount;
+	let minpurchase = req.body.minpurchase;
+	let quantity = req.body.quantity;
 	//let vstartdate =  req.body.vstartdate;
 	let vstartdate = moment(req.body.vstartdate, 'DD/MM/YYYY');
-    let vexpirydate = moment(req.body.vexpirydate, 'DD/MM/YYYY');
+	let vexpirydate = moment(req.body.vexpirydate, 'DD/MM/YYYY');
+	let today = new Date();
 
 	if (req.body.code.length < 5) {
 		errors.push({ msg: "Code must be at least 5 characters." });
@@ -1496,6 +1497,15 @@ router.post('/addVoucher', (req, res) => {
 	if (req.body.quantity < 0) {
 		errors.push({ msg: "Quantity has to be more than $0." });
 	}
+	if(vstartdate < today) {
+		errors.push({ msg: "Start date has to be today or later than today." });
+	}
+	if(vexpirydate < today) {
+		errors.push({ msg: "End date has to be today or later than today." });
+	}
+	if(vstartdate > vexpirydate) {
+		errors.push({ msg: "End date has to be later than start date." });
+	}
 	if (errors.length > 0) {
 		res.render('tailor/addvoucher', {
 			errors: errors,
@@ -1520,149 +1530,137 @@ router.post('/addVoucher', (req, res) => {
 
 // tailor: update voucher
 router.get('/updateVoucher/:id', ensureAuthenticated, (req, res) => {
-    Voucher.findOne({
-        where: {
-            id: req.params.id
-        },
-		raw:true
-    }).then((vouchers) => {
-        res.render('tailor/updatevoucher', {
+	Voucher.findOne({
+		where: {
+			id: req.params.id
+		},
+		raw: true
+	}).then((vouchers) => {
+		res.render('tailor/updatevoucher', {
 			title: "Update voucher",
-            vouchers : vouchers
-        });
-    }).catch(err => console.log(err));
+			vouchers: vouchers
+		});
+	}).catch(err => console.log(err));
 });
 
 router.put('/updateVoucher/:id', ensureAuthenticated, (req, res) => {
-    let code = req.body.code;
-    let description = req.body.description;
-    let discount = req.body.discount;
-    let minpurchase = req.body.minpurchase;
-    let quantity = req.body.quantity;
+	let code = req.body.code;
+	let description = req.body.description;
+	let discount = req.body.discount;
+	let minpurchase = req.body.minpurchase;
+	let quantity = req.body.quantity;
 	let vstartdate = moment(req.body.vstartdate, 'DD/MM/YYYY');
-    let vexpirydate = moment(req.body.vexpirydate, 'DD/MM/YYYY');
-   
-    Voucher.update({
-        code,
-        description,
-        discount,
-        minpurchase,
-        quantity,
-        vstartdate,
+	let vexpirydate = moment(req.body.vexpirydate, 'DD/MM/YYYY');
+	Voucher.update({
+		code,
+		description,
+		discount,
+		minpurchase,
+		quantity,
+		vstartdate,
 		vexpirydate,
-    }, {
-        where: {
-            id: req.params.id
-        }
-    }).then(() => {
-        res.redirect('/tailor/vouchers');
-    }).catch(err => console.log(err));
+	}, {
+		where: {
+			id: req.params.id
+		}
+	}).then(() => {
+		res.redirect('/tailor/vouchers');
+	}).catch(err => console.log(err));
 });
 
 // tailor: delete voucher
-router.get('/deleteVoucher/:id', ensureAuthenticated,(req, res) => {
-    let voucherID = req.params.id;
+router.get('/deleteVoucher/:id', ensureAuthenticated, (req, res) => {
+	let voucherID = req.params.id;
 	let userID = req.user.id;
-    Voucher.findOne({
-        where: {
-            id: voucherID,
-        }
-    }).then((vouchers) => {
-        if (vouchers != null) {
-            Voucher.destroy({
-                where: {
-                    id: voucherID
-                }
-            }).then((vouchers) => {
-                alertMessage(res, 'info', 'Voucher deleted successfully.', 'far fa-trash-alt', true);
-                res.redirect('/tailor/vouchers');
-            })
-        } else {
-            alertMessage(res, 'danger', 'Unauthorised access to voucher', 'fas fa-exclamation-circle', true);
-            res.redirect('/logout');
-        }
-    }).catch(err => console.log(err)); 
+	Voucher.findOne({
+		where: {
+			id: voucherID,
+		}
+	}).then((vouchers) => {
+		if (vouchers != null) {
+			Voucher.destroy({
+				where: {
+					id: voucherID
+				}
+			}).then((vouchers) => {
+				alertMessage(res, 'info', 'Voucher deleted successfully.', 'far fa-trash-alt', true);
+				res.redirect('/tailor/vouchers');
+			})
+		} else {
+			alertMessage(res, 'danger', 'Unauthorised access to voucher', 'fas fa-exclamation-circle', true);
+			res.redirect('/logout');
+		}
+	}).catch(err => console.log(err));
 });
 
 // tailor: view deals
 router.get('/tailordeals', ensureAuthenticated, (req, res) => {
 	Deal.findAll({
-        where: {
+		where: {
 			userID: res.locals.user.id
-        },
-        raw: true
-    })
-        .then((deals) => {
+		},
+		raw: true
+	})
+		.then((deals) => {
 			console.log(deals)
 			const arr = [];
 
-			for (var i =0; i<deals.length; i++){
+			for (var i = 0; i < deals.length; i++) {
 				arr.push(deals[i].catid);
 			}
 			console.log(arr)
 
 			Catalouge.findAll({
-				where: { id: arr }, 
+				where: { id: arr },
 				raw: true
 			})
-			.then((shopprod) => {
-				console.log(shopprod)
-				res.render('tailor/tailordeals', {
-					title: "Deals List",
-					deals : deals,
-					shopprod: shopprod
-				});
-			})
-            
-        })
-        .catch(err => console.log(err));
+				.then((shopprod) => {
+					console.log(shopprod)
+					res.render('tailor/tailordeals', {
+						title: "Deals List",
+						deals: deals,
+						shopprod: shopprod
+					});
+				})
+
+		})
+		.catch(err => console.log(err));
 });
 
 // tailor: add deal
-// router.get('/adddeal', ensureAuthenticated, (req, res) => {
-// 	res.render('tailor/adddeal', { title: "Add Flash Deal" });
-// });
 
 router.get('/adddeal', ensureAuthenticated, (req, res) => {
-	// Check if user is a tailor, cos i need the shopname
-	// i think you should add this part into your other codes too
 	if (typeof req.user != "undefined") {
 		user_status = res.locals.user.usertype;
 	}
-	if (user_status == "tailor"){
-		// btw do create at least 1 tailor account + 1 product before you can see
+	if (user_status == "tailor") {
 		Catalouge.findAll({
 			where: { storename: res.locals.user.shopname },
 			raw: true
 		})
 			.then(shopprod => {
 				console.log(shopprod);
-				res.render('tailor/adddeal', { 
+				res.render('tailor/adddeal', {
 					title: "Add Flash Deal",
-					shopprod: shopprod // Shop Products 
+					shopprod: shopprod  
 				});
 			})
-		
+
 	}
 	else {
 		alertMessage(res, 'danger', 'Please register as a tailor to add a flash deal.', 'fas fa-sign-in-alt', true);
 		res.redirect('/');
 	}
-	
+
 });
 
 router.post('/adddeal', ensureAuthenticated, (req, res) => {
 	let errors = [];
 	let pname = req.body.pname;
-    let discountp = req.body.discountp;
+	let discountp = req.body.discountp;
 	let event = req.body.event;
 	var dstartdate = new Date();
-    var dexpirydate =  new Date();
-	// let dstartdate = moment(req.body.dstartdate, 'DD/MM/YYYY');
-    // let dexpirydate =  moment(req.body.dexpirydate, 'DD/MM/YYYY');
-	// let eventone = new Date(2021, 08, 12);
-	// const eventtwo = new Date('2021, 08, 12');
-	// const eventthree = new Date('2021, 08, 13');
+	var dexpirydate = new Date();
 
 	if (isNumeric(req.body.discountp) == false) {
 		errors.push({ msg: "Discounted price can only contain numbers." });
@@ -1670,15 +1668,6 @@ router.post('/adddeal', ensureAuthenticated, (req, res) => {
 	if (req.body.discountp < 0) {
 		errors.push({ msg: "Discounted price has to be more than $0." });
 	}
-	// if(dstartdate < today) {
-	// 	errors.push({ msg: "Start date has to be today or later than today." });
-	// }
-	// if(dexpirydate < today) {
-	// 	errors.push({ msg: "End date has to be today or later than today." });
-	// }
-	// if(dstartdate > dexpirydate) {
-	// 	errors.push({ msg: "End date has to be later than stary date." });
-	// }
 
 	if (errors.length > 0) {
 		Catalouge.findAll({
@@ -1688,46 +1677,44 @@ router.post('/adddeal', ensureAuthenticated, (req, res) => {
 			.then(shopprod => {
 				console.log(shopprod);
 				res.render('tailor/adddeal', {
-					errors: errors, 
+					errors: errors,
 					title: "Add Flash Deal",
 					shopprod: shopprod // Shop Products 
 				});
 			})
 	} else if (errors.length == 0) {
 		if (event == "New Store Opening") {
-			dstartdate.setDate(15,7,2021);
-			dstartdate.setHours(8,0,0,0);
-			dexpirydate.setDate(15,7,2021);
-			dexpirydate.setHours(7,59,59,0);
+			dstartdate.setDate(15);
+			dstartdate.setMonth(7);
+			dstartdate.setYear(2021);
+			dstartdate.setHours(8, 0, 0, 0);
+			dexpirydate.setDate(15);
+			dexpirydate.setMonth(7);
+			dexpirydate.setYear(2021);
+			dexpirydate.setHours(7, 59, 59, 0);
 		}
 		else if (event == "9.9 Flash Sales") {
 			dstartdate.setDate(9);
 			dstartdate.setMonth(8);
 			dstartdate.setYear(2021);
-			// dstartdate.setHours(8);
-			// dstartdate.setMinutes(0);
-			// dstartdate.setSeconds(0);
+			dstartdate.setHours(8, 0, 0, 0);
 			dexpirydate.setDate(9);
 			dexpirydate.setMonth(8);
 			dexpirydate.setYear(2021);
-			// dexpirydate.setHours(7);
-			// dexpirydate.setMinutes(59);
-			// dexpirydate.setSeconds(59);
-			dstartdate.setHours(8,0,0,0);
-			dexpirydate.setHours(7,59,59,0);
+			dexpirydate.setHours(7, 59, 59, 0);
 		}
 		else if (event == "10.10 Flash Sales") {
 			dstartdate.setDate(10);
 			dstartdate.setMonth(9);
 			dstartdate.setYear(2021);
-			dstartdate.setHours(8,0,0,0);
+			dstartdate.setHours(8, 0, 0, 0);
 			dexpirydate.setDate(10);
 			dexpirydate.setMonth(9);
 			dexpirydate.setYear(2021);
-			dexpirydate.setHours(7,59,59,0);
+			dexpirydate.setHours(7, 59, 59, 0);
 		}
 		Deal.create({
-			catid : pname,
+			catid: pname,
 			discountp,
 			event,
 			dstartdate,
@@ -1743,77 +1730,219 @@ router.post('/adddeal', ensureAuthenticated, (req, res) => {
 // tailor: update deal
 router.get('/updatedeal/:id', ensureAuthenticated, (req, res) => {
 	Deal.findOne({
-        where: {
-            id: req.params.id
-        },
-		raw:true
-    }).then((deals) => {
-        res.render('tailor/updatedeal', {
+		where: {
+			id: req.params.id
+		},
+		raw: true
+	}).then((deals) => {
+		res.render('tailor/updatedeal', {
 			title: "Update deal",
-            deals : deals
-        });
-    }).catch(err => console.log(err));
+			deals: deals
+		});
+	}).catch(err => console.log(err));
 });
 
 router.put('/updatedeal/:id', ensureAuthenticated, (req, res) => {
-    let pname = req.body.pname;
-    let discountp = req.body.discountp;
+	let pname = req.body.pname;
+	let discountp = req.body.discountp;
 	let event = req.body.event;
-	let dstartdate = moment(req.body.dstartdate, 'DD/MM/YYYY');
-    let dexpirydate = moment(req.body.dexpirydate, 'DD/MM/YYYY');
-   
-    Deal.update({
-        pname,
-        discountp,
+	let dstartdate = new Date();
+	let dexpirydate = new Date();
+	if (event == "New Store Opening") {
+		dstartdate.setDate(15);
+		dstartdate.setMonth(7);
+		dstartdate.setYear(2021);
+		dstartdate.setHours(8, 0, 0, 0);
+		dexpirydate.setDate(15);
+		dexpirydate.setMonth(7);
+		dexpirydate.setYear(2021);
+		dexpirydate.setHours(7, 59, 59, 0);
+	}
+	else if (event == "9.9 Flash Sales") {
+		dstartdate.setDate(9);
+		dstartdate.setMonth(8);
+		dstartdate.setYear(2021);
+		dstartdate.setHours(8, 0, 0, 0);
+		dexpirydate.setDate(9);
+		dexpirydate.setMonth(8);
+		dexpirydate.setYear(2021);
+		dexpirydate.setHours(7, 59, 59, 0);
+	}
+	else if (event == "10.10 Flash Sales") {
+		dstartdate.setDate(10);
+		dstartdate.setMonth(9);
+		dstartdate.setYear(2021);
+		dstartdate.setHours(8, 0, 0, 0);
+		dexpirydate.setDate(10);
+		dexpirydate.setMonth(9);
+		dexpirydate.setYear(2021);
+		dexpirydate.setHours(7, 59, 59, 0);
+	}
+	Deal.update({
+		pname,
+		discountp,
 		event,
-        dstartdate,
-        dexpirydate,
-    }, {
-        where: {
-            id: req.params.id
-        }
-    }).then(() => {
-        res.redirect('/tailor/tailordeals');
-    }).catch(err => console.log(err));
+		dstartdate,
+		dexpirydate,
+	}, {
+		where: {
+			id: req.params.id
+		}
+	}).then(() => {
+		res.redirect('/tailor/tailordeals');
+	}).catch(err => console.log(err));
 });
 
 // tailor: delete deal
 router.get('/deletedeal/:id', ensureAuthenticated, (req, res) => {
-    let dealID = req.params.id;
-    Deal.findOne({
-        where: {
-            id: dealID,
-        }
-    }).then((deals) => {
-        if (deals != null) {
-            Deal.destroy({
-                where: {
-                    id: dealID
-                }
-            }).then((deals) => {
-                alertMessage(res, 'info', 'Deal deleted successfully.', 'far fa-trash-alt', true);
-                res.redirect('/tailor/tailordeals');
-            })
-        } else {
-            alertMessage(res, 'danger', 'Unauthorised access to deal', 'fas fa-exclamation-circle', true);
-            res.redirect('/logout');
-        }
-    }).catch(err => console.log(err)); 
+	let dealID = req.params.id;
+	Deal.findOne({
+		where: {
+			id: dealID,
+		}
+	}).then((deals) => {
+		if (deals != null) {
+			Deal.destroy({
+				where: {
+					id: dealID
+				}
+			}).then((deals) => {
+				alertMessage(res, 'info', 'Deal deleted successfully.', 'far fa-trash-alt', true);
+				res.redirect('/tailor/tailordeals');
+			})
+		} else {
+			alertMessage(res, 'danger', 'Unauthorised access to deal', 'fas fa-exclamation-circle', true);
+			res.redirect('/logout');
+		}
+	}).catch(err => console.log(err));
 });
 
 // tailor: view sales
-router.get('/sales', (req, res) => {
-	res.render('tailor/sales', { title: "Sales Chart" });
+router.get('/sales', ensureAuthenticated, (req, res) => {
+	let count = 100;
+	Cart.findAll({
+		raw: true,
+	})
+		.then((carts) => {
+			carts.forEach(timestamp => {
+				if (formatDate(timestamp).slice(5, 7) == 08) {
+					count += 1;
+				};
+			});
+			Target.findAll({
+				raw: true
+			})
+				.then((target) => {
+					res.render('tailor/sales', {
+						title: "Sales Chart",
+						carts: carts,
+						count: count,
+						target: target,
+					});
+				})
+		})
+		.catch(err => console.log(err));
 });
 
 // tailor: change target
-router.get('/target', (req, res) => {
-	res.render('tailor/target', { title: "Change Target" });
+router.get('/target/:id', (req, res) => {
+	Target.findOne({
+		where: {
+			id: req.params.id
+		},
+		raw: true
+	}).then((target) => {
+		res.render('tailor/target', {
+			title: "Change Target",
+			target: target
+		});
+	}).catch(err => console.log(err));
+});
+router.put('/target/:id', (req, res) => {
+	let value = req.body.value;
+	Target.update({
+		value,
+	}, {
+		where: {
+			id: req.params.id
+		}
+	}).then(() => {
+		res.redirect('/tailor/sales');
+	}).catch(err => console.log(err));
 });
 
 // tailor: view orders
-router.get('/orders', (req, res) => {
-	res.render('tailor/orders', { title: "Orders List" });
+router.get('/orders/:id', ensureAuthenticated, (req, res) => {
+	User.findOne({
+		where: {
+			id: res.locals.user.id
+		},
+		raw: true,
+	})
+		.then((user) => {
+			console.log(user)
+			BillingDetails.findAll({
+				raw: true,
+			})
+				.then((billingdetails) => {
+					Cart.findAll({
+						raw: true,
+					})
+						.then((carts) => {
+							console.log(billingdetails);
+							console.log(carts);
+							res.render('tailor/orders', {
+								title: "Orders List",
+								user: user,
+								carts: carts,
+								billingdetails: billingdetails
+							});
+						})
+				})
+				.catch(err => {
+					console.error('Unable to connect to the database:', err);
+				});
+		});
+});
+
+// tailor: completed order 
+router.get('/completedorder/:id', ensureAuthenticated, (req, res) => {
+	Cart.findOne({
+		where: {
+			id: req.params.id
+		},
+		raw: true
+	}).then((carts) => {
+		BillingDetails.findOne({
+			raw: true,
+		})
+			.then((billingdetails) => {
+				res.render('tailor/completedorder', {
+					title: "Completed Order",
+					carts: carts,
+					billingdetails: billingdetails
+				});
+			}).catch(err => console.log(err));
+	})
+});
+router.put('/completedorder/:id', ensureAuthenticated, (req, res) => {
+	Cart.findOne({
+		where: {
+			id: req.params.id
+		},
+
+	}).then(() => {
+
+		BillingDetails.update({
+			tstatus: "done",
+		}, {
+			where: {
+				id: req.params.id
+			}
+		}).then(() => {
+			res.redirect('/tailor/completedorder/' + req.params.id);
+		}).catch(err => console.log(err));
+	});
 });
 
 module.exports = router;
