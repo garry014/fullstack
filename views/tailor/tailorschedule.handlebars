@@ -1,3 +1,7 @@
+<style type="text/css">
+    @import url("/css/cal.css");
+</style>
+
 <div class="breadcrumb-area pt-35 pb-35 bg-gray-3">
     <div class="container">
         <div class="breadcrumb-content text-center">
@@ -9,17 +13,178 @@
             </ul>
         </div>
     </div>
-</div><div class="error-area pt-40 pb-100">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div >
-                
+</div>
 
-                <h2>Calendar Schedule</h2>
+
+
+<div class="shop-area pt-100 pb-100">
+    <div class="container" >
+        <h2>Calendar Schedule</h2>
+
+        <br>
+
+        <div id='external-events'>
+                <strong>My To Do List</strong>
+          
+       
+            {{#each cal}}
+            <div class='fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event'>
+                <div class='fc-event-main'>{{eventtitle}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <button type="button" style="border:none; background: none; display: inline-block; hover:#9603ff;"
+                                    data-toggle="modal" data-target="#myModal2_{{id}}"><i class="fa fa-pencil"></i></button>
+                    {{!-- <a href="eventdetails/{{id}}"><i class="fa fa-pencil"></i></a> --}}
+                    <a href="deleteevent/{{id}}"><i class="fa fa-times"></i></a>
+                </div>
+            </div>
                 
-                <img src="/img/cal.png" alt="" style="width: 100%;">
-                
-            </div>  
+                <form action="/tailor/eventdetails/{{id}}" style="display: inline-block;" method="POST">
+                    <!-- The Modal -->
+                    <div class="modal" id="myModal2_{{id}}">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                                <h4 class="modal-title">{{eventtitle}}</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="modal-body">
+                            <strong>Start Date and Time:</strong> {{startdate}}
+                            <br>
+                            <strong>End Date and Time:</strong> {{enddate}}
+                            <br><br>
+                            <strong>Note:</strong>
+                            
+                            <div class="col-lg-12">
+                                <textarea name="note" placeholder="Note">{{note}}</textarea>
+                            </div>
+                            
+                        </div>
+
+                        <!-- Modal footer -->
+                        <div class="modal-footer">
+                        {{!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button> --}}
+                            <button type="submit" value="Submit" class="btn btn-success">Submit</button>
+                        </div>
+
+                        </div>
+                    </div>
+                    </div>
+                </form>
+
+               
+           
+            
+            {{/each}}
+            <p>
+                <input type='checkbox' id='drop-remove' />
+                <label for='drop-remove'>remove after drop</label>
+            </p>
+
+            <div id='calendar'></div>
+            <br>
+            
         </div>
+
     </div>
 </div>
+
+
+
+<script src="/js/calendar.js"></script>
+
+
+{{!--
+<script src='lib/jquery.min.js'></script>
+<script src='lib/moment.min.js'></script> --}}
+<script src='/js/cal.js'></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var Calendar = FullCalendar.Calendar;
+        var Draggable = FullCalendar.Draggable;
+        var containerEl = document.getElementById('external-events');
+        var calendarEl = document.getElementById('calendar');
+        var checkbox = document.getElementById('drop-remove');
+
+        new Draggable(containerEl, {
+            itemSelector: '.fc-event',
+            eventData: function (eventEl) {
+                return {
+                    title: eventEl.innerText
+                };
+            }
+        });
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            initialDate: '2021-08-07',
+            headerToolbar: {
+                left: 'prev,next today addEventButton',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            editable: true,
+            droppable: true, // this allows things to be dropped onto the calendar
+            drop: function (info) {
+                // is the "remove after drop" checkbox checked?
+                if (checkbox.checked) {
+                    // if so, remove the element from the "Draggable Events" list
+                    info.draggedEl.parentNode.removeChild(info.draggedEl);
+                }
+            },
+            events: [
+            {{#each cal}}
+                {
+                    title: '{{eventtitle}}',
+                    start: '{{startdate}}', 
+                    end: '{{enddate}}'
+                },
+            {{/each}}
+            ],
+
+            customButtons: {
+                addEventButton: {
+                    text: 'Add Event',
+                    click: function () {
+                        var title1 = prompt("Enter a title:");
+                        var dateStr = prompt('Enter the start date in YYYY-MM-DD format');
+                        var date = new Date(dateStr + 'T00:00:00'); // will be in local time
+                        var enddateStr = prompt('Enter the end date in YYYY-MM-DD format');
+                        var enddate = new Date(enddateStr + 'T00:00:00'); // will be in local time
+
+                        if (!isNaN(date.valueOf())) { // valid?
+                            calendar.addEvent({
+                                title: title1,
+                                start: date,
+                                end: enddate
+                                //allDay: true
+                            });
+                            $.ajax({
+                                url: '/tailor/createevent',
+                                data: {
+                                    'startdate': date,
+                                    'enddate': enddate,
+                                    'title': title1,
+                                },
+                                type: "POST",
+                                success: function(json) {
+                                    console.log('Added Successfully');
+                                    location.reload();
+                                }
+                            });
+                            alert('Event Added.');
+                        } else {
+                            alert('Invalid date.');
+                        }
+                    }
+                }
+            }
+            
+
+        });
+
+        calendar.render();
+    });
+</script>

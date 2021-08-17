@@ -23,15 +23,16 @@
                     <form class="contact-form-style" id="createcourse" action="/tailor/createcourse" method="post" enctype="multipart/form-data">
                         <h2>Create Course</h2>
                         <div class="row">
-                            <p style="color: red;">*required</p>
+                            
                             <div class="col-lg-12">
+                                <p style="color: red;">*required</p>
                                 <label for="ctitle" >Course Title<span style="color: red;">*</span>:</label>
                                 <input name="ctitle" placeholder="Course Title*" type="text" class="form-control" value="{{name}}" required>
                             </div>
                             <div class="col-lg-12">              
                                 <label for="language" >Language<span style="color: red;">*</span>:</label>
                                     <select id="language" name="language">
-                                        <option value="english">English</option> <!--input shit?? lolololol-->
+                                        <option value="english">English</option> 
                                         <option value="mandarin">Mandarin</option>
                                     </select>
                             </div>
