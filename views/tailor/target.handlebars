@@ -11,10 +11,10 @@
                     <div id="lg2" class="tab-pane">
                         <div class="login-form-container">
                             <div class="login-register-form">
-                                <form action="#" method="post">
+                                <form action="/tailor/target/{{target.id}}?_method=PUT" method="post" id="target">
                                     <div class="form-group">
-                                        <label for="name">Enter Target:</label>
-                                        <input id="target" name="target" class="form-control" type="text" value="">
+                                        <label for="name">Enter Target:<span style="color: red;">*</span></label>
+                                        <input id="value" name="value" class="form-control" type="text" value="{{target.value}}">
                                     </div>
                                     <div class="button-box">
                                         <button type="submit"><span>Confirm</span></button>
