@@ -272,7 +272,8 @@ router.post('/customers_checkout', (req, res) => {
 				deliverytime: req.body.dTime,
 				deliverydate: moment(req.body.deliverydate, 'DD/MM/YYYY'),
 				carttimestamp: 0,
-				OrderStatus: "pending"
+				OrderStatus: "pending",
+				tstatus: "pending"
 			}
 			res.redirect('/customers_checkout');
 		}
