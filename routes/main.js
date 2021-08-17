@@ -352,7 +352,7 @@ router.post("/view/:id", (req, res) => {
 	// console.log(sess["myCart"]);	
 	// // res.redirect(sess["lastViewStore"]["url"]);
 	// res.redirect(backURL);
-	res.redirect('/viewshops/' + storename);
+	res.redirect('/viewshops/' + storename+'/1');
 });
 
 //customer purchase history
