@@ -23,57 +23,51 @@
                                         <form action="/tailor/updateVoucher/{{vouchers.id}}?_method=PUT" method="post"
                                             id="updateVoucher">
                                             <div class="billing-info mb-20">
-                                                <label for="name">Voucher Code</label>
+                                                <label for="name">Voucher Code<span style="color: red;">*</span></label>
                                                 <input id="code" name="code" class="form-control" type="text"
-                                                    value="{{vouchers.code}}">
+                                                    value="{{vouchers.code}}" required>
                                             </div>
                                             <br>
                                             <div class="billing-info mb-20">
-                                                <label for="name">Description</label>
+                                                <label for="name">Description<span style="color: red;">*</span></label>
                                                 <input id="description" name="description" class="form-control"
-                                                    type="text" value="{{vouchers.description}}">
+                                                    type="text" value="{{vouchers.description}}" required>
                                             </div>
                                             <br>
                                             <div class="billing-info mb-20">
-                                                <label for="name">Discount(%)</label>
+                                                <label for="name">Discount(%)<span style="color: red;">*</span></label>
                                                 <input id="discount" name="discount" class="form-control" type="text"
-                                                    value="{{vouchers.discount}}">
+                                                    value="{{vouchers.discount}}" required>
                                             </div>
                                             <br>
                                             <div class="billing-info mb-20">
-                                                <label for="name">Minimum Purchase($)</label>
+                                                <label for="name">Minimum Purchase($)<span style="color: red;">*</span></label>
                                                 <input id="minpurchase" name="minpurchase" class="form-control"
-                                                    type="text" value="{{vouchers.minpurchase}}">
+                                                    type="text" value="{{vouchers.minpurchase}}" required>
                                             </div>
                                             <br>
                                             <div class="billing-info mb-20">
-                                                <label for="name">Quantity</label>
+                                                <label for="name">Quantity<span style="color: red;">*</span></label>
                                                 <input id="quantity" name="quantity" class="form-control" type="text"
-                                                    value="{{vouchers.quantity}}">
+                                                    value="{{vouchers.quantity}}" required>
                                             </div>
-
-                                            {{!-- <div class="billing-info mb-20">
-                                                <label for="vstartdate">Start Date (DD/MM/YYYY)</label>
-                                                <input id="vstartdate" name="vstartdate" class="form-control"
-                                                    type="text" value="{{vouchers.vstartdate}}">
-                                            </div> --}}
                                             <br>                                            
                                             <div class="billing-info mb-20">
-                                                <label for="vstartdate">Start Date</label>
+                                                <label for="vstartdate">Start Date<span style="color: red;">*</span></label>
                                                 <input id="datepicker" width="510" name="vstartdate"
-                                                    class="form-control" value="{{formatDate vouchers.vstartdate 'DD/MM/YYYY'}} "
-                                                    readonly />
+                                                    class="form-control" value="{{formatTime vouchers.vstartdate 'DD/MM/YYYY'}} "
+                                                    required />
                                             </div>
                                             <br>
                                             <div class="billing-info mb-20">
-                                                <label for="vexpirydate">Expiry Date</label>
+                                                <label for="vexpirydate">Expiry Date<span style="color: red;">*</span></label>
                                                 <input id="datepicker2" width="510" name="vexpirydate"
-                                                    class="form-control" value="{{formatDate vouchers.vexpirydate 'DD/MM/YYYY'}} "
-                                                    readonly />
+                                                    class="form-control" value="{{formatTime vouchers.vexpirydate 'DD/MM/YYYY'}} "
+                                                    required />
                                             </div>
                                             <br>
                                             <div class="button-box">
-                                                <button type="submit" class="btn btn-outline-info"
+                                                <button type="submit" class="button button1"
                                                     style="font-size: 14px; font-weight: 420; padding-top: 8px; padding-bottom: 8px;padding-left: 28px; padding-right: 28px"><span>Confirm</span></button>
                                             </div>
                                         </form>
@@ -87,6 +81,31 @@
         </div>
     </div>
 </div>
+<style>
+.button {
+    border: 5px solid white;
+    border-radius: 35px;
+    color: white;
+    padding-right: 8px;
+    padding-left: 8px;
+    text-align: center;
+    font-size: 14px;
+    margin: -10px;
+    transition-duration: 0.5s;
+    cursor: pointer;
+}
+
+.button1 {
+    background-color: rgb(170, 88, 252); 
+    color: white; 
+}
+
+.button1:hover {
+    background-color: black;
+    color: white;
+}
+</style>
+
 <script>
     $('#datepicker').datepicker({
         format: 'dd/mm/yyyy',
