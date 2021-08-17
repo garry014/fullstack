@@ -562,4 +562,251 @@ router.get('/rlogout', (req, res) => {
 	req.logout();
 	res.redirect('../rider/rlogoutsuccess');
 });
+
+// riders: main orders page 
+router.get('/rordersmain', (req, res) => {
+	BillingDetails.findAll({
+		raw: true
+	})
+		.then((OrdersDetails) => {
+			User.findAll({
+				where: { usertype: "tailor" },
+				attributes: ['address1', 'address2', 'city', 'postalcode', 'shopname', 'photo'],
+				raw: true
+			}).then((User) => {
+				res.render('rider/rordersmain', {
+					OrdersDetails: OrdersDetails,
+					User: User
+				});
+			})
+		})
+		.catch(err => {
+			console.error('Unable to connect to the database:', err);
+		});
+});
+
+// riders: order details page 
+router.get('/rordersdetails/:id', (req, res) => {
+
+	BillingDetails.findAll({
+		where: { id: req.params.id },
+		raw: true
+	})
+		.then((OrdersDetails) => {
+			User.findAll({
+				where: { usertype: "tailor" },
+				attributes: ['address1', 'address2', 'city', 'postalcode', 'shopname'],
+				raw: true
+			}).then((User) => {
+				res.render('rider/rorderdetails', {
+					OrdersDetails: OrdersDetails,
+					User: User,
+					id: req.params.id
+				});
+			})
+		})
+		.catch(err => {
+			console.error('Unable to connect to the database:', err);
+		});
+});
+
+// riders: order accepted sucessfully page 
+// add pop up accept order to double confirm.
+router.get('/racceptorder/:id', (req, res) => {
+	BillingDetails.findOne({
+		where: { id: req.params.id },
+		raw: true
+	})
+		.then((OrdersDetails) => {
+			User.findOne({
+				where: { usertype: "tailor" },
+				attributes: ['address1', 'address2', 'city', 'postalcode', 'shopname'],
+				raw: true
+			}).then((User) => {
+				res.render('rider/racceptorder', {
+					OrdersDetails: OrdersDetails,
+					User: User,
+					id: req.params.id
+				});
+			})
+		})
+		.catch(err => {
+			console.error('Unable to connect to the database:', err);
+		});
+});
+
+router.put('/racceptorder/:id', (req, res) => {
+	let { timeMap, distanceMil } = req.body;
+	var distance = distanceMil.split(" ");
+	var price = 0;
+	console.log(distance[0]);
+	console.log("kkk");
+	// open table
+	BillingDetails.findOne({
+		where: { id: req.params.id },
+		raw: true
+	})
+		// .then get details from table 
+		.then((OrdersDetails) => {
+			// let { distance } = req.body;
+			// 0 km - 5 km  = $2 
+			// 6km - 10km = $4 
+			// 10km < = $6
+			if (distance[0] < 5) {
+				price = distance[0] * 2
+			}
+			else if (6 < distance[0] < 10) {
+				price = distance[0] * 4
+			}
+			else {
+				price = distance[0] * 6
+			}
+			console.log("PRICEEEEEEEE", price);
+			console.log(distance);
+			User.findOne({
+				where: { shopname: OrdersDetails.shopname },
+				attributes: ['address1', 'address2', 'city', 'postalcode', 'shopname'],
+				raw: true
+			}).then((User) => {
+				console.log(User)
+				var useraddress = OrdersDetails.address1 + OrdersDetails.address2 + OrdersDetails.city + OrdersDetails.postalcode;
+				var shopaddress = User.address1 + User.address2 + User.city + User.postalcode;
+				console.log("here")
+				RidersOrders.create({
+					cust_username: OrdersDetails.username,
+					rider_username: res.locals.user.username,
+					des_address: useraddress,
+					pickup_address: shopaddress,
+					deliverytime: OrdersDetails.deliverytime,
+					deliverydate: OrdersDetails.deliverydate,
+					deliveryfee: price,
+					OrderStatus: "accepted"
+				}).then(() => {
+					BillingDetails.update({
+						OrderStatus: "accepted"
+					}, {
+						where: {
+							id: req.params.id
+						}
+					}).then(() => {
+						// get value from customeraccount
+						res.redirect('/rider/racceptorder/' + req.params.id);
+					}).catch(err => console.log(err));
+				})
+			})
+		})
+		.catch(err => {
+			console.error('Unable to connect to the database:', err);
+		});
+})
+
+router.get('/map/:id', (req, res) => {
+	RidersOrders.findOne({
+		where: { id: req.params.id },
+		raw: true
+	})
+		.then((RidersOrders) => {
+			res.render('map', { title: "Maps", RidersOrders });
+		})
+		.catch(err => {
+			console.error('Unable to connect to the database:', err);
+		});
+});
+
+// riders: orders completed successfully 
+router.get('/rordercompleted', (req, res) => {
+	res.render('rider/rordercompleted');
+});
+
+// riders: orders history
+// recheck validations 
+router.get('/riderhist/:id', ensureAuthenticated, (req, res) => {
+	User.findOne({
+		where: { id: req.params.id },
+		raw: true
+	})
+		.then((Rider) => {
+			if (!Rider) {
+				alertMessage(res, 'danger', 'Access Denied', 'fas fa-exclamation-circle', true);
+				req.logout();
+				res.redirect('/rider/homerider');
+			}
+			else {
+				if (req.params.id == Rider.id) {
+					RidersOrders.findAll({
+						where: { rider_username: Rider.username },
+						attributes: ['des_address', 'pickup_address', 'deliverydate', 'OrderStatus', 'cust_username', 'deliveryfee','id'],
+						raw: true
+					}).then((RidersOrders) => {
+						res.render('rider/rorderhist', {
+							Rider: Rider,
+							RidersOrders: RidersOrders,
+							id: req.params.id
+						});
+					})
+				}
+				else {
+					alertMessage(res, 'danger', 'Access Denied', 'fas fa-exclamation-circle', true);
+					req.logout();
+					res.redirect('/rider/homerider');
+				}
+			}
+		}).catch(err => console.log(err));
+});
+
+
+router.get('/rideroutecheck/:id', (req, res) => {
+	BillingDetails.findOne({
+		where: { id: req.params.id },
+		raw: true
+	})
+		.then((OrdersDetails) => {
+			User.findOne({
+				where: { usertype: "tailor" },
+				attributes: ['address1', 'address2', 'city', 'postalcode', 'shopname'],
+				raw: true
+			}).then((User) => {
+				res.render('rider/rideroutecheck', {
+					OrdersDetails: OrdersDetails,
+					User: User,
+					id: req.params.id
+				});
+			})
+		})
+		.catch(err => {
+			console.error('Unable to connect to the database:', err);
+		});
+});
+
+router.get('/rordercompleted/:id', (req, res) => {
+	BillingDetails.findOne({
+		where: { id: req.params.id },
+		raw: true
+	})
+	res.render('rider/rordercompleted');
+});
+
+router.put('/rordercompleted/:id', (req, res) => {
+	var today = new Date();
+	var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+	BillingDetails.findOne({
+		where: { id: req.params.id },
+		raw: true
+	})
+		// .then get details from table 
+		.then(() => {
+			RidersOrders.update({
+				OrderStatus: "completed",
+				TimeOrdersCompleted: today
+			}, {
+				where: {
+					id: req.params.id
+				}
+			}).then(() => {
+				// get value from customeraccount
+				res.redirect('/rider/rordercompleted/' + req.params.id);
+			}).catch(err => console.log(err));
+		});
+})
+
 module.exports = router;
