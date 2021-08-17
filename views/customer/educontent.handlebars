@@ -1,0 +1,90 @@
+<div class="breadcrumb-area pt-35 pb-35 bg-gray-3">
+    <div class="container">
+        <div class="breadcrumb-content text-center">
+            <ul>
+                <li>
+                    <a href="index.html">Home</a>
+                </li>
+                <li class="active">Content </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="contact-area pt-100 pb-100">
+    <div class="container">
+
+        {{#if course}}
+
+        <div class="custom-row-2">
+
+
+            <div class="col-lg-4 col-md-5">
+                <div class="contact-form"
+                    style=" padding-left: 80px; background-color: transparent; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+                    <div class="contact-title mb-20" style="width: 200px; float: left; ">
+                        <h2>{{course.ctitle}}</h2>
+                        {{#if user}}
+                        {{#each user}}
+
+                        {{#ifCond ../course.user "==" id}}
+                        <h5>By {{shopname}}</h5>
+                        {{/ifCond}}
+                        {{/each}}
+                        {{/if}}
+                        {{!-- <a href="" style="text-decoration: underline;">SCHEDULE LIVE COURSE </a> --}}
+                        <form action="/chatwith/{{shopname}}" method="post">
+                            <button
+                                style="border: 0; padding: 0; display: inline; background: none; text-decoration: underline;"><i
+                                    class="pe-7s-chat"></i> SCHEDULE LIVE COURSE </button>
+                        </form>
+
+                        <br>
+                        <h4 style="font-weight: bold;">Course Content</h4>
+                    </div>
+                    <ol>
+                        {{#each video}}
+                        <li style="margin:1.5px;"><a href="/customer/educontent/{{../course.id}}/{{id}}">{{topic}}</a>
+                        </li>
+                        {{/each}}
+                    </ol>
+
+                </div>
+            </div>
+            <!--
+            {% for key, value in contentDict.items() %}
+            {% if topic == value.get_topic() %}
+            -->
+
+            {{!-- {{#if video}} --}}
+            <div class="col-lg-8 col-md-7">
+                <div class="contact-form"
+                    style="background-color: transparent; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+                    {{!-- {{#ifCond topic video.topic}} --}}
+                    {{!-- {{#each video}} --}}
+                    {{#ifCond id "==" video.id}}
+
+                    {{#each video}}
+                    {{#ifCond ../vidid "==" id}}
+                    {{!-- {{}}: {{video}} --}}
+                    <h3>{{topic}}</h3>
+                    <video controls style="align-items: center; padding-top:5%; width: 100%; "> width="560" height="480"
+                        <source src="/uploads/video/{{video}}" type="video/mp4" style="align-items: center;">
+
+                    </video>
+                    {{/ifCond}}
+                    {{/each}}
+
+                    {{/ifCond}}
+
+                </div>
+            </div>
+            {{!-- {{/if}} --}}
+            {{!-- {{/each}} --}}
+            <!--
+            {% endif %}
+            {% endfor %}
+            -->
+        </div>
+        {{/if}}
+    </div>
+</div>
