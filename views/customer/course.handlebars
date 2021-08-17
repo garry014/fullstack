@@ -1,4 +1,3 @@
-
 <div class="breadcrumb-area pt-35 pb-35 bg-gray-3">
     <div class="container">
         <div class="breadcrumb-content text-center">
@@ -11,24 +10,189 @@
         </div>
     </div>
 </div>
+
 <div class="shop-area pt-100 pb-100">
     <div class="container">
         <div class="row">
             <div class="col-lg-6 col-md-6">
                 <div class="product-details">
                     <div class="product-details-img">
-                    <div class="product-details dec-img-wrap">
-                        <img src="/img/sewimg1.jpg" alt="">
-                    </div> 
-                        
+                        <div class="product-details dec-img-wrap">
+                            <img src="/uploads/courseimg/{{course.thumbnail}}" alt="">
+                        </div>
+
                     </div>
                 </div>
             </div>
             <div class="col-lg-6 col-md-6">
                 <div class="product-details-content ml-70">
-                    <h2>Basic Sewing Skills</h2>
+
+                    <h2>{{course.ctitle}}</h2>
+
                     <div class="product-details-price">
-                        <span>$25.00 </span>
+                        <span>${{course.price}}</span>
+                        <!-- <span class="old">$20.00 </span> -->
+                    </div>
+
+                    {{!-- {{#each User}} --}}
+                    {{#if tuser}}
+                    <h4>By {{tuser.shopname}}</h4>
+                    {{/if}}
+                    {{!-- {{/each}} --}}
+                    
+                    <p>Live Course Day: {{course.day}}</p>
+
+                    <div class="pro-details-list">
+                        <p>{{course.description}}</p>
+                    </div>
+
+
+
+                    {{!-- if statemenet: if cust logged in then show this, please create acct to purchase w link --}}
+                    
+                    {{#if User}}
+                    {{#if checkPur }}
+                    <div>
+
+                        <div class="Place-order mt-25">
+                            <div id="smart-button-container">
+                                <div style="text-align: center;">
+                                    <div id="paypal-button-container"></div>
+                                </div>
+                            </div>
+
+                            <script>
+                                <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=SGD">
+                            </script>
+
+                            <div id="paypal-button-container"></div>
+
+                            <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=SGD"
+                                data-sdk-integration-source="button-factory">
+                                </script>
+
+                            <script>
+                                    function initPayPalButton() {
+                                        paypal.Buttons({
+                                            style: {
+                                                shape: 'rect',
+                                                color: 'gold',
+                                                layout: 'vertical',
+                                                label: 'checkout',
+                                            },
+                                            createOrder: function (data, actions) {
+                                                return actions.order.create({
+                                                    purchase_units: [{ "amount": { "currency_code": "SGD", "value": {{ course.price }} }
+                                        }]
+                                            });
+                                        },
+                                    onApprove: function (data, actions) {
+                                            return actions.order.capture().then(function (details) {
+                                        window.location.replace("/cpaysuccess/{{course.id}}");
+                                            });
+                                        },
+                                    onError: function (err) {
+                                        console.log(err);
+                                        }
+                                    }).render('#paypal-button-container');
+                                }
+                                    initPayPalButton();
+                            </script>
+
+                        </div>
+                    </div>
+                    {{else}}
+                    <p>You have already signed up for this course.</p>
+                    {{/if}}
+                    {{else}}
+                    <p>Please <span><a style="text-decoration: underline;" href="/customer/custlogin">sign in</a></span>
+                        to your account to make payment. <br> <a style="text-decoration: underline;"
+                            href="/customer/custregister">Don't have an account? Register here!</a></p>
+                    {{/if}}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="description-review-area pb-90">
+    <div class="container">
+        <div class="description-review-wrapper">
+            <div class="description-review-topbar nav">
+                <a data-toggle="tab" href="#des-details1">Additional information</a>
+                <a class="active" data-toggle="tab" href="#des-details2">Description</a>
+                {{!-- <a data-toggle="tab" href="#des-details3">Reviews (2)</a> --}}
+            </div>
+            <div class="tab-content description-review-bottom">
+                <div id="des-details2" class="tab-pane active">
+                    <div class="product-description-wrapper">
+                        <p></p>
+                        <p>{{course.description}}</p>
+                    </div>
+                </div>
+                <div id="des-details1" class="tab-pane ">
+                    <div class="product-anotherinfo-wrapper">
+                        <table>
+                            <tr>
+                                <td style="font-weight: bold;">Languages Available</td>
+                                <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                                <td>{{course.language}}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold;">Day of Live Course</td>
+                                <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                                <td>{{course.day}}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold;">Materials</td>
+                                <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                                <td>{{course.material}}</td>
+                            </tr>
+                        </table>
+
+                    </div>
+                </div>
+              
+            </div>
+        </div>
+    </div>
+</div>
+
+{{!--
+<div class="breadcrumb-area pt-35 pb-35 bg-gray-3">
+    <div class="container">
+        <div class="breadcrumb-content text-center">
+            <ul>
+                <li>
+                    <a href="index.html">Home</a>
+                </li>
+                <li class="active">Shop Details </li>
+            </ul>
+        </div>
+    </div>
+</div>
+{{#if course}}
+<div class="shop-area pt-100 pb-100">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-md-6">
+                <div class="product-details">
+                    <div class="product-details-img">
+                        <div class="product-details dec-img-wrap">
+                            <img src="/uploads/courseimg/{{course.thumbnail}}" alt="">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6">
+                <div class="product-details-content ml-70">
+
+                    <h2>{{course.ctitle}}</h2>
+
+                    <div class="product-details-price">
+                        <span>${{course.price}}</span>
                         <!-- <span class="old">$20.00 </span> -->
                     </div>
                     <div class="pro-details-rating-wrap">
@@ -41,19 +205,20 @@
                         </div>
                         <span><a href="#">3 Reviews</a></span>
                     </div>
-                   
+
                     <p style="text-decoration: underline;">By Ah Tong Tailor</p>
-                    <p>Live Course Day: Monday</p>
+                    <p>Live Course Day: {{course.day}}</p>
 
                     <div class="pro-details-list">
-                        <p>Learn basic sewing skills!</p>
+                        <p>{{course.description}}</p>
                     </div>
-                    
+
                     <div class="pro-details-quality">
-                        
-                        <div class="pro-details-cart btn-hover">
-                            <a href="/coursepayment">Add To Cart</a>
-                        </div>
+                        <form class="contact-form-style" id="cocart" action="/customer/course/{{id}}" method="post">
+                            <div class="pro-details-cart btn-hover">
+                                <a href="/customer/ccart">Make Payment</a>
+                            </div>
+                        </form>
                         <div class="pro-details-wishlist">
                             <a href="#"><i class="fa fa-heart-o"></i></a>
                         </div>
@@ -61,8 +226,66 @@
                             <a href="#"><i class="pe-7s-shuffle"></i></a>
                         </div>
                     </div>
-                    
-                    
+
+
+                    <div class="pro-details-quality">
+
+                        <div class="Place-order mt-25">
+                            <div id="smart-button-container">
+                                <div style="text-align: center;">
+                                    <div id="paypal-button-container"></div>
+                                </div>
+                            </div>
+
+                            <script>
+                                    <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID"> // Replace YOUR_CLIENT_ID with your sandbox client ID
+                            </script>
+
+
+                            <div id="paypal-button-container"></div>
+
+                            <!-- Add the checkout buttons, set up the order and approve the order -->
+                            <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=SGD"
+                                data-sdk-integration-source="button-factory">
+                                </script>
+
+                            <script>
+                                        $('#datepicker').datepicker({
+                                            format: 'dd/mm/yyyy',
+                                        value: new Date().toLocaleDateString('EN-SG'),
+                                        uiLibrary: 'bootstrap4',
+                                });
+                                        function initPayPalButton() {
+                                            paypal.Buttons({
+                                                style: {
+                                                    shape: 'rect',
+                                                    color: 'gold',
+                                                    layout: 'vertical',
+                                                    label: 'checkout',
+                                                },
+                                                createOrder: function (data, actions) {
+                                                    return actions.order.create({
+                                                        purchase_units: [{ "amount": { "currency_code": "SGD", "value": 1 } }]
+                                                    });
+                                                },
+                                                onApprove: function (data, actions) {
+                                                    return actions.order.capture().then(function (details) {
+                                                        window.location.replace("/ctranssuccess");
+                                                    });
+                                                },
+                                                onError: function (err) {
+                                                    console.log(err);
+                                                }
+                                            }).render('#paypal-button-container');
+                                }
+                                        initPayPalButton();
+                            </script>
+
+                        </div>
+
+                    </div>
+
+
                 </div>
             </div>
         </div>
@@ -80,29 +303,29 @@
                 <div id="des-details2" class="tab-pane active">
                     <div class="product-description-wrapper">
                         <p></p>
-                        <p>Learn basic sewing skills!</p>
+                        <p>{{course.description}}</p>
                     </div>
                 </div>
                 <div id="des-details1" class="tab-pane ">
                     <div class="product-anotherinfo-wrapper">
                         <table>
-                        <tr>
-                            <td style="font-weight: bold;">Languages Available</td>
-                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                            <td>English</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight: bold;">Day of Live Course</td>
-                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                            <td>Tuesday</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight: bold;">Materials</td>
-                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                            <td>Scissors, cloth, needle and thread</td>
-                        </tr>
+                            <tr>
+                                <td style="font-weight: bold;">Languages Available</td>
+                                <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                                <td>{{course.language}}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold;">Day of Live Course</td>
+                                <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                                <td>{{course.day}}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold;">Materials</td>
+                                <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                                <td>{{course.material}}</td>
+                            </tr>
                         </table>
-                        
+
                     </div>
                 </div>
                 <div id="des-details3" class="tab-pane">
@@ -132,7 +355,9 @@
                                             </div>
                                         </div>
                                         <div class="review-bottom">
-                                            <p>Vestibulum ante ipsum primis aucibus orci luctustrices posuere cubilia Curae Suspendisse viverra ed viverra. Mauris ullarper euismod vehicula. Phasellus quam nisi, congue id nulla.</p>
+                                            <p>Vestibulum ante ipsum primis aucibus orci luctustrices posuere cubilia
+                                                Curae Suspendisse viverra ed viverra. Mauris ullarper euismod vehicula.
+                                                Phasellus quam nisi, congue id nulla.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -159,15 +384,17 @@
                                             </div>
                                         </div>
                                         <div class="review-bottom">
-                                            <p>Vestibulum ante ipsum primis aucibus orci luctustrices posuere cubilia Curae Sus pen disse viverra ed viverra. Mauris ullarper euismod vehicula. </p>
+                                            <p>Vestibulum ante ipsum primis aucibus orci luctustrices posuere cubilia
+                                                Curae Sus pen disse viverra ed viverra. Mauris ullarper euismod
+                                                vehicula. </p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-lg-5">
-                            <div class="ratting-form-wrapper pl-50"> 
-                                <h3>Add a Review</h3>      
+                            <div class="ratting-form-wrapper pl-50">
+                                <h3>Add a Review</h3>
                                 <div class="ratting-form">
                                     <form action="#">
                                         <div class="star-box">
@@ -208,3 +435,4 @@
         </div>
     </div>
 </div>
+{{/if}} --}}
