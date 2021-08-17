@@ -765,7 +765,7 @@ router.get('/rideroutecheck/:id', (req, res) => {
 		.then((OrdersDetails) => {
 			User.findOne({
 				where: { usertype: "tailor" },
-				attributes: ['address1', 'address2', 'city', 'postalcode', 'shopname'],
+				attributes: ['address1', 'address2', 'city', 'postalcode', 'shopname','username'],
 				raw: true
 			}).then((User) => {
 				res.render('rider/rideroutecheck', {
