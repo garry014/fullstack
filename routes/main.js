@@ -175,7 +175,7 @@ router.get('/transaction_complete', (req, res) => {
 // Billing information details
 router.post('/customers_checkout', (req, res) => {
 	let errors = [];
-	let { firstNamee, lastNamee, Addressline1, Addressline2, city, postalcode, email, phonenumber, dTime, deliverydate } = req.body;
+	let { firstNamee, lastNamee, userNamee,Addressline1, Addressline2, city, postalcode, email, phonenumber, dTime, deliverydate } = req.body;
 	var user_details;
 	sess = req.session;
 
@@ -194,12 +194,17 @@ router.post('/customers_checkout', (req, res) => {
 
 		if (firstNamee == "") {
 			errors.push({
-				msg: 'Name is not there'
+				msg: 'First Name is not there'
 			});
 		}
 		if (lastNamee == "") {
 			errors.push({
-				msg: 'Name is not there'
+				msg: 'Last Name is not there'
+			});
+		}
+		if (userNamee == "") {
+			errors.push({
+				msg: 'UserName is not there'
 			});
 		}
 		if (req.body.Addressline1 == "") {
@@ -247,6 +252,7 @@ router.post('/customers_checkout', (req, res) => {
 				errors: errors,
 				firstNamee,
 				lastNamee,
+				userNamee,
 				Addressline1,
 				Addressline2,
 				city,
@@ -263,6 +269,7 @@ router.post('/customers_checkout', (req, res) => {
 			sess["myBillingDetails"] = {
 				firstname: req.body.firstNamee,
 				lastname: req.body.lastNamee,
+				username:req.body.userNamee,
 				address1: req.body.Addressline1,
 				address2: req.body.Addressline2,
 				city: req.body.city,
@@ -271,9 +278,9 @@ router.post('/customers_checkout', (req, res) => {
 				phoneno: req.body.phonenumber,
 				deliverytime: req.body.dTime,
 				deliverydate: moment(req.body.deliverydate, 'DD/MM/YYYY'),
+				shopname:res.locals.user.storename,
 				carttimestamp: 0,
-				OrderStatus: "pending",
-				tstatus: "pending"
+				OrderStatus: "pending"
 			}
 			res.redirect('/customers_checkout');
 		}
