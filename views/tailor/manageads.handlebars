@@ -1,11 +1,18 @@
 <div class="cart-main-area pt-98 pb-100">
     <div class="container">
         <h3 class="cart-page-title">Your Advertisements</h3>
+        {{!-- {{#if ads "==" ""}}
         <div>
           <p>You do not have any advertisements. <a href="/advertise">Click here to create.</a></p>
-          <p>There is 1 advertisement.</p>
-          <p>There are  advertisements.</p>
+
         </div>
+        {{#else}}
+        <div>
+          <p>You do not have any advertisements. <a href="/advertise">Click here to create.</a></p>
+
+        </div>
+        <div>You have created your advertisement</div>
+        {{/if}} --}}
         <div class="row justify-content-center">
             <div class="col-lg-15 col-md-15 col-sm-15 col-15">
                     <div class="table-content table-responsive cart-table-content">
@@ -17,40 +24,43 @@
                                     <th>Start Date</th>
                                     <th>End Date</th>
                                     <th>Ad Text</th>
-                                    <th>Status</th>
-                                    <th>action</th>
+                                    {{!-- <th>Status</th> --}}
+                                    <th>Action</th>
+                                    {{!-- <th>Status</th>
+                                    <th>action</th> --}}
                                 </tr>
                             </thead>
                             <tbody>
-                            
+                            {{#each ads}}
                                 <tr>
                                 <td class="ad-thumbnail">
-                                    <a href=""><img src="" alt="" width="230" height="121"></a>
+                                   <img src="/uploads/advertisement/{{Image}}" alt=""style="width:auto;height:100px;">
                                 </td>
                                 <td class="product-name">
-                                        <a href=""></a>
+                                        {{storename}}
                                 
                                 </td>
                                 <td class="product-price-cart">
-                               
-                                </td>
-                                <td class="product-quantity">
-                                  
+                                        {{formatDate startDate 'DD MMM YYYY'}}
                                 </td>
                                 <td class="product-text">
-                                   
+                                   {{formatDate endDate 'DD MMM YYYY'}}
                                 </td>
-                                <td class="product-subtotal">
-                                    <p style="color:red; font-weight: bold;"></p>
-                                    <p style="color:green;"></p>
-                                    <p style="color:red"></p>
+                                <td class="adText">
+                                    {{adText}}
                                 </td>
+                                {{!-- <td class="product-subtotal">
+                                    <p style="color:red; font-weight: bold;">Status</p>
+                                    <p style="color:green;">Status</p>
+                                    <p style="color:red">Status</p>
+                                </td> --}}
                                 <td class="product-remove">
-                                    <a href=""><i class="fa fa-pencil" title="Update this advertisement"></i></a>
+                                    {{!-- <a href="/advertise"><i class="fa fa-pencil" title="Update this advertisement"></i></a>
+                                    {{!-- {{#ifCond user.usertype '=='  "admin"}} --}}
 
-                                        <a href=""><i class="fa fa-check" title="Approve this advertisement"></i></a>
+                                        {{!-- <a href=""><i class="fa fa-check" title="Approve this advertisement"></i></a> --}}
                               
-                                    <form action="" method="POST" style="display: inline-block;">
+                                    <form action="/tailor/deleteads/{{id}}" method="POST" style="display: inline-block;">
                                         <button type="button" style="border:none; background: none; display: inline-block;" data-toggle="modal" data-target="#myModal"><i class="fa fa-times" style="color: red;" title="Delete this advertisement"></i></button>
                                         <!-- The Modal -->
                                         <div class="modal" id="myModal">
@@ -62,11 +72,12 @@
                                                 <h4 class="modal-title">Delete Confirmation</h4>
                                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                                               </div>
+                                              
 
                                               <!-- Modal body -->
                                               <div class="modal-body">
-                                                  <a href=""><img src="" alt="" width="200" height="121"></a><br>
-                                                Are you sure you want to delete  advertisement from  to ?
+                                                  <a href=""><img src="/uploads/advertisement/{{Image}}" alt=""style="width:auto;height:100px;"></a><br>
+                                                Are you sure you want to delete  advertisement?
                                               </div>
 
                                               <!-- Modal footer -->
@@ -79,10 +90,10 @@
                                           </div>
                                         </div>
                                     </form>
-                                
+                                {{!-- {{/ifCond}} --}}
                                 </td>
                                 </tr>
-                            
+                            {{/each}}
                             </tbody>
                         </table>
                     </div>
