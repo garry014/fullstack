@@ -118,7 +118,7 @@ router.get('/customers_checkout', (req, res) => {
 					}
 				});
 			});
-
+			let i = 0
 			sess["cartTotal"] = 0;
 			for (let item of sess["myCart"]) {
 				item.itemId = i;
@@ -1147,7 +1147,9 @@ router.get("/view/:id", (req, res) => {
 				// Patrick if you need any values from my side
 				// ALL THESE IS WHAT I HAVE: storename, name, price, image, description, discount, custom, customchoices
 				// console.log('Example of product name ' + getDetails['name']); 
-
+				sess=req.session
+				sess["selectedItem"] = pdetails;
+				
 				// Bug here: cannot run on id that does nt exists.
 				if (getDetails['customcat'] == "radiobtn") {
 					Productchoices.findAll({
