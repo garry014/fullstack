@@ -1250,7 +1250,7 @@ router.get('/deleteNoti/:id', ensureAuthenticated, (req, res) => {
 // Send Notifications - Admin
 router.get('/createNotifications', ensureAuthenticated, (req, res) => {
 	if (typeof req.user != "undefined") {
-		if(req.user.dataValues.usertype == "admin"){
+		if(req.user.dataValues.username == "admin"){
 			User.findAll({
 				attributes: ['username', 'usertype'],
 				order: [
