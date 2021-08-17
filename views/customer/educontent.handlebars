@@ -28,15 +28,16 @@
 
                         {{#ifCond ../course.user "==" id}}
                         <h5>By {{shopname}}</h5>
-                        {{/ifCond}}
-                        {{/each}}
-                        {{/if}}
+                        
                         {{!-- <a href="" style="text-decoration: underline;">SCHEDULE LIVE COURSE </a> --}}
                         <form action="/chatwith/{{shopname}}" method="post">
                             <button
                                 style="border: 0; padding: 0; display: inline; background: none; text-decoration: underline;"><i
                                     class="pe-7s-chat"></i> SCHEDULE LIVE COURSE </button>
                         </form>
+                        {{/ifCond}}
+                        {{/each}}
+                        {{/if}}
 
                         <br>
                         <h4 style="font-weight: bold;">Course Content</h4>
