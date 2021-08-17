@@ -1,56 +1,47 @@
 <div class="login-register-area pt-20 pb-100">
     <div class="container">
         <div class="row">
-
+            {{#if deals}}
             <div class="col-lg-7 col-md-12 ml-auto mr-auto">
                 <div class="login-register-wrapper">
                     <div class="login-register-tab-list nav">
-                        {{!-- {{today}} --}}
                         <a data-toggle="tab" href="#lg2">
                             <h4 style="color:rgb(230, 19, 19); font-size: 30px;"> ⚡ FLASH DEALS ⚡ </h4>
                             <br>
-                            {{#if deals}}
-                            {{!-- {{#ifCond dstartdate '==' today}} --}}
                             <h5 style="text-align: center; font-weight:bold; font-size: 18px;">Ends in</h5>
                             <p id="time" style="text-align: center; font-size: 30px; margin-top: 0px;"></p>
                         </a>
                     </div>
                     {{#each deals}}
+                    {{#ifCond dexpirydate '==' "Sun Aug 15 2021 07:59:59 GMT+0800 (Singapore Standard Time)"}}
                     <div style="position: relative; text-align: center;">
-                        {{!-- {{now}} --}}
-                        {{!-- {{dstartdate}}
                         {{today}}
-                         --}}
-                        {{!-- <img src="/img/suit.jpeg" style="width:50%;opacity: 0.8;"> --}}
                         {{#each ../shopprod}}
-                        {{!-- {{#ifCond dstartdate '==' ../today}} --}}
                             {{#ifCond id '==' ../catid}}
-                                <a href="/view/{{id}}">
-                                    <img src="/uploads/products/{{image}}" style="width: 50%; height: 230px; opacity: 0.8;">
-                                </a>
-                                <div
-                                    style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color:white; font-size:20px;font-weight: bold; text-shadow: 1px 2px black;">
-                                    {{name}}</div>
-                                <div
-                                    style="position: absolute; top: 75%; left: 50%; transform: translate(-50%, -50%); color:white; opacity: 0.9; font-size:19px; text-decoration: line-through; text-shadow: 1px 1px black; font-weight: 700;">
-                                    ${{money2dp price}}</div>
+                            <a href="/view/{{id}}">
+                                <img src="/uploads/products/{{image}}" style="width: 50%; height: 230px; opacity: 0.8;">
+                            </a>
+                            <div
+                                style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color:white; font-size:20px;font-weight: bold; text-shadow: 1px 2px black;">
+                                {{name}}</div>
+                            <div
+                                style="position: absolute; top: 75%; left: 50%; transform: translate(-50%, -50%); color:white; opacity: 0.9; font-size:19px; text-decoration: line-through; text-shadow: 1px 1px black; font-weight: 700;">
+                                ${{money2dp price}}</div>
                             {{/ifCond}}
-                        {{!-- {{/ifCond}} --}}
                         {{/each}}
-                       
+
                         <div
                             style="position: absolute; top: 88%; left: 50%; transform: translate(-50%, -50%); color: rgb(218, 34, 59); font-size:32px; font-weight: bold; text-shadow: 1px 0px rgb(235, 165, 137), 1px 2px rgb(235, 165, 137), 2px 2px rgb(235, 165, 137), 2px 3px khaki, 3px 3px khaki,3px 4px khaki;">
                             ${{discountp}}</div>
-                            
+
                     </div>
                     <br><br>
-                    
+                    {{/ifCond}}
                     {{/each}}
                     {{else}}
                     <br>
                     <h5 style="text-align: center; font-weight:bold; font-size: 16px;">There are no flash deals today!
                     </h5>
-                    {{!-- {{/ifCond}} --}}
                     {{/if}}
                 </div>
             </div>
