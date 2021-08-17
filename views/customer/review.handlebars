@@ -1,189 +1,124 @@
-<div class="breadcrumb-area pt-35 pb-35 bg-gray-3">
+<style type="text/css">
+  @import url("/css/review.css");
+</style>
+
     <div class="container">
-        <div class="breadcrumb-content text-center">
-            <ul>
-                <li>
-                    <a href="/homecust">Home</a>
-                </li>
-                <li class="active">View Shops</li>
-            </ul>
-        </div>
-    </div>
-</div>
-<div class="shop-area pt-95 pb-100">
-    <div class="container">
-        <div class="row flex-row-reverse">
-            <div class="col-lg-9">
-                
-                <div class="shop-bottom-area mt-35">
-                    <div class="tab-content jump">
-                        <div id="shop-1" class="tab-pane active">
-                            {{#if shops}}
-                                {{#if products}}
-                                <h3>Stores</h3>
-                                {{/if}}
-                            {{/if}}
-                            <div class="row">
-                                <!-- Start of Product List -->
-                                {{#each shops}}
-                                <div class="col-xl-6 col-md-6 col-lg-6 col-sm-6">
-                                    <div class="product-wrap mb-25 scroll-zoom">
-                                        <div class="product-img">
-                                            <a href="/viewshops/{{storename}}/1">
-                                                {{#each ../shopdetails}}
-                                                {{#ifCond shopname '==' ../storename}}
-                                                <img class="default-img" src="/uploads/user/{{photo}}" alt="">
-                                                {{/ifCond}}
-                                                {{/each}}
-                                            </a>
-                                            {{#if discount}}
-                                            <span class="pink">-{{discount}}%</span>
-                                            {{/if}}
-                                            <div class="product-action">
-                                                <div class="pro-same-action pro-quickview" style="width:100%;">
-                                                    <a title="Shop here" href="/viewshops/{{storename}}/1"><i class="fa fa-eye"></i> Shop here</a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="product-content text-center">
-                                            {{#each ../shopdetails}}
-                                            {{#ifCond shopname '==' ../storename}}
-                                                <span style="font-weight: bold; font-size: 18px;"><a href="/viewshops/{{shopname}}/1">{{shopname}}</a></span><br>
-                                                {{address1}} {{address2}}<br>
-                                                {{city}} {{postalcode}}<br>
-                                            {{/ifCond}}
-                                            {{/each}}
-                                            <!-- if else loop -->
-                                            {{#each ../review}}
-                                            {{#ifCond storename '==' ../storename}}
-                                                    {{#times avgRating}}<span class="fa fa-star" style="color: orange;"></span>{{/times}}{{#minusStars avgRating}}<span class="fa fa-star"></span>{{/minusStars}}{{avgRating}} stars
-                                            {{/ifCond}} 
-                                            {{/each}}
-                                        </div>
+        <div class="row">
+            <div class="col-lg-12 col-md-12">
+                <div class="contact-form" style="background-color: transparent; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+                    <div class="contact-title mb-30">
+                        <h2>Leaving Review for {{pdetails.name}}</h2>
+                        *Required Field
+                    </div>
+                    <form class="contact-form-style" action="/customer/review/{{id}}" method="post" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-lg-12"><label>Ratings<span style="color:red;">*</span></label></div>
+                            <div class="wrapper">
+                              <input type="radio" id="r1" name="rg1" value="5" onclick="getRadioValue()">
+                              <label for="r1">&#9733;</label>
+                              <input type="radio" id="r2" name="rg1" value="4" onclick="getRadioValue()">
+                              <label for="r2">&#9733;</label>
+                              <input type="radio" id="r3" name="rg1" value="3" onclick="getRadioValue()">
+                              <label for="r3">&#9733;</label>
+                              <input type="radio" id="r4" name="rg1" value="2" onclick="getRadioValue()">
+                              <label for="r4">&#9733;</label>
+                              <input type="radio" id="r5" name="rg1" value="1" onclick="getRadioValue()">
+                              <label for="r5">&#9733;</label>
+                            </div>
+                                <input class="form-control" id="stars" name="stars" type="hidden" value="{{stars}}">
+                                <input class="form-control" id="storename" name="storename" type="hidden" value="{{pdetails.storename}}">
+                            <div class="col-lg-12">
+                                <label for="review">Leave a Review</label>
+                                <textarea id="review" name="review">{{review}}</textarea>
+                                <span style="float:right">Maximum characters: <span id="dcount">0</span>/2000</span> <span id="maxCountReached" style="color:red; display: none;">(Max characters reached!)</span>
+                                <br><br>
+                            </div>
+                            <div class="uploader">
+                                <input id="file-upload" type="file" name="file" accept="image/*" />
+
+                                <label for="file-upload" id="file-drag">
+                                    <img id="file-image" src="#" alt="Preview" class="hidden">
+                                    <div id="start">
+                                    <i class="fa fa-download" aria-hidden="true"></i>
+                                    <div>Select an image file or drag here</div>
+                                    <div id="notimage" class="hidden"><p style="color:red;">Invalid file type, please select an image</p></div>
+                                    <span id="file-upload-btn" class="btn btn-primary">Select a file</span>
                                     </div>
-                                </div>
-                                {{/each}}
+                                    <div id="response" class="hidden">
+                                    <div id="messages"></div>
+                                    <progress class="progress" id="file-progress" value="1">
+                                        <span>100</span>%
+                                    </progress>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="col-lg-12">
+                                <button class="submit" type="submit" style="float: right;">Submit</button>
                             </div>
                         </div>
-                    </div>
-
-                    
-                    <!-- If on search = product -->
-                    {{#if products}}
-                    <b><h3>Products</h3></b>
-                    {{#each products}}
-                    <div id="shop-2" class="tab-pane active">
-                            <div class="shop-list-wrap mb-30 scroll-zoom">
-                                <div class="row">
-                                    <div class="col-xl-4 col-lg-5 col-md-5 col-sm-6">
-                                        <div class="product-wrap">
-                                            <div class="product-img">
-                                                <a href="/view/{{id}}">
-                                                    <img class="default-img" src="/uploads/products/{{image}}" alt="" width="100">
-                                                    <img class="hover-img" src="/uploads/products/{{image}}" alt="">
-                                                </a>
-                                                {{#ifCond discount '>' 0}}<span class="pink">-{{discount}}%</span>{{/ifCond}}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-8 col-lg-7 col-md-7 col-sm-6">
-                                        <div class="shop-list-content">
-                                            <h3><a href="/view/{{id}}">{{name}}</a></h3>
-                                            from {{storename}}
-                                            <div class="product-list-price">
-                                                <span>$ {{calculatedisc price discount}}</span> {{#ifCond discount '>' 0}}<i>(after {{discount}}% discount)</i>{{/ifCond}}
-                                            </div>
-                                           
-                                            <p>{{#if description}}
-                                                    {{#checklength description 70}}
-                                                    {{subString description}}...
-                                                    {{else}}
-                                                    {{description}}
-                                                    {{/checklength}}
-                                                {{/if}}</p>
-                                            <div class="shop-list-btn btn-hover">
-                                                <a href="/view/{{id}}">View Item</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    {{/each}}
-                    {{/if}}
-
-                    {{#if shops}}
-                    <div class="pro-pagination-style text-center mt-30">
-                        <ul>
-                            <!--
-                            <li><a class="prev" href="#"><i class="fa fa-angle-double-left"></i></a></li>-->
-                            <li><a class="active" href="#">1</a></li>
-                            <!--<li><a href="#">2</a></li>
-                            <li><a class="next" href="#"><i class="fa fa-angle-double-right"></i></a></li>-->
-                        </ul>
-                    </div>
-                    {{else}}
-                        {{#unless products}}
-                        Sorry, no search results found. Please change your search term or/and criteria.
-                        {{/unless}}
-                    {{/if}}
-                </div>
-            </div>
-            <div class="col-lg-3">
-                <div class="sidebar-style mr-30">
-                   <div class="sidebar-widget">
-                        <h4 class="pro-sidebar-title">Search Stores & Products</h4>
-                        <div class="pro-sidebar-search mb-50 mt-25">
-                            <form class="pro-sidebar-search-form" id="searchForm" name="searchForm" method="post">
-                                <input type="text" name="search" placeholder="Find store or product" value="{{search}}">
-                                <button type="submit">
-                                    <i class="pe-7s-search"></i>
-                                </button>
-
-                        </div>
-                    </div>
-                    <div class="sidebar-widget">
-                        <h4 class="pro-sidebar-title">Refine By </h4>
-                        <div class="sidebar-widget-list mt-30">
-                            <ul>
-
-                                <li>
-                                    <div class="sidebar-widget-list-left">
-                                        <input type="checkbox" value="sales" name="cbList" id="sales" method="post" onChange="this.form.submit()" {{setChecked cbList 'sales'}}> <label for="sales"><a>On Sales</a></label>
-                                        <span class="checkmark"></span>
-                                    </div>
-                                </li>
-                                
-                            </ul>
-                        </div>
-                    </div>
-                    <br>
-                    <div class="sidebar-widget">
-                        <h4 class="pro-sidebar-title">Filter By Overall Reviews</h4>
-                        <br>
-                        <select id="starsFilter" name="starsFilter" onChange="this.form.submit()">
-                            <option value="" selected></option>
-                            <option value="1" {{setDropdownlist starsFilter '1'}}>1 Star</option>
-                            <option value="2" {{setDropdownlist starsFilter '2'}}>2 Stars</option>
-                            <option value="3" {{setDropdownlist starsFilter '3'}}>3 Stars</option>
-                            <option value="4" {{setDropdownlist starsFilter '4'}}>4 Stars</option>
-                            <option value="5" {{setDropdownlist starsFilter '5'}}>5 Stars</option>
-                        </select>
-                        <br><a href="/viewshops">Clear All Search and Filters</a>
-                    </div>
-                    <div class="sidebar-widget mt-45">
-                        
-                        
-                    </div>
-
+                    </form>
+                    <p class="form-messege"></p>
                 </div>
             </div>
         </div>
     </div>
-</div>
+<br>
 
 <script>
-if ( window.history.replaceState ) {
-  window.history.replaceState( null, null, window.location.href );
-}
+    var review = document.getElementById('review');
+    var dcount = document.getElementById('dcount');
+    var maxCountReached = document.getElementById('maxCountReached');
+
+    window.onload = function() {
+        checkreview();
+    }
+    // Get number of stars whenever clicked.
+    function getRadioValue() {
+        var radios = document.getElementsByName('rg1');
+        for (var i = 0, length = radios.length; i < length; i++) {
+          if (radios[i].checked) {
+            $('#stars').val(radios[i].value);
+            break;
+          }
+        }
+    }
+
+    // Set number of stars whenever onload
+    function setRadioValue() {
+        var radios = document.getElementsByName('rg1');
+        var stars = document.getElementById("stars").value;
+        var numStars = parseInt(document.getElementById('stars').value);
+        if (numStars == 5) {
+            radios[0].checked = true;
+        }
+        else if (numStars == 4) {
+            radios[1].checked = true;
+        }
+        else if (numStars == 3) {
+            radios[2].checked = true;
+        }
+        else if (numStars == 2) {
+            radios[3].checked = true;
+        }
+        else if (numStars == 1) {
+            radios[4].checked = true;
+        }
+    }
+
+    setRadioValue();
+
+    review.addEventListener('keyup', function(e){
+        checkreview();
+    });
+
+    function checkreview(){
+        if (review.value.length > 2000) {
+            review.value = review.value.slice(0, 2000);
+            maxCountReached.style.display= '';
+        }
+        else {
+            maxCountReached.style.display= 'none';
+        }
+        dcount.innerText = review.value.length;
+    }
 </script>
