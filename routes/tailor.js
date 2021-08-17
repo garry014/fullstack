@@ -1950,5 +1950,170 @@ router.put('/completedorder/:id', ensureAuthenticated, (req, res) => {
 		}).catch(err => console.log(err));
 	});
 });
+//patrick
+// tailor get advertisement
+router.get('/advertise', (req, res) => {
+	//check
+	// if (typeof req.user != "undefined") {
+	// 	loginUserType = res.locals.user.usertype;
+	// }
+	// if (user_status == "tailor"){
+	// 	Catalouge.findAll({
+	// 		where: { storename: res.locals.user.shopname },
+	// 		raw: true
+	// 	})
+	// 		.then(shopprod => {
+	// 			console.log(shopprod);
+	// 			res.render('tailor/advertise', { 
+	// 				title: "Add Advertisement",
+	// 				shopprod: shopprod // Shop Products 
+	// 			});
+	// 		})
+		
+	// }
+	// else {
+	// 	alertMessage(res, 'danger', 'Please register as a tailor to add advertisement.', 'fas fa-sign-in-alt', true);
+	// 	res.redirect('/');
+	// }
+	
+	res.render('tailor/advertise', { title: "Create Advertisement" });
+});
+router.get('/adpayment', (req, res) => {
+	res.render('tailor/adpayment', { title: "Advertisement Fees" });
+});
+router.post('/adpayment', (req, res) => {
+	res.render('tailor/adpayment', { title: "Advertisement Fees" });
+});
+// Tailor Add advertisement
+router.post('/advertise', (req, res) => {
+	let errors = [];
+	let startdate = moment(req.body.startDate, 'DD/MM/YYYY');
+	let enddate = moment(req.body.endDate, 'DD/MM/YYYY');
+	let today = new Date();
+	//validation
+	const adtext = req.body.adtext;
+	if (adtext.length > 30){
+		errors.push({
+			msg: 'Advertisement Text is capped at 30 characters only or you can leave it blank'
+		});
+	}
+	// const startdate = req.body.startdate;
+	if(startdate < today) {
+		errors.push({ msg: "Start date has to be today or later than today." });
+	}
+	// const enddate = req.body.enddate;
+	if(enddate < today) {
+		errors.push({ msg: "End date has to be today or later than today." });
+	}
+	if(startdate > enddate) {
+		errors.push({ msg: "End date has to be later than start date." });
+	}
+	// Image Validation
+	if (!req.files) {
+		errors.push({ msg: 'Please upload an image file.' });
+	}
+	if (req.file && req.files.file.mimetype.startsWith("image") == false) {
+		alertMessage(res, 'danger',
+			'Please upload a valid image file.', 'fas fa-exclamation-circle', false);
+		errors.push(1);
+	}
+	if (errors.length > 0) {
+			res.render('tailor/advertise', {
+				errors: errors,
+				title: "Add advertisement",
+			});
+		
+	} else {
+		if (req.files) {
+			// Image Upload		
+			var file = req.files.file;
+			var filename = file.name;
+			var filetype = file.mimetype.substring(6);
+			var newid = uuidv4().concat(".").concat(filetype); // Generate unique file id
+			
+			console.log("./public/uploads/advertisement/" + newid);
+			file.mv('./public/uploads/advertisement/' + filename, function (err) {
+				if (err) {
+					res.send(err);
+				}
+				else {
+					fs.rename('./public/uploads/advertisement/' + filename, './public/uploads/advertisement/' + newid, function (err) {
+						if (err) console.log('ERROR: ' + err);
+					});
+				}
+			});
+
+			if (typeof req.user != "undefined") {
+			
+				let inserttailordata = {
+					userId : res.locals.user.id,
+					storename :res.locals.user.shopname,
+					startDate : moment(req.body.startDate, 'DD/MM/YYYY'),
+					endDate : moment(req.body.endDate, 'DD/MM/YYYY'),
+					Image : newid,
+					adText : req.body.adtext
+				}
+				console.log("create========>", inserttailordata);
+				Advertisement.create(inserttailordata)
+					.then(success => {
+						console.log("success creation")
+						res.redirect('/tailor/manageads');
+		
+						console.log("Advertisement generated ====>", success);
+						console.log("did it managed to send through", success);
+					}).catch(err => {
+						console.error('Unable to connect to the database:', err);
+					});
+			}
+		}
+	}
+});
+// tailor read advertisement
+router.get('/manageads', ensureAuthenticated, (req, res) => {
+	loginUserId = res.locals.user.id
+	// loginUserType = res.locals.user.userType
+	if (typeof req.user != "undefined") {
+		loginUserType = res.locals.user.usertype;
+	}
+	if (loginUserType == "tailor"){
+		Advertisement.findAll({
+			where: { userId:loginUserId },
+			raw: true
+		}).then((ads) => {
+		   console.log("reading ======================> ", ads);
+			// sess = req.session
+			// sess["advertismentList"] = ads
+			res.render('tailor/manageads', { title: "View Advertisement", ads:ads });
+		}).catch(err => console.log(err));
+	}
+});
+
+//tailor advertisement delete
+// change manageads to deleteads
+router.post('/deleteads/:id', ensureAuthenticated, (req, res) => {
+	Advertisement.findOne({
+		where: {
+			id: req.params.id,
+			// user: res.locals.user.id
+		},
+		raw: true
+	}).then((advertisement) => { 
+		if (advertisement) {
+			Advertisement.destroy({
+				where: {
+					id: req.params.id
+				}
+			}).then(() => {
+				alertMessage(res, 'info', 'advertisement deleted', 'far fa-trash-alt', true);
+				res.redirect('/tailor/manageads'); // to retrieve ads again
+			}).catch(err => console.log(err));
+		} else {
+			alertMessage(res, 'danger', 'Unauthorised access to Advertisement', 'fas fa-exclamation-circle', true);
+			//view ads on carousel
+			res.redirect('/tailor/viewads');
+		}
+	});
+});
+
 
 module.exports = router;
