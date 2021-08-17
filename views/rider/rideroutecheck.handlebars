@@ -29,7 +29,7 @@
                     <div class="col-xs-4">
                         <label for="to" class="col-xs-2 control-label"><i class="fas fa-map-marker-alt"></i></label>
                         <input type="text" id="to" placeholder="Destination" class="form-control"
-                            value="{{OrdersDetails.shopname}} {{OrdersDetails.address1}} {{OrdersDetails.address2}} {{OrdersDetails.city}} {{OrdersDetails.postalcode}}">
+                            value="{{User.shopname}} {{User.address1}} {{User.address2}} {{User.city}} {{User.postalcode}}">
                         {{/ifCond}}
                     </div>
                 </div>
@@ -86,20 +86,20 @@
                         {{#ifCond OrdersDetails.id '==' id }}
                         <h2>Delivery Details: </h2>
                     </div>
-                    <p>Customer: {{OrdersDetails.username}}</p>
-                    <p>Delivery Date: {{OrdersDetails.deliverydate}}</p>
+                    <p>Customer: {{User.username}}</p>
+                    <p>Delivery Date: {{User.deliverydate}}</p>
                     <p>Pick Up
-                        Location:{{OrdersDetails.address1}}<br>{{OrdersDetails.address2}}<br>{{OrdersDetails.city}}
-                        {{OrdersDetails.postalcode}}</p>
+                        Location:{{User.address1}}<br>{{User.address2}}<br>{{User.city}}
+                        {{User.postalcode}}</p>
                     {{/ifCond}}
                     <br>
                     <div class="pro-details-cart btn-hover">
-                                <form action="/rider/rordercompleted/{{id}}?_method=PUT" method="post" id="acceptForm">
-                                <input type="hidden" name="_method" value="PUT">
-                                    <input style="padding-right: 60px; padding-left:50px; margin-left:-10px;"
-                                        type="submit" name="upvote" value="Order Delivered" />
-                                </form>
-                            </div>
+                        <form action="/rider/rordercompleted/{{id}}?_method=PUT" method="post" id="acceptForm">
+                            <input type="hidden" name="_method" value="PUT">
+                            <input style="padding-right: 60px; padding-left:50px; margin-left:-10px;" type="submit"
+                                name="upvote" value="Order Delivered" />
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
