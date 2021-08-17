@@ -26,8 +26,8 @@
                                 <td class="product-discount">{{discount}}%</td>
                                 <td class="product-minpurchase">${{minpurchase}}</td>
                                 <td class="product-quantity">{{quantity}}</td>
-                                <td class="product-vstartdate">{{formatDate vstartdate 'DD MMM YYYY'}}</td>
-                                <td class="product-vexpirydate">{{formatDate vexpirydate 'DD MMM YYYY'}}</td>
+                                <td class="product-vstartdate">{{formatTime vstartdate 'DD MMM YYYY'}}</td>
+                                <td class="product-vexpirydate">{{formatTime vexpirydate 'DD MMM YYYY'}}</td>
                                 <td class="product-remove">
                                     <a href="updateVoucher/{{id}}"><i class="fa fa-pencil"></i></a>
                                     <form action="#" method="POST" style="display: inline-block;">
@@ -72,12 +72,13 @@
             </div>
         </div>
         {{else}}
-        You do not have any vouchers.
+        <div style="margin-left:16px;">You do not have any vouchers.</div>
         {{/if}}
         <div class="row">
             <div class="col-lg-12">
+                <br>
                 <div class="cart-shiping-update-wrapper" style="float:right;">
-                    <div class="cart-clear">
+                    <div class="cart-clear"  style="margin-left:-227px;">
                         <a href="addvoucher">Add Voucher</a>
                     </div>
                 </div>
