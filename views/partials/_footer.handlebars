@@ -14,13 +14,13 @@
             <div class="col-lg-2 col-md-4 col-sm-4">
                 <div class="footer-widget mb-30 ml-30">
                     <div class="footer-title">
-                        <h3>VIEW AS</h3>
+                        <h3>LOGIN AS</h3>
                     </div>
                     <div class="footer-list">
                         <ul>
-                            <li><a href="/">Customer</a></li>
-                            <li><a href="/">Tailor</a></li>
-                            <li><a href="/">Rider</a></li>
+                            <li><a href="/customer/custlogin">Customer</a></li>
+                            <li><a href="/tailor/tailorlogin">Tailor</a></li>
+                            <li><a href="/rider/riderlogin">Rider</a></li>
                         </ul>
                     </div>
                 </div>
@@ -65,7 +65,7 @@
                         {{/ifCond}}
                     </div>
                     <div class="subscribe-style">
-                        {{#ifCond user.usertype '!=' "admin"}}
+                        {{#ifCond user.username '!=' "admin"}}
                         <p>Get E-mail updates about our latest shop and special offers.</p>
                         <div id="mc_embed_signup" class="subscribe-form">
                             {{!-- <form id="mc-embedded-subscribe-form" class="validate" novalidate="" target="_blank" name="mc-embedded-subscribe-form" method="post" action="http://devitems.us11.list-manage.com/subscribe/post?u=6bbb9b6f5827bd842d9640c82&amp;id=05d85f18ef">
