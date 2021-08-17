@@ -43,39 +43,6 @@
                         </button>
                         {{>_notifications}}
                         {{/if}}
-                        <div class="search-content">
-                            {{#each noti}}
-                            <!-- Unread Notifications -->
-                            <div onclick="location.href='/manage_ads';"
-                                style="background: #ebebeb; border-radius: 3px; padding: 5px 10px 5px 12px; border-bottom: 1px solid black; cursor: pointer;">
-
-                                <div style="position: relative; float: right;">
-                                    <a href="/noti/delete/75"><i class="fa fa-times"
-                                            title="Delete this notification"></i></a>
-                                </div>
-                                Your order has been picked up by the rider, and its on your way!
-                                <div style="font-size:10px">
-                                    <i class="fa fa-rss"></i>
-                                    13 May 11:15AM
-                                </div>
-                            </div>
-                            {{/each}}
-                            <!-- Read Notifications -->
-                            <div onclick="location.href='/manage_ads';"
-                                style="border-radius: 3px; padding: 5px 10px 5px 12px; border-bottom: 1px solid black; cursor: pointer;">
-                                <div style="position: relative; float: right;">
-                                    <a href="/noti/delete/72"><i class="fa fa-times"
-                                            title="Delete this notification"></i></a>
-                                </div>
-                                Your order has been completed by the tailor, we are assigning a rider now.
-                                <div style="font-size:10px">
-                                    <i class="fa fa-rss"></i>
-                                    13 May 11:13AM
-                                </div>
-                            </div>
-
-                            <center><a href="/notification">See All</a></center>
-                        </div>
                     </div>
                     <div class="same-style account-satting">
                         <a class="account-satting-active" href="#">{{#ifCond user.photo '==' null}}<i
