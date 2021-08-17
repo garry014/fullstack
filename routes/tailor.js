@@ -7,6 +7,9 @@ const Productchoices = require('../models/Productchoices');
 const User = require('../models/User');
 const Voucher = require('../models/Voucher');
 const Deal = require('../models/Deal');
+const Cart = require('../models/Cart');
+const BillingDetails = require('../models/BillingDetails');
+const Target = require('../models/Target');
 
 // Handlebars Helpers
 const alertMessage = require('../helpers/messenger');
