@@ -22,10 +22,6 @@
                                     <div class="col-lg-12">
                                         <form action="#" method="post">
 
-                                    {{!-- <br>ID: {{id}}
-                                    <!-- Good to use my catalouge id as a foriegn key--> Product Name: {{name}} Price:
-                                    {{price}} Image <img src="/uploads/products/{{image}}" width="50" height="auto"> --}}
-
                                     <div class="billing-info mb-20">
                                         <label for="name">Product Name<span style="color: red;">*</span></label>
                                         <select id="pname" name="pname" class="form-control" type="text" value="" required >
@@ -57,40 +53,8 @@
                                             <div>End: <span style="color:red;"> 10 Oct 2021, </span>Sunday (11:59PM)</div>
                                         </ul>
                                     </ul>                                    
-                                    {{!-- <div class="checkout-account">
-                                        <input type="checkbox">
-                                        <span>EVENT ONE</span>
-                                    </div>
-                                    <div>EVENT ONE Description</div>
-                                    <br>
-                                    <div class="checkout-account">
-                                        <input type="checkbox">
-                                        <span>EVENT TWO</span>
-                                    </div>
-                                    <div>EVENT TWO Description</div>
-                                    <br>
-                                    <div class="checkout-account">
-                                        <input type="checkbox">
-                                        <span>EVENT THREE</span>
-                                    </div>
-                                    <div>EVENT THREE Description</div> --}}
-                                    {{!-- <div class="button-box">
-                                        <button type="submit" class="btn btn-outline-info"
-                                            style="font-size: 14px; font-weight: 420; padding-top: 8px; padding-bottom: 8px;padding-left: 28px; padding-right: 28px"><span>Confirm</span></button>
-                                    </div> --}}
-                                    {{!-- <div class="billing-info mb-20">
-                                        <label for="name">Start Date</label>
-                                        <input id="datepicker" name="dstartdate" class="form-control"
-                                            type="text" value=" ">
-                                    </div>
-                                    <br>
-                                    <div class="billing-info mb-20">
-                                        <label for="name">End Date</label>
-                                        <input id="datepicker2" name="dexpirydate" class="form-control"
-                                            type="text" value=" ">
-                                    </div> --}}
                                     <div class="button-box">
-                                        <button type="submit" class="btn btn-outline-info"
+                                        <button type="submit" class="button button1"
                                             style="font-size: 14px; font-weight: 420; padding-top: 8px; padding-bottom: 8px;padding-left: 28px; padding-right: 28px"><span>Confirm</span></button>
                                     </div>
                                 </form>
@@ -102,6 +66,31 @@
         </div>
     </div>
 </div>
+<style>
+.button {
+    border: 5px solid white;
+    border-radius: 35px;
+    color: white;
+    padding-right: 8px;
+    padding-left: 8px;
+    text-align: center;
+    font-size: 14px;
+    margin: -10px;
+    transition-duration: 0.5s;
+    cursor: pointer;
+}
+
+.button1 {
+    background-color: rgb(170, 88, 252); 
+    color: white; 
+}
+
+.button1:hover {
+    background-color: black;
+    color: white;
+}
+</style>
+
 <script>
     $('#datepicker').datepicker({
         format: 'dd/mm/yyyy',
