@@ -6,9 +6,7 @@
                 <label for="users_avail">Available Users</label>
                 <select name="users_avail" size="8" id="users_avail" multiple="multiple" style="border: 2px solid #a749ff;">
                     {{#each userdetails}}
-                    {{#ifCond username '!=' "admin"}}
                     <option value="{{username}}">{{username}} ({{usertype}})</option>
-                    {{/ifCond}}
                     {{/each}}
                 </select>
                 <button type="button" onclick="selectLeftAll()" class="btn btn-info">Select All</button> 
