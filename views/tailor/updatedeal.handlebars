@@ -22,16 +22,6 @@
                                     <div class="col-lg-12">
                                         <form action="/tailor/updatedeal/{{deals.id}}?_method=PUT" method="post"
                                             id="updatedeal">
-                                            {{!-- <div class="form-group">
-                                                <label for="name">Product Name</label>
-                                                <select id="pname" name="pname" class="form-control" type="text"
-                                                    value="{{deals.pname}}">
-                                                    {{#each shopprod}}
-                                                    <option>{{name}}</option>
-                                                    {{/each}}
-                                                </select>
-                                                <br>
-                                            </div> --}}
                                             <div class="billing-info mb-20">
                                                 <label for="name">Product Name</label>
                                                 <input id="pname" name="pname" class="form-control" type="text"
@@ -51,7 +41,7 @@
                                                     <div>Start: <span style="color:red;"> 18 Aug 2021, </span>Wednesday (12:00AM)</div>
                                                     <div>End: <span style="color:red;"> 18 Aug 2021, </span>Wednesday (11:59PM)</div>
                                                     <br>
-                                                    <li><input type="radio" id="9.9 Flash Sales" value="9.9 Flash Sales" name="event" {{radioCheck deals.event 'event2'}}><label for="9.9 Flash Sales" style="font-style: italic;">9.9 Flash Sales</label></li>
+                                                    <li><input type="radio" id="9.9 Flash Sales" value="9.9 Flash Sales" name="event" {{radioCheck deals.event '9.9 Flash Sales'}}><label for="9.9 Flash Sales" style="font-style: italic;">9.9 Flash Sales</label></li>
                                                     <div>Start: <span style="color:red;"> 09 Sep 2021, </span>Thursday (12:00AM)</div>
                                                     <div>End: <span style="color:red;"> 09 Sep 2021, </span>Thursday (11:59PM)</div>
                                                     <br>
@@ -60,19 +50,8 @@
                                                     <div>End: <span style="color:red;"> 10 Oct 2021, </span>Sunday (11:59PM)</div>
                                                 </ul>
                                             </div>
-                                            {{!-- <div class="billing-info mb-20">
-                                                <label for="name">Start Date</label>
-                                                <input id="datepicker" name="dstartdate" class="form-control"
-                                                    type="text" value="{{formatTime deals.dstartdate 'DD/MM/YYYY'}}">
-                                            </div>
-                                            <br>
-                                            <div class="billing-info mb-20">
-                                                <label for="name">End Date</label>
-                                                <input id="datepicker2" name="dexpirydate" class="form-control"
-                                                    type="text" value="{{formatTime deals.dexpirydate 'DD/MM/YYYY'}}">
-                                            </div> --}}
                                             <div class="button-box">
-                                                <button type="submit" class="btn btn-outline-info"
+                                                <button type="submit" class="button button1"
                                                     style="font-size: 14px; font-weight: 420; padding-top: 8px; padding-bottom: 8px;padding-left: 28px; padding-right: 28px"><span>Confirm</span></button>
                                             </div>
                                         </form>
@@ -86,6 +65,31 @@
         </div>
     </div>
 </div>
+<style>
+.button {
+    border: 5px solid white;
+    border-radius: 35px;
+    color: white;
+    padding-right: 8px;
+    padding-left: 8px;
+    text-align: center;
+    font-size: 14px;
+    margin: -10px;
+    transition-duration: 0.5s;
+    cursor: pointer;
+}
+
+.button1 {
+    background-color: rgb(170, 88, 252); 
+    color: white; 
+}
+
+.button1:hover {
+    background-color: black;
+    color: white;
+}
+</style>
+
 <script>
     $('#datepicker').datepicker({
         format: 'dd/mm/yyyy',
