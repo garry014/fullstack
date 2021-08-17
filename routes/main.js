@@ -871,6 +871,7 @@ router.get('/archive/:id', ensureAuthenticated, (req, res) => {
 	res.redirect('/c/archive/' + req.params.id);
 });
 
+
 // Customer View Shops
 router.get('/viewshops', (req, res) => {
 	
