@@ -1824,6 +1824,9 @@ router.get('/deletedeal/:id', ensureAuthenticated, (req, res) => {
 router.get('/sales', ensureAuthenticated, (req, res) => {
 	let count = 100;
 	Cart.findAll({
+		where: {
+			userid: res.locals.user.id
+		},
 		raw: true,
 	})
 		.then((carts) => {
