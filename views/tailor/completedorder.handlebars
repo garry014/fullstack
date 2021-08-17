@@ -7,7 +7,7 @@
                 <div class="error">
                     <h1 style="font-size:75px">Order Completed!</h1>
                     <h2>Order details:</h2>
-                    <div>Due Date: {{formatTime billingdetails.deliverydate 'DD MMM YYYY'}}</div>
+                    <div>Due Date: {{formatDate billingdetails.deliverydate 'DD MMM YYYY'}}</div>
                     <div>Customer Name: {{billingdetails.firstname}} {{billingdetails.lastname}}</div>
                     <div>Product: {{carts.name}}</div>
                     <div>Price: ${{carts.price}}</div>
