@@ -81,10 +81,10 @@ router.get('/', (req, res) => {
 
 
 // Customer Notifications
-router.get('/notification', (req, res) => {
+router.get('/notification', ensureAuthenticated, (req, res) => {
 	// send_notification("merlion", "Updates", "Your chat has been sent", "hyperlink");
-	console.log(res.locals.noti);
-	res.render('user/allnotifications', { title: "View all notifications" })
+	//console.log(res.locals.noti);
+	res.render('user/allnotifications', { title: "View all notifications" });
 });
 
 // Customer : reward page
