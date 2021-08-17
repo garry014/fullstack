@@ -1687,11 +1687,11 @@ router.post('/adddeal', ensureAuthenticated, (req, res) => {
 			})
 	} else if (errors.length == 0) {
 		if (event == "New Store Opening") {
-			dstartdate.setDate(15);
+			dstartdate.setDate(17);
 			dstartdate.setMonth(7);
 			dstartdate.setYear(2021);
 			dstartdate.setHours(8, 0, 0, 0);
-			dexpirydate.setDate(15);
+			dexpirydate.setDate(17);
 			dexpirydate.setMonth(7);
 			dexpirydate.setYear(2021);
 			dexpirydate.setHours(7, 59, 59, 0);
@@ -1752,11 +1752,11 @@ router.put('/updatedeal/:id', ensureAuthenticated, (req, res) => {
 	let dstartdate = new Date();
 	let dexpirydate = new Date();
 	if (event == "New Store Opening") {
-		dstartdate.setDate(15);
+		dstartdate.setDate(17);
 		dstartdate.setMonth(7);
 		dstartdate.setYear(2021);
 		dstartdate.setHours(8, 0, 0, 0);
-		dexpirydate.setDate(15);
+		dexpirydate.setDate(17);
 		dexpirydate.setMonth(7);
 		dexpirydate.setYear(2021);
 		dexpirydate.setHours(7, 59, 59, 0);
