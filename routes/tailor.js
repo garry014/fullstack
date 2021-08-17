@@ -1249,16 +1249,16 @@ router.post('/forgetpassword', (req, res, next) => {
 });
 
 function sendEmail(id, email, token) {
-	sgMail.setApiKey('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');
+	sgMail.setApiKey('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');
 	// Template('d-a254e8e3c94d469bb1299db777d9bd2b');
 	const message = {
 		to: email,
-		from: 'tailornow2155@gmail.com',
+		from: 'sekkiyukine1000@gmail.com',
 		subject: 'Reset Password Email',
-		text: 'You can reset your password here.',
+		text: 'please work.',
 		html: `Please click on this link to reset password.<br><br>
-		Please <a href="http://localhost:5000/tailor/resetpassword/${id}/${token}"><strong>Reset</strong></a>
-		your Password.`
+Please <a href="http://localhost:5000/tailor/resetpassword/${id}/${token}"><strong>Reset</strong></a>
+your Password.`
 	};
 	return new Promise((resolve, reject) => {
 		sgMail.send(message)

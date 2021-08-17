@@ -17,19 +17,10 @@
                 <div class="error">
                     <h1 style="font-size:75px">Delievery Successful! </h1>
                     <h2>Go back to the main page to pick up more orders</h2>
-                    <p>Order Delievered At:<div id="today">Date:</div><br></p>
-                    
-                    <p> Time: <div id="time" ></div></p>
-                    <a href="/rider/rordersmain" class="error-btn">Back to home page</a>
+                    <p>Order Delievered At: 7:30pm (15/05/21) </p>
+                        <a href="/rordersmain" class="error-btn" >Back to home page</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<script>
-    var today = new Date();
-    var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-    document.getElementById("time").innerHTML = time;
-    document.getElementById("today").innerHTML = today;
-    var ordersdone = document.getElementById("today").value;
-</script>

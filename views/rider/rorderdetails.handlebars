@@ -1,6 +1,3 @@
-<style type="text/css">
-    @import url("/css/map.css");
-</style>
 <div class="breadcrumb-area pt-35 pb-35 bg-gray-3">
     <div class="container">
         <div class="breadcrumb-content text-center">
@@ -19,13 +16,11 @@
             <div class="col-lg-6 col-md-6">
                 <div class="product-details">
                     <div class="product-details-img">
-                        <div class="tab-content jump">
+                        <div class="tab-content jump"> 
                             <div id="shop-details-2" class="tab-pane active large-img-style">
-                                <div class="container-fluid">
-                                    <div id="googleMap">
-                                    </div>
-                                    <div id="output">
-                                    </div>
+                                <img src="/img/Map1.png" alt="">
+                                <div class="img-popup-wrap">
+                                    <a class="img-popup" href="/img/Map1.png"><i class="pe-7s-expand1"></i></a>
                                 </div>
                             </div>
                         </div>
@@ -34,30 +29,16 @@
             </div>
             <div class="col-lg-6 col-md-6">
                 <div class="product-details-content ml-70">
-                    <div class="product-details-content ml-70">
-                        {{#each OrdersDetails}}
-                        <h2>Customer: {{username}}</h2>
-                        <br>
-                        <p>Delivery Date: {{deliverydate}}</p>
-                        <p>Delivery Time: {{deliverytime}}</p>
-                        <p>Pick Up Location:{{address1}}<br>{{address2}}<br>{{city}} {{postalcode}}<br>
-                        </p>
-                        {{#each ../User}}
-                        {{#ifCond shopname '==' ../shopname}}
-                        <p>Delivery Location: {{shopname}}<br>{{address1}}<br>{{address2}}<br>{{city}}
-                            {{postalcode}}
-                        </p>
-                        {{/ifCond}}
-                        {{/each}}
-                        {{/each}}
-                        <div class="pro-details-quality">
-                            <div class="pro-details-cart btn-hover">
-                                <form action="/rider/racceptorder/{{id}}?_method=PUT" method="post" id="acceptForm">
-                                    <input type="hidden" name="_method" value="PUT">
-                                    <input style="padding-right: 60px; padding-left:50px; margin-left:-10px;"
-                                        type="submit" name="upvote" value="Accept" />
-                                </form>
-                            </div>
+                    <h2>Customer: Customer1</h2>
+                    <div class="product-details-price">
+                        <span>Delivery Fee: $6 </span>
+                    </div>
+                    <p>By when: 8pm 15/05/2021 (today)</p>
+                    <p>Pick Up Location: <br> Blk 534 Ang Mio Kio Ave 5 #05-403 <br>Singapore 402932 </p>
+                    <p>Destination: <br> Bedok Tailoring Shop <br>Blk 94B Bedok North Ave 4 <br>Singapore342123</p>
+                    <div class="pro-details-quality">
+                        <div class="pro-details-cart btn-hover">
+                            <a href="/racceptorder">Accept Order</a>
                         </div>
                     </div>
                 </div>
@@ -65,32 +46,23 @@
         </div>
     </div>
 </div>
-<form action="/map/{{OrdersDetails.id}}?_method=PUT" method="post" enctype="multipart/form-data">
-    <div class="container-fluid">
-        <div class="col-xs-4">
-            {{#each OrdersDetails}}
-            <input type="hidden" id="from" placeholder="Origin" class="form-control"
-                value="{{address1}} {{address2}} {{city}} {{postalcode}}">
+<div class="description-review-area pb-90">
+    <div class="container">
+        <div class="description-review-wrapper">
+            <div class="description-review-topbar nav">
+                <a data-toggle="tab" href="#des-details1">Additional information</a>
+            </div>
+            <div class="tab-content description-review-bottom">
+                <div id="des-details1" class="tab-pane ">
+                    <div class="product-anotherinfo-wrapper">
+                        <ul>
+                            <li><span>Weight</span> 1.00 kg</li>
+                            <li><span>Dimensions</span>20 x 10 x 10 cm </li>
+                            <li><span>Item</span> 2 Pants, 1 Shirt </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="form-group">
-        <div class="col-xs-4">
-            {{#each ../User}}
-            {{#ifCond shopname '==' ../shopname}}
-            <input type="hidden" id="to" placeholder="Destination" class="form-control"
-                value="{{shopname}} {{address1}} {{address2}} {{city}} {{postalcode}}">
-            {{/ifCond}}
-            {{/each}}
-            {{/each}}
-        </div>
-    </div>
-</form>
-<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-<script
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA7WArNAN7RKK-Zcx9KBEIHNXzSlW0P1j4&libraries=places"></script>
-<script src="/js/map.js"></script>
-<script>
-    window.onload = function () {
-        calcRoute();
-    }
-</script>
+</div>

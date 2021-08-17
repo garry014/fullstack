@@ -152,7 +152,7 @@ router.get('/transaction_complete', (req, res) => {
 			customqn: cartItem.customqn,
 			custom: cartItem.custom,
 			userid: res.locals.user.id,
-			timestamp: cartId,
+			timestamp: cartId
 		}
 		console.log("insertData==>", insertData);
 		Cart.create(insertData).then(success => {
@@ -270,8 +270,7 @@ router.post('/customers_checkout', (req, res) => {
 				phoneno: req.body.phonenumber,
 				deliverytime: req.body.dTime,
 				deliverydate: moment(req.body.deliverydate, 'DD/MM/YYYY'),
-				carttimestamp: 0,
-				OrderStatus: "pending"
+				carttimestamp: 0
 			}
 			res.redirect('/customers_checkout');
 		}

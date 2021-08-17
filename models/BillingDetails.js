@@ -38,9 +38,6 @@ const BillingDetails = db.define('BillingDetails', {
     shopname :{
         type: Sequelize.STRING
     },
-     OrderStatus :{
-        type: Sequelize.STRING
-    },
     carttimestamp:{
         type: Sequelize.INTEGER,
         allowNull: false,

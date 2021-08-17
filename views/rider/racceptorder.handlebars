@@ -15,23 +15,18 @@
         <div class="row justify-content-center">
             <div class="col-xl-7 col-lg-8 text-center">
                 <div class="error">
-                    {{#ifCond OrdersDetails.id '==' id }}
-                    <h1 style="font-size:30px">You have accepted the Order. Please Deliver it by {{OrdersDetails.deliverytime}} Today.
-                        {{OrdersDetails.deliverydate}} </h1>
+                    <h1 style="font-size:30px">You have accepted the Order. Please Deliver it by 8pm Today. (15/05/2021) </h1>
                     <h2>Details: </h2>
-                    <p>Customer:{{OrdersDetails.username}}</p>
-                    <p>{{deliveryfee}}</p>
-                    <p>By when: {{OrdersDetails.deliverydate}}</p>
-                    <p>Pick Up Location:<br>{{OrdersDetails.address1}}<br>{{OrdersDetails.address2}}<br>{{OrdersDetails.city}} {{OrdersDetails.postalcode}}<br>
-                    </p>
-                    <p>Delivery Location: {{OrdersDetails.shopname}}<br>{{OrdersDetails.address1}}<br>{{OrdersDetails.address2}}<br>{{OrdersDetails.city}}
-                        {{OrdersDetails.postalcode}}
-                    </p>
-                    {{/ifCond}}
-                    <a href="/rider/rideroutecheck/{{id}}" class="error-btn">Check Route</a>
-                    <a href="/rider/homerider" class="error-btn">Back to home page</a>
+                    <p>Customer: Customer1</p>
+                    <p>Delivery Fee: $6</p>
+                    <p>By when: 8pm 15/05/2021 (today)</p>
+                    <p>Pick Up Location: <br> Blk 534 Ang Mio Kio Ave 5 #05-403 <br>Singapore 402932 </p>
+                    <p>Destination: <br> Bedok Tailoring Shop <br>Blk 94B Bedok North Ave 4 <br>Singapore342123</p>
+                        <a href="/rideroutecheck" class="error-btn" >Check Route</a>
+                        <a href="/homerider" class="error-btn" >Back to home page</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
