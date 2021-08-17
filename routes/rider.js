@@ -715,10 +715,6 @@ router.get('/map/:id', (req, res) => {
 		});
 });
 
-// riders: orders completed successfully 
-router.get('/rordercompleted', (req, res) => {
-	res.render('rider/rordercompleted');
-});
 
 // riders: orders history
 // recheck validations 
@@ -791,6 +787,7 @@ router.get('/rordercompleted/:id', (req, res) => {
 router.put('/rordercompleted/:id', (req, res) => {
 	var today = new Date();
 	var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+	today = today.toString();
 	BillingDetails.findOne({
 		where: { id: req.params.id },
 		raw: true
@@ -810,5 +807,6 @@ router.put('/rordercompleted/:id', (req, res) => {
 			}).catch(err => console.log(err));
 		});
 })
+
 
 module.exports = router;

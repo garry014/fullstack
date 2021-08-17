@@ -29,7 +29,7 @@ const RidersOrders = db.define('RidersOrders', {
         type:Sequelize.STRING
     },
     TimeOrdersCompleted:{
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
     }
 });
 module.exports = RidersOrders;
