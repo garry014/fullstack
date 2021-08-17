@@ -720,7 +720,7 @@ router.get('/map/:id', (req, res) => {
 // recheck validations 
 router.get('/riderhist/:id', ensureAuthenticated, (req, res) => {
 	User.findOne({
-		where: { id: req.params.id },
+		where: { id: res.locals.user.id },
 		raw: true
 	})
 		.then((Rider) => {
