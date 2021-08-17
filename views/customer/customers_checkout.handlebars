@@ -306,7 +306,7 @@
                                                 return false;
                                             }
                                             return actions.order.create({
-                                                purchase_units: [{ "amount": { "currency_code": "SGD", "value": 1 } }]
+                                                purchase_units: [{ "amount": { "currency_code": "SGD", "value": {{sess.cartTotal}} } }]
                                             });
                                         },
 
