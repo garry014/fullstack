@@ -22,6 +22,7 @@ const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 const Course = require('../models/Course');
 const Video = require('../models/Video');
+const CoPay = require('../models/CoPay');
 const { request } = require('http');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
@@ -1309,6 +1310,131 @@ router.post('/sendnotifications', ensureAuthenticated, (req, res) => {
 	}
 	
 });
+
+
+// customer view course catalogue
+router.get('/viewcshops', (req, res) => {
+	Course.findAll({
+		raw: true
+	})
+		.then((course) => {
+			// HEHE
+
+			User.findAll({
+				where: { usertype: "tailor" },
+				attributes: ['id', 'shopname', 'photo'],
+				raw: true
+			})
+				.then((user) => {
+					console.log(course);
+
+					const clist = [];
+					//console.log(coursesl);
+					for (var s in course) {
+						clist.push(course[s]);
+						//console.log("this is", clist);
+					};
+					res.render('customer/viewcshops', { title: "View Shops", course: course, user: user });
+				})
+				.catch(err => {
+					console.error('Unable to connect to the database:', err);
+				});
+		})
+});
+
+
+
+// customer: course catalogue details
+router.get('/course/:id', (req, res) => {
+	Course.findOne({
+		where: {
+			id: req.params.id
+		},
+		raw: true,
+	}).then((course) => {
+		// console.log("supp to be tailorid", course.user) //correct
+		// var tailorid = course.user;
+		User.findOne({
+			where: {
+				usertype: "tailor",
+				id: course.user
+			},
+			attributes: ['id', 'shopname', 'photo'],
+			raw: true
+		})
+			.then((tuser) => {
+				console.log("sname", tuser.shopname, "courseuser", course.user); //corect
+				var userId = 0;
+				console.log(res.locals.user)
+				var checkPur = true;
+				if (typeof req.user != "undefined") {
+					userId = res.locals.user.id;
+				}
+
+				CoPay.findOne({
+					where: {
+						cuser: userId,
+						courseid: req.params.id
+					},
+					raw: true
+				}).then((copay) => {
+					if(copay){
+						checkPur = false;
+					}
+					User.findOne({
+						where: {
+							//this is cust acct 
+							id: userId
+						}
+					}).then((User) => {
+						//console.log("HEREeee", course, User);
+						res.render('customer/course', { title: "Course Details", course: course, User: User, tuser: tuser, checkPur });
+					}).catch(err => console.log(err));
+				})
+			})
+	});
+});
+
+
+// customer: course payment successful (create order or sth )
+router.get('/cpaysuccess/:id', (req, res) => {
+	user = res.locals.user.id
+	//console.log("efewfw0");
+	Course.findOne({
+		where: {
+			id: req.params.id
+			//user: user
+		},
+		raw: true,
+	})
+		.then((course) => {
+			User.findOne({
+				where: {
+					usertype: "tailor",
+					id: course.user
+				},
+				attributes: ['id', 'shopname'],
+				raw: true
+			})
+				.then((tuser) => {
+					console.log("ermz", tuser.shopname);
+					CoPay.create({
+						courseid: course.id,
+						price: course.price,
+						tailor: tuser.shopname,
+						ctitle: course.ctitle,
+						cuser: user,
+						description: course.description,
+						thumbnail: course.thumbnail
+					})
+					// console.log("thisone" , copay);
+					res.render('customer/cpaysuccess', { title: "Course Payment Successful" });
+				})
+		}).catch(err => console.log(err));
+
+});
+
+
 
 // tailor : manage advertisement
 router.get('/manageads', (req, res) => {
