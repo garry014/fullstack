@@ -15,59 +15,38 @@
         <h3 class="cart-page-title">Overview of Orders</h3>
         <div class="row">
             <div class="col-lg-12 col-md-12 col-sm-12 col-12">
-                <form action="#">
+                <form action="/rider/riderhist/{{User.id}}?_method=PUT" method="post" enctype="multipart/form-data">
                     <div class="table-content table-responsive cart-table-content">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Map</th>
-                                    <th>Location</th>
+                                    {{!-- <th>Map</th> --}}
+                                    <th>Order ID</th>
+                                    <th>Destination</th>
+                                    <th>Pick Up Location</th>
                                     <th>Customer Name</th>
-                                    <th>Item</th>
                                     <th>Delivery Price</th>
                                     <th>Order Status</th>
                                 </tr>
                             </thead>
                             <tbody>
+                                {{#ifCond Rider.id '==' id}}
+                                {{#each RidersOrders}}
                                 <tr>
-                                    <td class="product-thumbnail">
+                                    {{!-- <td class="product-thumbnail">
                                         <a href="#"><img src="assets/img/cart/cart-1.png" alt=""></a>
-                                    </td>
-                                    <td class="product-price-cart"><span class="amount">Ang Mio Kio</span></td>
-                                    <td class="product-name"><a href="#">Customer1</a></td>
-
-                                    <td class="product-price-cart"><span class="amount">Shirt</span></td>
-                                    <td class="product-quantity">$4.00</td>
+                                    </td> --}}
+                                    <td class="product-name">{{id}}</td>
+                                    <td class="product-name">{{des_address}}</td>
+                                    <td class="product-price-cart"><span class="amount">{{pickup_address}}</span></td>
+                                    <td class="product-price-cart">{{cust_username}}</td>
+                                    <td class="product-quantity">{{deliveryfee}}</td>
                                     <td class="product-wishlist-cart">
-                                        <a href="#">Delivered</a>
+                                        <a href="/rider/rideroutecheck/{{id}}">{{OrderStatus}}</a>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td class="product-thumbnail">
-                                        <a href="#"><img src="assets/img/cart/cart-2.png" alt=""></a>
-                                    </td>
-                                    <td class="product-price-cart"><span class="amount">Tampines</span></td>
-                                    <td class="product-name"><a href="#">Customer2</a></td>
-
-                                    <td class="product-price-cart"><span class="amount">Pants</span></td>
-                                    <td class="product-quantity">$6.00</td>
-                                    <td class="product-wishlist-cart">
-                                        <a href="#">Delivered</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="product-thumbnail">
-                                        <a href="#"><img src="assets/img/cart/cart-1.png" alt=""></a>
-                                    </td>
-                                    <td class="product-price-cart"><span class="amount">Bedok</span></td>
-                                    <td class="product-name"><a href="#">Customer3</a></td>
-
-                                    <td class="product-price-cart"><span class="amount">Tailored Suit</span></td>
-                                    <td class="product-quantity">$8.00</td>
-                                    <td class="product-wishlist-cart">
-                                        <a href="#">Cancelled</a>
-                                    </td>
-                                </tr>
+                                {{/each}}
+                                {{/ifCond}}
                             </tbody>
                         </table>
                     </div>
@@ -75,8 +54,6 @@
             </div>
         </div>
         <br>
-        <h2>Total Amount Earned (with commission): $15.00 </h2>
-        {{!-- <a href="/Riders_Home" class="error-btn" >Generate Rider's Report</a> --}}
 
     </div>
 </div>
