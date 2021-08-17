@@ -72,8 +72,10 @@ const http = require("http").createServer(app);
 
 // Handlebars Middleware
 app.engine('handlebars', exphbs({
-	formatDate: formatDate,
-	radioCheck: radioCheck,
+	helpers: {
+		formatDate: formatDate,
+		radioCheck: radioCheck,
+	},
 	defaultLayout: 'main' // Specify default template views/layout/main.handlebar 
 
 }));
