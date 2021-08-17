@@ -1,0 +1,23 @@
+<form action="/tailor/completedorder/{{carts.id}}?_method=PUT" method="post" id="completedorder">
+<div class="error-area pt-40 pb-100">
+    <div class="container">
+        <div class="row justify-content-center">
+            
+            <div class="col-xl-7 col-lg-8 text-center">
+                <div class="error">
+                    <h1 style="font-size:75px">Order Completed!</h1>
+                    <h2>Order details:</h2>
+                    <div>Due Date: {{formatTime billingdetails.deliverydate 'DD MMM YYYY'}}</div>
+                    <div>Customer Name: {{billingdetails.firstname}} {{billingdetails.lastname}}</div>
+                    <div>Product: {{carts.name}}</div>
+                    <div>Price: ${{carts.price}}</div>
+                    <div>Quantity: {{carts.quantity}}</div>
+                    <br>
+                    <a href="/tailor/orders/{{user.id}}" class="error-btn" >Back to order list</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</form>
+
