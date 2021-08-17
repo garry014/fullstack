@@ -733,7 +733,7 @@ router.get('/riderhist/:id', ensureAuthenticated, (req, res) => {
 				if (req.params.id == Rider.id) {
 					RidersOrders.findAll({
 						where: { rider_username: Rider.username },
-						attributes: ['des_address', 'pickup_address', 'deliverydate', 'OrderStatus', 'cust_username', 'deliveryfee','id'],
+						attributes: ['des_address', 'pickup_address', 'deliverydate', 'OrderStatus', 'cust_username', 'deliveryfee','id','TimeOrdersCompleted'],
 						raw: true
 					}).then((RidersOrders) => {
 						res.render('rider/rorderhist', {
