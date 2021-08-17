@@ -45,6 +45,9 @@ const BillingDetails = db.define('BillingDetails', {
         type: Sequelize.INTEGER,
         allowNull: false,
         // defaultValue : 10
+    },
+    tstatus:{
+        type: Sequelize.STRING
     }
 });
 
