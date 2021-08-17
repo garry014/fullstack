@@ -21,6 +21,8 @@ const Regex = require("regex");
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 const sgMail = require('@sendgrid/mail');
+const BillingDetails = require('../models/BillingDetails');
+const RidersOrders = require('../models/RidersOrders');
 
 // riders: home page 
 router.get('/homerider', (req, res) => {
