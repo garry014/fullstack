@@ -5,6 +5,9 @@ const Catalouge = require('../models/Catalouge');
 const Review = require('../models/Review');
 const User = require('../models/User');
 const Deal = require('../models/Deal');
+const CoPay = require('../models/CoPay');
+const Course = require('../models/Course');
+const Video = require('../models/Video');
 
 // Handlebars Helpers
 const alertMessage = require('../helpers/messenger');
@@ -888,6 +891,57 @@ router.get('/deletereview/:itemid/:id', ensureAuthenticated, (req, res) => {
 
 		})
 })
+
+
+// customer: education platform
+router.get('/edu', ensureAuthenticated, (req, res) => {
+
+	//find all courses that user has signed up for
+	CoPay.findAll({
+		where: {
+			cuser: res.locals.user.id
+		},
+		raw: true
+	}).then((copay) => {
+		//console.log(copay)
+		res.render('customer/edu', { title: "Education Platform", copay: copay });
+	}).catch(err => console.log(err));
+
+});
+
+// customer: education platform content
+router.get('/educontent/:id/:vidid', ensureAuthenticated, (req, res) => {
+	console.log(req.params.vidid);
+	Course.findOne({
+		where: {
+			id: req.params.id
+		},
+		raw: true
+	}).then((course) => {
+		console.log(course);
+		User.findAll({
+			where: { usertype: "tailor" },
+			attributes: ['id', 'shopname', 'photo'],
+			raw: true
+		})
+			.then((user) => {
+				console.log(user);
+				Video.findAll({
+					where: {
+						courseid: req.params.id
+					}
+					//raw: true
+				}).then((video) => {
+					//console.log("c", course, "v", video);
+					res.render('customer/educontent', { title: "Education Platform Content", course: course, video: video, vidid: req.params.vidid , user:user});
+				})
+			})
+
+	}).catch(err => console.log(err));
+
+});
+
+
 
 //kaijie
 // customer: flash deals
