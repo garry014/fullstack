@@ -24,8 +24,9 @@
                     <p>By when: {{OrdersDetails.deliverydate}}</p>
                     <p>Pick Up Location:<br>{{OrdersDetails.address1}}<br>{{OrdersDetails.address2}}<br>{{OrdersDetails.city}} {{OrdersDetails.postalcode}}<br>
                     </p>
-                    <p>Delivery Location: {{OrdersDetails.shopname}}<br>{{OrdersDetails.address1}}<br>{{OrdersDetails.address2}}<br>{{OrdersDetails.city}}
-                        {{OrdersDetails.postalcode}}
+                    <p>Delivery Location:
+                        {{User.shopname}}<br>{{User.address1}}<br>{{User.address2}}<br>{{User.city}}
+                        {{User.postalcode}}
                     </p>
                     {{/ifCond}}
                     <a href="/rider/rideroutecheck/{{id}}" class="error-btn">Check Route</a>
