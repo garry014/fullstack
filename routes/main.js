@@ -175,10 +175,11 @@ router.get('/transaction_complete', (req, res) => {
 // Billing information details
 router.post('/customers_checkout', (req, res) => {
 	let errors = [];
-	let { firstNamee, lastNamee, userNamee,Addressline1, Addressline2, city, postalcode, email, phonenumber, dTime, deliverydate } = req.body;
+	let { firstNamee, lastNamee, userNamee,Addressline1, Addressline2, city, postalcode, email, phonenumber, dTime } = req.body;
 	var user_details;
 	sess = req.session;
-
+	let today = new Date();
+	let deliverydate = moment(req.body.deliverydate, 'DD/MM/YYYY');
 	// If click cancel
 	if(sess["myBillingDetails"] != null){
 		sess["myBillingDetails"] = null;
@@ -242,9 +243,9 @@ router.post('/customers_checkout', (req, res) => {
 				msg: 'Delivery time is not there'
 			});
 		}
-		if (req.body.deliverydate == "") {
+		if (req.body.deliverydate < today) {
 			errors.push({
-				msg: "delivery error is not there"
+				msg: "Start date has to be today or later than today"
 			});
 		}
 		if (errors.length > 0) {
