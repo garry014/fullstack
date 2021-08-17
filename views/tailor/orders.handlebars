@@ -20,7 +20,7 @@
                             <tr>
                                 {{#each billingdetails}}
                                 {{#ifCond tstatus '==' "pending"}}
-                                <td class="due-date">{{formatTime deliverydate 'DD MMM YYYY'}}</td>
+                                <td class="due-date">{{formatDate deliverydate 'DD MMM YYYY'}}</td>
                                 <td class="customer-name">{{firstname}} {{lastname}}</td>
                                 {{#each ../carts}}
                                 {{#ifCond id '==' ../id}}
