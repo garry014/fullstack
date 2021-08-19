@@ -470,6 +470,46 @@ router.put('/editproduct/:id', ensureAuthenticated, urlencodedParser, (req, res)
 	}
 });
 
+router.get('/deleteProduct/:id', ensureAuthenticated, (req, res) => {
+	if (typeof req.user != "undefined") {
+		var shopname = res.locals.user.shopname;
+	}
+	Catalouge.findOne({
+		where: {
+			id: req.params.id
+		}
+	}).then((pdetails) => {
+		if (pdetails != null && pdetails.storename == shopname) {
+			if (pdetails.customcat == "radiobtn") {
+				Productchoices.destroy({
+					where: {
+						catalougeId: req.params.id
+					}
+				});
+			}
+			fs.unlink("./public/uploads/products/" + pdetails.image, (err) => {
+				if (err) {
+					console.log("failed to delete local image:" + err);
+				} else {
+					console.log('successfully deleted local image');
+				}
+			});
+			Catalouge.destroy({
+				where: {
+					id: req.params.id
+				}
+			})
+				.then((pDetails) => {
+					alertMessage(res, 'info', 'Successfully deleted item.', 'far fa-trash-alt', true);
+					res.redirect('/viewshops/' + pdetails.storename + '/1');
+				})
+		}
+		else {
+			alertMessage(res, 'danger', 'Do you have a badge????', 'fas fa-exclamation-triangle', true);
+			res.redirect('/viewshops/' + pdetails.storename + '/1');
+		}
+	})
+});
 
 // stacey
 
